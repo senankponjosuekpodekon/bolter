@@ -46,7 +46,7 @@ export const KYCDocumentReview = () => {
 
   return (
     <Edit>
-      <SimpleForm toolbar={null}>
+      <SimpleForm toolbar={false}>
         <TextField source="id" />
         <TextField source="user_id" />
         <TextField source="document_type" />
@@ -56,9 +56,9 @@ export const KYCDocumentReview = () => {
 
         <div style={{ marginTop: 20 }}>
           <h3>Document Preview</h3>
-          {record && record.mime_type?.startsWith('image/') && (
+          {record && record.mime_type?.startsWith('image/') ? (
             <img src={record.file_path} alt="Document" style={{ maxWidth: '100%', maxHeight: 400 }} />
-          )}
+          ) : false}
         </div>
 
         <div style={{ marginTop: 20 }}>
@@ -80,7 +80,7 @@ export const KYCDocumentReview = () => {
             Reject
           </label>
 
-          {!approved && (
+          {!approved ? (
             <div style={{ marginTop: 10 }}>
               <label>Rejection Reason:</label>
               <input
@@ -90,7 +90,7 @@ export const KYCDocumentReview = () => {
                 style={{ width: '100%', padding: 8, marginTop: 5 }}
               />
             </div>
-          )}
+          ) : false}
 
           <Button
             label={approved ? 'Approve Document' : 'Reject Document'}

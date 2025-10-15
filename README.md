@@ -1,49 +1,156 @@
-# Banking Platform - NestJS + Supabase
+# Banking Platform - Full Stack Monorepo
 
-Plateforme bancaire complète avec gestion KYC, transactions et validation administrative.
+Plateforme bancaire complète avec Backend NestJS, Frontend Client React, et Admin Panel React-Admin.
 
-## Architecture
+## 🏗️ Architecture Monorepo
 
-### Backend (NestJS)
-- **Framework**: NestJS avec TypeScript
-- **Base de données**: Supabase (PostgreSQL)
-- **Authentification**: JWT + Google OAuth
-- **API**: RESTful avec documentation Swagger
+```
+banking-platform/
+├── apps/
+│   ├── server/          # Backend NestJS + Supabase
+│   ├── client/          # Frontend Client React + Vite
+│   └── admin/           # Admin Panel React-Admin
+├── package.json         # Root workspace configuration
+└── README.md
+```
 
-### Modules
+## ✅ Applications
 
-#### 1. **Auth Module**
-- Inscription/Connexion (email/password)
-- OAuth Google
-- JWT tokens (access + refresh)
-- Sécurité avec bcrypt
+### 1. Backend Server (apps/server/) - Port 3000
+**NestJS + TypeScript + Supabase**
 
-#### 2. **Users Module**
-- Gestion des utilisateurs
-- Profils utilisateurs
-- Rôles: CLIENT, ADMIN, COMPLIANCE
-- Statuts: ACTIVE, SUSPENDED, PENDING_VERIFICATION, CLOSED
+**Modules**:
+- **Auth Module**: JWT + Google OAuth, login/register
+- **Users Module**: Gestion utilisateurs avec rôles (CLIENT, ADMIN, COMPLIANCE)
+- **Accounts Module**: Comptes bancaires avec IBAN français auto-générés
+- **Transactions Module**: Virements avec **validation admin obligatoire** ⭐
+- **KYC Module**: Upload documents avec **workflow de review** ⭐
 
-#### 3. **Accounts Module**
-- Comptes bancaires (CHECKING, SAVINGS)
-- Génération automatique d'IBAN français
-- Consultation des soldes
-- Un compte par défaut créé à l'inscription
+**Features clés**:
+- ✅ Swagger documentation: http://localhost:3000/api/docs
+- ✅ Row Level Security (RLS) sur toutes les tables
+- ✅ Audit trail complet (validated_by, reviewed_by)
+- ✅ États transactions: PENDING → APPROVED/REJECTED
+- ✅ États KYC: PENDING → APPROVED/REJECTED
 
-#### 4. **Transactions Module**
-- Création de virements
-- Historique des transactions
-- **Validation admin** : transactions en attente nécessitent approbation
-- Support virements SEPA (IBAN externes)
-- États: PENDING, APPROVED, REJECTED, COMPLETED, CANCELLED
+### 2. Client Dashboard (apps/client/) - Port 5173
+**React 18 + TypeScript + Vite + Tailwind CSS**
 
-#### 5. **KYC Module**
-- Upload de documents (ID_CARD, PASSPORT, SELFIE, PROOF_ADDRESS)
-- Workflow de validation par équipe compliance
-- Mise à jour automatique du statut KYC utilisateur
-- États: PENDING, SUBMITTED, APPROVED, REJECTED
+**Pages**:
+- `/login` - Connexion utilisateur
+- `/register` - Inscription nouveau compte
+- `/dashboard` - Vue d'ensemble (soldes, transactions récentes)
+- `/accounts` - Liste des comptes bancaires avec soldes
+- `/transactions` - Historique + **Formulaire création virement** ⭐
+- `/kyc` - **Upload documents** (ID, Selfie, Proof of Address) ⭐
+- `/profile` - Gestion profil utilisateur
 
-## Base de données Supabase
+**Tech Stack**:
+- TanStack Query (react-query) pour data fetching
+- Zustand pour state management
+- React Router pour navigation
+- Axios pour API calls
+
+### 3. Admin Panel (apps/admin/) - Port 5174
+**React-Admin 4 + TypeScript + Material-UI**
+
+**Resources**:
+- **Users** - CRUD utilisateurs, gestion rôles et statuts
+- **Pending Transactions** - **Liste + Validation (Approve/Reject)** ⭐⭐⭐
+- **Pending KYC Documents** - **Liste + Review (Approve/Reject)** ⭐⭐⭐
+- **Accounts** - Vue de tous les comptes bancaires
+
+**Workflows administratifs**:
+- ✅ Validation transactions: Approve → soldes mis à jour automatiquement
+- ✅ Review documents KYC: Preview document + Approve/Reject
+- ✅ Gestion utilisateurs avec modification rôles
+- ✅ Auth réservée aux rôles ADMIN et COMPLIANCE
+
+## 🚀 Quick Start
+
+```bash
+# Install all dependencies (root + all apps)
+npm install
+
+# Start all applications simultaneously
+npm run dev
+```
+
+**URLs**:
+- Backend API: http://localhost:3000
+- Swagger docs: http://localhost:3000/api/docs
+- Client dashboard: http://localhost:5173
+- Admin panel: http://localhost:5174
+
+**Démarrage individuel**:
+```bash
+npm run dev:server    # Backend only
+npm run dev:client    # Client only
+npm run dev:admin     # Admin only
+```
+
+## 🔐 Workflows Principaux
+
+### Workflow 1: Transaction avec Validation Admin
+```
+1. CLIENT crée virement (Client app)
+   → Transaction status: PENDING
+   → Soldes NON modifiés (en attente validation)
+
+2. ADMIN consulte transactions pending (Admin app)
+   → Liste toutes les transactions PENDING
+
+3. ADMIN valide la transaction (Admin app)
+   → Approve: Status APPROVED + Soldes mis à jour
+   → Reject: Status REJECTED + Raison enregistrée
+```
+
+### Workflow 2: KYC avec Review Compliance
+```
+1. CLIENT upload documents (Client app)
+   → Documents status: PENDING
+   → User KYC status: SUBMITTED
+
+2. COMPLIANCE review documents (Admin app)
+   → Preview document (image/PDF)
+   → Liste tous les documents PENDING
+
+3. COMPLIANCE valide chaque document (Admin app)
+   → Approve: Document APPROVED
+   → Reject: Document REJECTED + Raison
+   → User KYC status mis à jour automatiquement
+```
+
+## 📦 Scripts Disponibles
+
+### Root (monorepo)
+```bash
+npm run dev              # Start all apps
+npm run build            # Build all apps
+npm run dev:server       # Start server only
+npm run dev:client       # Start client only
+npm run dev:admin        # Start admin only
+npm run build:server     # Build server
+npm run build:client     # Build client
+npm run build:admin      # Build admin
+```
+
+## 🔧 Configuration
+
+### Supabase Setup
+
+Créer `apps/server/.env`:
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-key
+JWT_SECRET=your-jwt-secret
+JWT_REFRESH_SECRET=your-refresh-secret
+JWT_EXPIRES_IN=3600
+PORT=3000
+```
+
+### Base de données Supabase
 
 ### Tables principales
 
@@ -195,15 +302,84 @@ PATCH /api/transactions/:id/validate
 - Validation des données avec class-validator
 - Guards NestJS (JwtAuthGuard + RolesGuard)
 
-## Développement futur
+## 📊 État du Projet
 
-- Frontend React client dashboard
-- Admin panel React-Admin
-- Notifications temps réel
-- 2FA authentification
-- Support multi-devises
-- Export PDF relevés
+### ✅ Complété (100%)
 
-## Licence
+**Architecture**:
+- ✅ Monorepo avec workspaces npm
+- ✅ Backend NestJS + Supabase
+- ✅ Frontend Client React + Vite + Tailwind
+- ✅ Admin Panel React-Admin
+
+**Features Backend**:
+- ✅ Authentication JWT + Google OAuth
+- ✅ Users management avec rôles
+- ✅ Accounts avec IBAN français
+- ✅ Transactions avec validation admin obligatoire ⭐
+- ✅ KYC workflow complet avec review ⭐
+- ✅ Row Level Security (RLS)
+- ✅ Audit trail complet
+
+**Features Frontend Client**:
+- ✅ Login / Register
+- ✅ Dashboard avec statistiques
+- ✅ Consultation comptes et soldes
+- ✅ Création virements (status PENDING)
+- ✅ Upload documents KYC
+- ✅ Historique transactions
+
+**Features Admin Panel**:
+- ✅ Authentication (Admin/Compliance only)
+- ✅ Validation transactions (Approve/Reject) ⭐
+- ✅ Review documents KYC (Approve/Reject) ⭐
+- ✅ Gestion utilisateurs (CRUD + rôles)
+- ✅ Vue comptes bancaires
+
+### 🚧 Améliorations Futures
+
+**Backend**:
+- [ ] Tests unitaires et e2e
+- [ ] Notifications email (transactions validées, KYC reviewed)
+- [ ] WebSocket pour notifications temps réel
+- [ ] 2FA authentification (TOTP)
+- [ ] Support multi-devises (EUR, USD, GBP)
+- [ ] Export PDF relevés de compte
+- [ ] Scheduled transactions (virements programmés)
+
+**Frontend**:
+- [ ] Tests composants React
+- [ ] Tests e2e (Playwright/Cypress)
+- [ ] Notifications toast améliorées
+- [ ] Dark mode
+- [ ] Graphiques analytics avancés
+
+**Admin**:
+- [ ] Dashboard analytics avec graphiques
+- [ ] Export CSV/PDF des données
+- [ ] Filtres avancés
+- [ ] Audit logs complet avec recherche
+
+**DevOps**:
+- [ ] Docker + Docker Compose
+- [ ] CI/CD (GitHub Actions)
+- [ ] Monitoring (Datadog, Sentry)
+- [ ] Health checks et alerts
+
+## 📖 Documentation
+
+- `README.md` - Ce fichier (vue d'ensemble)
+- `IMPLEMENTATION.md` - Détails techniques implémentation
+- `MISSING_FEATURES.md` - Analyse complète de ce qui manque
+- `README_MONOREPO.md` - Guide rapide monorepo
+
+## 🤝 Contribution
+
+Ce projet est une plateforme bancaire complète avec:
+- Validation manuelle des transactions par des admins
+- Workflow KYC avec review par compliance
+- Audit trail complet pour la conformité réglementaire
+
+## 📄 Licence
 
 MIT

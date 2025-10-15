@@ -48,7 +48,7 @@ export const TransactionValidation = () => {
 
   return (
     <Edit>
-      <SimpleForm toolbar={null}>
+      <SimpleForm toolbar={false}>
         <TextField source="id" />
         <TextField source="from_account_id" />
         <TextField source="to_account_id" />
@@ -77,7 +77,7 @@ export const TransactionValidation = () => {
             Reject
           </label>
 
-          {!approved && (
+          {!approved ? (
             <div style={{ marginTop: 10 }}>
               <label>Rejection Reason:</label>
               <input
@@ -87,7 +87,7 @@ export const TransactionValidation = () => {
                 style={{ width: '100%', padding: 8, marginTop: 5 }}
               />
             </div>
-          )}
+          ) : false}
 
           <Button
             label={approved ? 'Approve Transaction' : 'Reject Transaction'}
