@@ -17,9 +17,11 @@ banking-platform/
 ## ✅ Applications
 
 ### 1. Backend Server (apps/server/) - Port 3000
+
 **NestJS + TypeScript + Supabase**
 
 **Modules**:
+
 - **Auth Module**: JWT + Google OAuth, login/register
 - **Users Module**: Gestion utilisateurs avec rôles (CLIENT, ADMIN, COMPLIANCE)
 - **Accounts Module**: Comptes bancaires avec IBAN français auto-générés
@@ -27,6 +29,7 @@ banking-platform/
 - **KYC Module**: Upload documents avec **workflow de review** ⭐
 
 **Features clés**:
+
 - ✅ Swagger documentation: http://localhost:3000/api/docs
 - ✅ Row Level Security (RLS) sur toutes les tables
 - ✅ Audit trail complet (validated_by, reviewed_by)
@@ -34,9 +37,11 @@ banking-platform/
 - ✅ États KYC: PENDING → APPROVED/REJECTED
 
 ### 2. Client Dashboard (apps/client/) - Port 5173
+
 **React 18 + TypeScript + Vite + Tailwind CSS**
 
 **Pages**:
+
 - `/login` - Connexion utilisateur
 - `/register` - Inscription nouveau compte
 - `/dashboard` - Vue d'ensemble (soldes, transactions récentes)
@@ -46,21 +51,25 @@ banking-platform/
 - `/profile` - Gestion profil utilisateur
 
 **Tech Stack**:
+
 - TanStack Query (react-query) pour data fetching
 - Zustand pour state management
 - React Router pour navigation
 - Axios pour API calls
 
 ### 3. Admin Panel (apps/admin/) - Port 5174
+
 **React-Admin 4 + TypeScript + Material-UI**
 
 **Resources**:
+
 - **Users** - CRUD utilisateurs, gestion rôles et statuts
 - **Pending Transactions** - **Liste + Validation (Approve/Reject)** ⭐⭐⭐
 - **Pending KYC Documents** - **Liste + Review (Approve/Reject)** ⭐⭐⭐
 - **Accounts** - Vue de tous les comptes bancaires
 
 **Workflows administratifs**:
+
 - ✅ Validation transactions: Approve → soldes mis à jour automatiquement
 - ✅ Review documents KYC: Preview document + Approve/Reject
 - ✅ Gestion utilisateurs avec modification rôles
@@ -77,12 +86,14 @@ npm run dev
 ```
 
 **URLs**:
+
 - Backend API: http://localhost:3000
 - Swagger docs: http://localhost:3000/api/docs
 - Client dashboard: http://localhost:5173
 - Admin panel: http://localhost:5174
 
 **Démarrage individuel**:
+
 ```bash
 npm run dev:server    # Backend only
 npm run dev:client    # Client only
@@ -92,6 +103,7 @@ npm run dev:admin     # Admin only
 ## 🔐 Workflows Principaux
 
 ### Workflow 1: Transaction avec Validation Admin
+
 ```
 1. CLIENT crée virement (Client app)
    → Transaction status: PENDING
@@ -106,6 +118,7 @@ npm run dev:admin     # Admin only
 ```
 
 ### Workflow 2: KYC avec Review Compliance
+
 ```
 1. CLIENT upload documents (Client app)
    → Documents status: PENDING
@@ -124,6 +137,7 @@ npm run dev:admin     # Admin only
 ## 📦 Scripts Disponibles
 
 ### Root (monorepo)
+
 ```bash
 npm run dev              # Start all apps
 npm run build            # Build all apps
@@ -140,6 +154,7 @@ npm run build:admin      # Build admin
 ### Supabase Setup
 
 Créer `apps/server/.env`:
+
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
@@ -169,6 +184,7 @@ audit_logs: id, user_id, action, resource_type, resource_id, ip_address, user_ag
 ### Row Level Security (RLS)
 
 Toutes les tables ont RLS activé avec politiques strictes:
+
 - Users peuvent voir/modifier leur propre profil
 - Accounts accessibles uniquement par le propriétaire
 - Transactions visibles uniquement par les parties concernées
@@ -177,6 +193,7 @@ Toutes les tables ont RLS activé avec politiques strictes:
 ## Installation
 
 ### Prérequis
+
 - Node.js 18+
 - npm
 - Compte Supabase
@@ -184,6 +201,7 @@ Toutes les tables ont RLS activé avec politiques strictes:
 ### Configuration
 
 1. Créer un fichier `.env`:
+
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
@@ -199,6 +217,7 @@ NODE_ENV=development
 ```
 
 2. Installer les dépendances:
+
 ```bash
 npm install
 ```
@@ -223,26 +242,31 @@ Documentation Swagger disponible sur: `http://localhost:3000/api/docs`
 ### Endpoints principaux
 
 **Auth**
+
 - POST /api/auth/register - Inscription
 - POST /api/auth/login - Connexion
 - POST /api/auth/refresh - Refresh token
 
 **Users**
+
 - GET /api/users - Liste (ADMIN)
 - GET /api/users/profile - Mon profil
 - PATCH /api/users/profile - Mettre à jour profil
 
 **Accounts**
+
 - GET /api/accounts - Mes comptes
 - GET /api/accounts/:id/balance - Consulter solde
 
 **Transactions**
+
 - POST /api/transactions/transfer - Créer virement
 - GET /api/transactions - Mes transactions
 - GET /api/transactions/pending - En attente (ADMIN)
 - PATCH /api/transactions/:id/validate - Valider (ADMIN)
 
 **KYC**
+
 - POST /api/kyc/documents - Upload document
 - GET /api/kyc/documents - Mes documents
 - GET /api/kyc/documents/pending - En attente (ADMIN)
@@ -251,6 +275,7 @@ Documentation Swagger disponible sur: `http://localhost:3000/api/docs`
 ## Workflow utilisateur
 
 ### 1. Inscription
+
 ```bash
 POST /api/auth/register
 {
@@ -260,9 +285,11 @@ POST /api/auth/register
   "lastName": "Doe"
 }
 ```
+
 → Crée user + compte bancaire automatiquement
 
 ### 2. Upload documents KYC
+
 ```bash
 POST /api/kyc/documents
 {
@@ -274,6 +301,7 @@ POST /api/kyc/documents
 ```
 
 ### 3. Créer virement
+
 ```bash
 POST /api/transactions/transfer
 {
@@ -283,15 +311,18 @@ POST /api/transactions/transfer
   "description": "Payment"
 }
 ```
+
 → Transaction PENDING, attend validation admin
 
 ### 4. Validation admin
+
 ```bash
 PATCH /api/transactions/:id/validate
 {
   "approved": true
 }
 ```
+
 → Soldes mis à jour automatiquement
 
 ## Sécurité
@@ -307,12 +338,14 @@ PATCH /api/transactions/:id/validate
 ### ✅ Complété (100%)
 
 **Architecture**:
+
 - ✅ Monorepo avec workspaces npm
 - ✅ Backend NestJS + Supabase
 - ✅ Frontend Client React + Vite + Tailwind
 - ✅ Admin Panel React-Admin
 
 **Features Backend**:
+
 - ✅ Authentication JWT + Google OAuth
 - ✅ Users management avec rôles
 - ✅ Accounts avec IBAN français
@@ -322,6 +355,7 @@ PATCH /api/transactions/:id/validate
 - ✅ Audit trail complet
 
 **Features Frontend Client**:
+
 - ✅ Login / Register
 - ✅ Dashboard avec statistiques
 - ✅ Consultation comptes et soldes
@@ -330,6 +364,7 @@ PATCH /api/transactions/:id/validate
 - ✅ Historique transactions
 
 **Features Admin Panel**:
+
 - ✅ Authentication (Admin/Compliance only)
 - ✅ Validation transactions (Approve/Reject) ⭐
 - ✅ Review documents KYC (Approve/Reject) ⭐
@@ -339,6 +374,7 @@ PATCH /api/transactions/:id/validate
 ### 🚧 Améliorations Futures
 
 **Backend**:
+
 - [ ] Tests unitaires et e2e
 - [ ] Notifications email (transactions validées, KYC reviewed)
 - [ ] WebSocket pour notifications temps réel
@@ -348,6 +384,7 @@ PATCH /api/transactions/:id/validate
 - [ ] Scheduled transactions (virements programmés)
 
 **Frontend**:
+
 - [ ] Tests composants React
 - [ ] Tests e2e (Playwright/Cypress)
 - [ ] Notifications toast améliorées
@@ -355,12 +392,14 @@ PATCH /api/transactions/:id/validate
 - [ ] Graphiques analytics avancés
 
 **Admin**:
+
 - [ ] Dashboard analytics avec graphiques
 - [ ] Export CSV/PDF des données
 - [ ] Filtres avancés
 - [ ] Audit logs complet avec recherche
 
 **DevOps**:
+
 - [ ] Docker + Docker Compose
 - [ ] CI/CD (GitHub Actions)
 - [ ] Monitoring (Datadog, Sentry)
@@ -376,6 +415,7 @@ PATCH /api/transactions/:id/validate
 ## 🤝 Contribution
 
 Ce projet est une plateforme bancaire complète avec:
+
 - Validation manuelle des transactions par des admins
 - Workflow KYC avec review par compliance
 - Audit trail complet pour la conformité réglementaire
