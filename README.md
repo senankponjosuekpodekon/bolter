@@ -24,17 +24,23 @@ banking-platform/
 
 - **Auth Module**: JWT + Google OAuth, login/register
 - **Users Module**: Gestion utilisateurs avec rôles (CLIENT, ADMIN, COMPLIANCE)
-- **Accounts Module**: Comptes bancaires avec IBAN français auto-générés
-- **Transactions Module**: Virements avec **validation admin obligatoire** ⭐
+- **Accounts Module**: Comptes bancaires avec IBAN français auto-générés + **édition IBAN par admin** ⭐
+- **Transactions Module**:
+  - **Virements** (TRANSFER) avec validation admin obligatoire ⭐
+  - **Dépôts** (DEPOSIT) avec validation admin obligatoire ⭐⭐
+  - **Retraits** (WITHDRAWAL) avec validation admin obligatoire ⭐⭐
+  - **Vérification solde automatique** avant transactions ✅
 - **KYC Module**: Upload documents avec **workflow de review** ⭐
 
 **Features clés**:
 
 - ✅ Swagger documentation: http://localhost:3000/api/docs
 - ✅ Row Level Security (RLS) sur toutes les tables
-- ✅ Audit trail complet (validated_by, reviewed_by)
+- ✅ Audit trail complet (validated_by, reviewed_by, changes)
 - ✅ États transactions: PENDING → APPROVED/REJECTED
 - ✅ États KYC: PENDING → APPROVED/REJECTED
+- ✅ Vérification solde suffisant avant virements/retraits
+- ✅ Support DEPOSIT/WITHDRAWAL en plus des TRANSFER
 
 ### 2. Client Dashboard (apps/client/) - Port 5173
 
@@ -46,9 +52,16 @@ banking-platform/
 - `/register` - Inscription nouveau compte
 - `/dashboard` - Vue d'ensemble (soldes, transactions récentes)
 - `/accounts` - Liste des comptes bancaires avec soldes
-- `/transactions` - Historique + **Formulaire création virement** ⭐
+- `/transactions` - **Onglets Transfer/Deposit/Withdraw** ⭐⭐⭐
+  - Formulaire virement (TRANSFER)
+  - **Formulaire dépôt (DEPOSIT)** - Nouveau! ⭐
+  - **Formulaire retrait (WITHDRAWAL)** - Nouveau! ⭐
+  - Affichage solde disponible en temps réel
+  - Historique complet avec statuts
 - `/kyc` - **Upload documents** (ID, Selfie, Proof of Address) ⭐
-- `/profile` - Gestion profil utilisateur
+- `/profile` - **Gestion profil éditable** ⭐⭐
+  - Modification firstName, lastName, phone, address
+  - Vue des statuts (role, account status, KYC status)
 
 **Tech Stack**:
 
@@ -56,6 +69,12 @@ banking-platform/
 - Zustand pour state management
 - React Router pour navigation
 - Axios pour API calls
+
+**Navigation intelligente**:
+
+- ✅ **Menu Administration conditionnel** - Visible uniquement pour ADMIN/COMPLIANCE ⭐
+- ✅ Badge rôle affiché dans la navbar
+- ✅ Lien direct vers Admin Panel (port 5174)
 
 ### 3. Admin Panel (apps/admin/) - Port 5174
 
@@ -65,14 +84,20 @@ banking-platform/
 
 - **Users** - CRUD utilisateurs, gestion rôles et statuts
 - **Pending Transactions** - **Liste + Validation (Approve/Reject)** ⭐⭐⭐
+  - Support TRANSFER, DEPOSIT, WITHDRAWAL
+  - Validation avec mise à jour automatique des soldes
 - **Pending KYC Documents** - **Liste + Review (Approve/Reject)** ⭐⭐⭐
-- **Accounts** - Vue de tous les comptes bancaires
+- **Accounts** - **Vue + Édition IBAN** ⭐⭐
+  - Liste tous les comptes bancaires
+  - **Édition IBAN par admin** avec validation format
+  - Audit log automatique des modifications
 
 **Workflows administratifs**:
 
-- ✅ Validation transactions: Approve → soldes mis à jour automatiquement
+- ✅ Validation transactions (TRANSFER/DEPOSIT/WITHDRAWAL): Approve → soldes mis à jour automatiquement
 - ✅ Review documents KYC: Preview document + Approve/Reject
 - ✅ Gestion utilisateurs avec modification rôles
+- ✅ **Édition IBAN avec audit trail** - Nouveau! ⭐
 - ✅ Auth réservée aux rôles ADMIN et COMPLIANCE
 
 ## 🚀 Quick Start
@@ -300,7 +325,22 @@ POST /api/kyc/documents
 }
 ```
 
-### 3. Créer virement
+### 3. Créer dépôt (NEW!)
+
+```bash
+POST /api/transactions/deposit
+{
+  "accountId": "uuid-account",
+  "amount": 1000.00,
+  "paymentMethod": "BANK_TRANSFER",
+  "reference": "REF123",
+  "description": "Initial deposit"
+}
+```
+
+→ Transaction DEPOSIT PENDING, attend validation admin
+
+### 4. Créer virement
 
 ```bash
 POST /api/transactions/transfer
@@ -312,9 +352,29 @@ POST /api/transactions/transfer
 }
 ```
 
-→ Transaction PENDING, attend validation admin
+→ Transaction TRANSFER PENDING, attend validation admin
+→ ✅ Vérification automatique: solde suffisant avant création
 
-### 4. Validation admin
+### 5. Créer retrait (NEW!)
+
+```bash
+POST /api/transactions/withdraw
+{
+  "accountId": "uuid-account",
+  "amount": 500.00,
+  "bankDetails": {
+    "iban": "FR7612345678901234567890123",
+    "bic": "BNPAFRPP",
+    "accountHolderName": "John Doe"
+  },
+  "description": "Withdrawal to external account"
+}
+```
+
+→ Transaction WITHDRAWAL PENDING, attend validation admin
+→ ✅ Vérification automatique: solde suffisant avant création
+
+### 6. Validation admin
 
 ```bash
 PATCH /api/transactions/:id/validate
@@ -323,7 +383,10 @@ PATCH /api/transactions/:id/validate
 }
 ```
 
-→ Soldes mis à jour automatiquement
+→ Soldes mis à jour automatiquement selon le type:
+  - DEPOSIT: +montant sur to_account
+  - TRANSFER: -montant sur from_account, +montant sur to_account
+  - WITHDRAWAL: -montant sur from_account
 
 ## Sécurité
 
@@ -348,28 +411,35 @@ PATCH /api/transactions/:id/validate
 
 - ✅ Authentication JWT + Google OAuth
 - ✅ Users management avec rôles
-- ✅ Accounts avec IBAN français
-- ✅ Transactions avec validation admin obligatoire ⭐
+- ✅ Accounts avec IBAN français + **édition IBAN admin** ⭐
+- ✅ Transactions complètes:
+  - ✅ **DEPOSIT** (dépôts) avec validation admin ⭐⭐
+  - ✅ **TRANSFER** (virements) avec validation admin ⭐
+  - ✅ **WITHDRAWAL** (retraits) avec validation admin ⭐⭐
+  - ✅ **Vérification solde** automatique ✅
 - ✅ KYC workflow complet avec review ⭐
 - ✅ Row Level Security (RLS)
-- ✅ Audit trail complet
+- ✅ Audit trail complet avec logs modifications
 
 **Features Frontend Client**:
 
 - ✅ Login / Register
 - ✅ Dashboard avec statistiques
 - ✅ Consultation comptes et soldes
-- ✅ Création virements (status PENDING)
+- ✅ **Transactions avec onglets** Transfer/Deposit/Withdraw ⭐⭐⭐
+- ✅ **Affichage solde disponible** en temps réel
 - ✅ Upload documents KYC
-- ✅ Historique transactions
+- ✅ **Profil éditable** (firstName, lastName, phone, address) ⭐⭐
+- ✅ **Menu admin conditionnel** pour ADMIN/COMPLIANCE ⭐
+- ✅ Historique transactions complet
 
 **Features Admin Panel**:
 
 - ✅ Authentication (Admin/Compliance only)
-- ✅ Validation transactions (Approve/Reject) ⭐
+- ✅ Validation transactions (Approve/Reject) - TOUS TYPES ⭐⭐⭐
 - ✅ Review documents KYC (Approve/Reject) ⭐
 - ✅ Gestion utilisateurs (CRUD + rôles)
-- ✅ Vue comptes bancaires
+- ✅ **Édition IBAN comptes bancaires** avec audit ⭐⭐
 
 ### 🚧 Améliorations Futures
 

@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { UpdateAccountDto } from './dto/update-account.dto';
 
 @Injectable()
 export class AccountsService {
@@ -21,5 +22,34 @@ export class AccountsService {
   async getBalance(accountId: string): Promise<number> {
     const account = await this.findById(accountId);
     return parseFloat(account.balance);
+  }
+
+  async update(adminId: string, accountId: string, updateDto: UpdateAccountDto): Promise<any> {
+    const account = await this.findById(accountId);
+
+    const updateData: any = {};
+    if (updateDto.accountNumber) {
+      updateData.account_number = updateDto.accountNumber;
+    }
+
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('accounts')
+      .update(updateData)
+      .eq('id', accountId)
+      .select()
+      .single();
+
+    if (error) throw new BadRequestException(`Failed to update account: ${error.message}`);
+
+    await this.supabase.getAdminClient().from('audit_logs').insert({
+      user_id: account.user_id,
+      action: 'ACCOUNT_UPDATED',
+      entity_type: 'account',
+      entity_id: accountId,
+      performed_by: adminId,
+      changes: updateData,
+    });
+
+    return data;
   }
 }

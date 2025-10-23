@@ -2,15 +2,36 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
 
+type TransactionType = 'transfer' | 'deposit' | 'withdraw'
+
 export default function Transactions() {
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({
+  const [transactionType, setTransactionType] = useState<TransactionType>('transfer')
+
+  const [transferData, setTransferData] = useState({
     fromAccountId: '',
     toAccountId: '',
     amount: '',
     description: '',
     ibanExternal: ''
+  })
+
+  const [depositData, setDepositData] = useState({
+    accountId: '',
+    amount: '',
+    paymentMethod: 'BANK_TRANSFER',
+    reference: '',
+    description: ''
+  })
+
+  const [withdrawData, setWithdrawData] = useState({
+    accountId: '',
+    amount: '',
+    iban: '',
+    bic: '',
+    accountHolderName: '',
+    description: ''
   })
 
   const { data: accounts } = useQuery({
@@ -36,20 +57,83 @@ export default function Transactions() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
       setShowForm(false)
-      setFormData({ fromAccountId: '', toAccountId: '', amount: '', description: '', ibanExternal: '' })
+      resetForms()
     }
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const createDeposit = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post('/transactions/deposit', data)
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      setShowForm(false)
+      resetForms()
+    }
+  })
+
+  const createWithdraw = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post('/transactions/withdraw', data)
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      setShowForm(false)
+      resetForms()
+    }
+  })
+
+  const resetForms = () => {
+    setTransferData({ fromAccountId: '', toAccountId: '', amount: '', description: '', ibanExternal: '' })
+    setDepositData({ accountId: '', amount: '', paymentMethod: 'BANK_TRANSFER', reference: '', description: '' })
+    setWithdrawData({ accountId: '', amount: '', iban: '', bic: '', accountHolderName: '', description: '' })
+  }
+
+  const handleTransferSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     createTransfer.mutate({
-      fromAccountId: formData.fromAccountId,
-      toAccountId: formData.toAccountId || undefined,
-      amount: parseFloat(formData.amount),
-      description: formData.description,
-      ibanExternal: formData.ibanExternal || undefined
+      fromAccountId: transferData.fromAccountId,
+      toAccountId: transferData.toAccountId || undefined,
+      amount: parseFloat(transferData.amount),
+      description: transferData.description,
+      ibanExternal: transferData.ibanExternal || undefined
     })
+  }
+
+  const handleDepositSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    createDeposit.mutate({
+      accountId: depositData.accountId,
+      amount: parseFloat(depositData.amount),
+      paymentMethod: depositData.paymentMethod,
+      reference: depositData.reference,
+      description: depositData.description
+    })
+  }
+
+  const handleWithdrawSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    createWithdraw.mutate({
+      accountId: withdrawData.accountId,
+      amount: parseFloat(withdrawData.amount),
+      bankDetails: {
+        iban: withdrawData.iban,
+        bic: withdrawData.bic,
+        accountHolderName: withdrawData.accountHolderName
+      },
+      description: withdrawData.description
+    })
+  }
+
+  const getAccountBalance = (accountId: string) => {
+    const account = accounts?.find((acc: any) => acc.id === accountId)
+    return account ? parseFloat(account.balance) : 0
   }
 
   return (
@@ -60,116 +144,347 @@ export default function Transactions() {
           onClick={() => setShowForm(!showForm)}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
-          New Transfer
+          {showForm ? 'Close' : 'New Transaction'}
         </button>
       </div>
 
       {showForm && (
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium mb-4">Create Transfer</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">From Account</label>
-              <select
-                required
-                value={formData.fromAccountId}
-                onChange={(e) => setFormData({...formData, fromAccountId: e.target.value})}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+          <div className="flex space-x-4 mb-6 border-b">
+            <button
+              onClick={() => setTransactionType('transfer')}
+              className={`pb-2 px-4 ${transactionType === 'transfer' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}
+            >
+              Transfer
+            </button>
+            <button
+              onClick={() => setTransactionType('deposit')}
+              className={`pb-2 px-4 ${transactionType === 'deposit' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}
+            >
+              Deposit
+            </button>
+            <button
+              onClick={() => setTransactionType('withdraw')}
+              className={`pb-2 px-4 ${transactionType === 'withdraw' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}
+            >
+              Withdraw
+            </button>
+          </div>
+
+          {transactionType === 'transfer' && (
+            <form onSubmit={handleTransferSubmit} className="space-y-4">
+              <h2 className="text-lg font-medium">Create Transfer</h2>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">From Account</label>
+                <select
+                  required
+                  value={transferData.fromAccountId}
+                  onChange={(e) => setTransferData({...transferData, fromAccountId: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select account</option>
+                  {accounts?.map((acc: any) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.account_number} - Balance: €{parseFloat(acc.balance).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+                {transferData.fromAccountId && (
+                  <p className="mt-1 text-sm text-gray-600">
+                    Available: €{getAccountBalance(transferData.fromAccountId).toFixed(2)}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">To Account (Internal) or External IBAN</label>
+                <select
+                  value={transferData.toAccountId}
+                  onChange={(e) => setTransferData({...transferData, toAccountId: e.target.value, ibanExternal: ''})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Internal account or use IBAN below</option>
+                  {accounts?.map((acc: any) => (
+                    <option key={acc.id} value={acc.id}>{acc.account_number}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Or External IBAN</label>
+                <input
+                  type="text"
+                  value={transferData.ibanExternal}
+                  onChange={(e) => setTransferData({...transferData, ibanExternal: e.target.value, toAccountId: ''})}
+                  placeholder="FR7612345678901234567890123"
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Amount (EUR)</label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={transferData.amount}
+                  onChange={(e) => setTransferData({...transferData, amount: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <input
+                  type="text"
+                  value={transferData.description}
+                  onChange={(e) => setTransferData({...transferData, description: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={createTransfer.isPending}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                <option value="">Select account</option>
-                {accounts?.map((acc: any) => (
-                  <option key={acc.id} value={acc.id}>{acc.account_number} - {acc.balance} €</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">To Account (or IBAN below)</label>
-              <select
-                value={formData.toAccountId}
-                onChange={(e) => setFormData({...formData, toAccountId: e.target.value})}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="">Select account</option>
-                {accounts?.map((acc: any) => (
-                  <option key={acc.id} value={acc.id}>{acc.account_number}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">External IBAN (optional)</label>
-              <input
-                type="text"
-                value={formData.ibanExternal}
-                onChange={(e) => setFormData({...formData, ibanExternal: e.target.value})}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="FR7630004000010001234567890"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Amount (€)</label>
-              <input
-                type="number"
-                required
-                step="0.01"
-                value={formData.amount}
-                onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Description</label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button type="submit" disabled={createTransfer.isPending} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
                 {createTransfer.isPending ? 'Creating...' : 'Create Transfer'}
               </button>
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
-                Cancel
+
+              <p className="text-sm text-gray-500">Transfer will be pending until admin approval</p>
+            </form>
+          )}
+
+          {transactionType === 'deposit' && (
+            <form onSubmit={handleDepositSubmit} className="space-y-4">
+              <h2 className="text-lg font-medium">Create Deposit</h2>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">To Account</label>
+                <select
+                  required
+                  value={depositData.accountId}
+                  onChange={(e) => setDepositData({...depositData, accountId: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select account</option>
+                  {accounts?.map((acc: any) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.account_number} - Balance: €{parseFloat(acc.balance).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Amount (EUR)</label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={depositData.amount}
+                  onChange={(e) => setDepositData({...depositData, amount: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Payment Method</label>
+                <select
+                  required
+                  value={depositData.paymentMethod}
+                  onChange={(e) => setDepositData({...depositData, paymentMethod: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                  <option value="CARD">Card</option>
+                  <option value="CASH">Cash</option>
+                  <option value="CHECK">Check</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Reference</label>
+                <input
+                  type="text"
+                  value={depositData.reference}
+                  onChange={(e) => setDepositData({...depositData, reference: e.target.value})}
+                  placeholder="Payment reference"
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <input
+                  type="text"
+                  value={depositData.description}
+                  onChange={(e) => setDepositData({...depositData, description: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={createDeposit.isPending}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+              >
+                {createDeposit.isPending ? 'Creating...' : 'Create Deposit'}
               </button>
-            </div>
-          </form>
+
+              <p className="text-sm text-gray-500">Deposit will be pending until admin approval</p>
+            </form>
+          )}
+
+          {transactionType === 'withdraw' && (
+            <form onSubmit={handleWithdrawSubmit} className="space-y-4">
+              <h2 className="text-lg font-medium">Create Withdrawal</h2>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">From Account</label>
+                <select
+                  required
+                  value={withdrawData.accountId}
+                  onChange={(e) => setWithdrawData({...withdrawData, accountId: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select account</option>
+                  {accounts?.map((acc: any) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.account_number} - Balance: €{parseFloat(acc.balance).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+                {withdrawData.accountId && (
+                  <p className="mt-1 text-sm text-gray-600">
+                    Available: €{getAccountBalance(withdrawData.accountId).toFixed(2)}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Amount (EUR)</label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={withdrawData.amount}
+                  onChange={(e) => setWithdrawData({...withdrawData, amount: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">IBAN</label>
+                <input
+                  required
+                  type="text"
+                  value={withdrawData.iban}
+                  onChange={(e) => setWithdrawData({...withdrawData, iban: e.target.value})}
+                  placeholder="FR7612345678901234567890123"
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">BIC/SWIFT (Optional)</label>
+                <input
+                  type="text"
+                  value={withdrawData.bic}
+                  onChange={(e) => setWithdrawData({...withdrawData, bic: e.target.value})}
+                  placeholder="BNPAFRPP"
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Account Holder Name</label>
+                <input
+                  required
+                  type="text"
+                  value={withdrawData.accountHolderName}
+                  onChange={(e) => setWithdrawData({...withdrawData, accountHolderName: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <input
+                  type="text"
+                  value={withdrawData.description}
+                  onChange={(e) => setWithdrawData({...withdrawData, description: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={createWithdraw.isPending}
+                className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                {createWithdraw.isPending ? 'Creating...' : 'Create Withdrawal'}
+              </button>
+
+              <p className="text-sm text-gray-500">Withdrawal will be pending until admin approval</p>
+            </form>
+          )}
         </div>
       )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {transactions?.map((tx: any) => (
-              <tr key={tx.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {new Date(tx.created_at).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{tx.description || '-'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {tx.amount} {tx.currency}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    tx.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                    tx.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {tx.status}
-                  </span>
-                </td>
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium">Transaction History</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {transactions?.map((tx: any) => (
+                <tr key={tx.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {new Date(tx.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      tx.type === 'DEPOSIT' ? 'bg-green-100 text-green-800' :
+                      tx.type === 'WITHDRAWAL' ? 'bg-red-100 text-red-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {tx.type}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{tx.description}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    €{parseFloat(tx.amount).toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      tx.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                      tx.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                      tx.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {tx.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

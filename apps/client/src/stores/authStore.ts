@@ -7,6 +7,10 @@ interface User {
   role: string
   firstName?: string
   lastName?: string
+  phone?: string
+  address?: string
+  status?: string
+  kyc_status?: string
 }
 
 interface AuthState {
@@ -14,6 +18,7 @@ interface AuthState {
   accessToken: string | null
   isAuthenticated: boolean
   setAuth: (user: User, accessToken: string) => void
+  setUser: (user: User) => void
   logout: () => void
 }
 
@@ -24,6 +29,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       isAuthenticated: false,
       setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
+      setUser: (user) => set({ user }),
       logout: () => set({ user: null, accessToken: null, isAuthenticated: false }),
     }),
     {

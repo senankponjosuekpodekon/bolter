@@ -32,6 +32,47 @@ let TransactionsService = class TransactionsService {
             throw new common_1.BadRequestException(`Failed to create transfer: ${error.message}`);
         return data;
     }
+    async createDeposit(userId, dto) {
+        const account = await this.accountsService.findById(dto.accountId);
+        if (account.user_id !== userId)
+            throw new common_1.BadRequestException('You can only deposit to your own accounts');
+        const description = dto.description || `Deposit via ${dto.paymentMethod}${dto.reference ? ` - Ref: ${dto.reference}` : ''}`;
+        const { data, error } = await this.supabase.getAdminClient().from('transactions').insert({
+            from_account_id: null,
+            to_account_id: dto.accountId,
+            amount: dto.amount,
+            currency: 'EUR',
+            type: 'DEPOSIT',
+            status: 'PENDING',
+            description,
+            metadata: { paymentMethod: dto.paymentMethod, reference: dto.reference },
+        }).select().single();
+        if (error)
+            throw new common_1.BadRequestException(`Failed to create deposit: ${error.message}`);
+        return data;
+    }
+    async createWithdraw(userId, dto) {
+        const account = await this.accountsService.findById(dto.accountId);
+        if (account.user_id !== userId)
+            throw new common_1.BadRequestException('You can only withdraw from your own accounts');
+        if (parseFloat(account.balance) < dto.amount)
+            throw new common_1.BadRequestException('Insufficient balance');
+        const description = dto.description || `Withdrawal to ${dto.bankDetails.iban}`;
+        const { data, error } = await this.supabase.getAdminClient().from('transactions').insert({
+            from_account_id: dto.accountId,
+            to_account_id: null,
+            amount: dto.amount,
+            currency: 'EUR',
+            type: 'WITHDRAWAL',
+            status: 'PENDING',
+            description,
+            iban_external: dto.bankDetails.iban,
+            metadata: { bankDetails: dto.bankDetails },
+        }).select().single();
+        if (error)
+            throw new common_1.BadRequestException(`Failed to create withdrawal: ${error.message}`);
+        return data;
+    }
     async findByUserId(userId) {
         const accounts = await this.accountsService.findByUserId(userId);
         const accountIds = accounts.map(a => a.id);
@@ -55,15 +96,19 @@ let TransactionsService = class TransactionsService {
             throw new common_1.BadRequestException('Transaction has already been processed');
         const newStatus = dto.approved ? 'APPROVED' : 'REJECTED';
         if (dto.approved) {
-            const fromAccount = await this.accountsService.findById(transaction.from_account_id);
-            const currentBalance = parseFloat(fromAccount.balance);
-            if (currentBalance < parseFloat(transaction.amount))
-                throw new common_1.BadRequestException('Insufficient balance');
-            await this.supabase.getAdminClient().from('accounts').update({ balance: currentBalance - parseFloat(transaction.amount) }).eq('id', transaction.from_account_id);
-            if (transaction.to_account_id) {
-                const toAccount = await this.accountsService.findById(transaction.to_account_id);
-                const toBalance = parseFloat(toAccount.balance);
-                await this.supabase.getAdminClient().from('accounts').update({ balance: toBalance + parseFloat(transaction.amount) }).eq('id', transaction.to_account_id);
+            if (transaction.type === 'TRANSFER' || transaction.type === 'WITHDRAWAL') {
+                const fromAccount = await this.accountsService.findById(transaction.from_account_id);
+                const currentBalance = parseFloat(fromAccount.balance);
+                if (currentBalance < parseFloat(transaction.amount))
+                    throw new common_1.BadRequestException('Insufficient balance');
+                await this.supabase.getAdminClient().from('accounts').update({ balance: currentBalance - parseFloat(transaction.amount) }).eq('id', transaction.from_account_id);
+            }
+            if (transaction.type === 'TRANSFER' || transaction.type === 'DEPOSIT') {
+                if (transaction.to_account_id) {
+                    const toAccount = await this.accountsService.findById(transaction.to_account_id);
+                    const toBalance = parseFloat(toAccount.balance);
+                    await this.supabase.getAdminClient().from('accounts').update({ balance: toBalance + parseFloat(transaction.amount) }).eq('id', transaction.to_account_id);
+                }
             }
         }
         const { data, error } = await this.supabase.getAdminClient().from('transactions').update({

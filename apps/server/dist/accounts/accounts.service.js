@@ -34,6 +34,30 @@ let AccountsService = class AccountsService {
         const account = await this.findById(accountId);
         return parseFloat(account.balance);
     }
+    async update(adminId, accountId, updateDto) {
+        const account = await this.findById(accountId);
+        const updateData = {};
+        if (updateDto.accountNumber) {
+            updateData.account_number = updateDto.accountNumber;
+        }
+        const { data, error } = await this.supabase.getAdminClient()
+            .from('accounts')
+            .update(updateData)
+            .eq('id', accountId)
+            .select()
+            .single();
+        if (error)
+            throw new common_1.BadRequestException(`Failed to update account: ${error.message}`);
+        await this.supabase.getAdminClient().from('audit_logs').insert({
+            user_id: account.user_id,
+            action: 'ACCOUNT_UPDATED',
+            entity_type: 'account',
+            entity_id: accountId,
+            performed_by: adminId,
+            changes: updateData,
+        });
+        return data;
+    }
 };
 exports.AccountsService = AccountsService;
 exports.AccountsService = AccountsService = __decorate([

@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const transactions_service_1 = require("./transactions.service");
 const create_transfer_dto_1 = require("./dto/create-transfer.dto");
+const create_deposit_dto_1 = require("./dto/create-deposit.dto");
+const create_withdraw_dto_1 = require("./dto/create-withdraw.dto");
 const validate_transaction_dto_1 = require("./dto/validate-transaction.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
@@ -27,6 +29,12 @@ let TransactionsController = class TransactionsController {
     }
     createTransfer(req, createTransferDto) {
         return this.transactionsService.createTransfer(req.user.id, createTransferDto);
+    }
+    createDeposit(req, createDepositDto) {
+        return this.transactionsService.createDeposit(req.user.id, createDepositDto);
+    }
+    createWithdraw(req, createWithdrawDto) {
+        return this.transactionsService.createWithdraw(req.user.id, createWithdrawDto);
     }
     getUserTransactions(req) {
         return this.transactionsService.findByUserId(req.user.id);
@@ -48,6 +56,24 @@ __decorate([
     __metadata("design:paramtypes", [Object, create_transfer_dto_1.CreateTransferDto]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "createTransfer", null);
+__decorate([
+    (0, common_1.Post)('deposit'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a deposit (requires admin validation)' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_deposit_dto_1.CreateDepositDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "createDeposit", null);
+__decorate([
+    (0, common_1.Post)('withdraw'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a withdrawal (requires admin validation)' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_withdraw_dto_1.CreateWithdrawDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "createWithdraw", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get user transactions' }),
