@@ -1,73 +1,215 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { generateFrenchIban } from '../common/utils/account-number.util';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private supabase: SupabaseService) {}
+  private readonly logger = new Logger(UsersService.name);
 
-  async create(data: CreateUserDto): Promise<any> {
-    const { password, email, firstName, lastName, role } = data;
+  constructor(
+    private supabase: SupabaseService,
+    private readonly auditLogsService: AuditLogsService,
+  ) { }
+
+  async create(data: CreateUserDto, options?: { performedBy?: string | null; metadata?: Record<string, any> }): Promise<any> {
+    const { password, email, firstName, lastName, role, phone, address, status, kyc_status } = data;
     const hashedPassword = password ? await this.hashPassword(password) : null;
 
-    const { data: user, error } = await this.supabase.getAdminClient().from('users').insert({
-      email, password_hash: hashedPassword, first_name: firstName, last_name: lastName, role: role || 'CLIENT',
-    }).select().single();
+    const insertPayload: Record<string, any> = {
+      email,
+      password_hash: hashedPassword,
+      first_name: firstName || null,
+      last_name: lastName || null,
+      role: role || 'CLIENT',
+      phone: phone || null,
+      address: address || null,
+    };
+
+    if (status) insertPayload.status = status;
+    if (kyc_status) insertPayload.kyc_status = kyc_status;
+
+    const { data: user, error } = await this.supabase
+      .getAdminClient()
+      .from('users')
+      .insert(insertPayload)
+      .select()
+      .single();
 
     if (error) throw new BadRequestException(`Failed to create user: ${error.message}`);
 
-    const accountNumber = this.generateAccountNumber();
-    await this.supabase.getAdminClient().from('accounts').insert({
-      user_id: user.id, account_number: accountNumber, account_type: 'CHECKING', balance: 0,
+    const accountNumber = generateFrenchIban();
+    const { data: account, error: accountError } = await this.supabase
+      .getAdminClient()
+      .from('accounts')
+      .insert({
+        user_id: user.id,
+        account_number: accountNumber,
+        account_type: 'CHECKING',
+        balance: 0,
+      })
+      .select()
+      .single();
+
+    if (accountError) {
+      throw new BadRequestException(`Failed to create default account: ${accountError.message}`);
+    }
+
+    const performedBy = options?.performedBy ?? user.id;
+    const action = options?.performedBy && options.performedBy !== user.id ? 'USER_CREATED' : 'USER_REGISTERED';
+    const baseMetadata: Record<string, any> = {
+      changes: {
+        email,
+        role: insertPayload.role,
+        status: insertPayload.status ?? null,
+      },
+    };
+
+    const successUserLog = await this.auditLogsService.log({
+      userId: user.id,
+      performedBy,
+      action,
+      resourceType: 'user',
+      resourceId: user.id,
+      metadata: options?.metadata ? { ...baseMetadata, ...options.metadata } : baseMetadata,
     });
+
+    if (!successUserLog) {
+      this.logger.warn(`Failed to persist audit log for user creation (${user.id})`);
+    }
+
+    const successAccountLog = await this.auditLogsService.log({
+      userId: user.id,
+      performedBy,
+      action: 'ACCOUNT_CREATED',
+      resourceType: 'account',
+      resourceId: account.id,
+      metadata: {
+        changes: {
+          accountType: 'CHECKING',
+          accountNumber,
+        },
+      },
+    });
+
+    if (!successAccountLog) {
+      this.logger.warn(`Failed to persist audit log for default account creation (${account.id})`);
+    }
 
     return this.mapUser(user);
   }
 
   async findAll(params?: { skip?: number; take?: number }): Promise<any[]> {
     const { skip = 0, take = 100 } = params || {};
-    const { data, error } = await this.supabase.getAdminClient().from('users').select('*').range(skip, skip + take - 1);
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('users')
+      .select('*')
+      .range(skip, skip + take - 1);
     if (error) throw new BadRequestException(`Failed to fetch users: ${error.message}`);
     return data.map(u => this.mapUser(u));
   }
 
-  async findById(id: string): Promise<any | null> {
-    const { data, error } = await this.supabase.getAdminClient().from('users').select('*').eq('id', id).maybeSingle();
+  async findById(id: string, options: { includeSensitive?: boolean } = {}): Promise<any | null> {
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
     if (error) throw new BadRequestException(`Failed to fetch user: ${error.message}`);
-    return data ? this.mapUser(data) : null;
+    return data ? this.mapUser(data, options) : null;
   }
 
   async findByEmail(email: string): Promise<any | null> {
-    const { data, error } = await this.supabase.getAdminClient().from('users').select('*').eq('email', email).maybeSingle();
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
     if (error) throw new BadRequestException(`Failed to fetch user: ${error.message}`);
-    return data ? this.mapUser(data) : null;
+    return data ? this.mapUser(data, { includeSensitive: true }) : null;
   }
 
-  async update(id: string, updateData: UpdateUserDto): Promise<any> {
+  async update(
+    id: string,
+    updateData: UpdateUserDto,
+    options?: { performedBy?: string | null; metadata?: Record<string, any> },
+  ): Promise<any> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
     const { password, ...userData } = updateData;
     const hashedPassword = password ? await this.hashPassword(password) : undefined;
 
-    const updatePayload: any = {};
-    if (userData.firstName) updatePayload.first_name = userData.firstName;
-    if (userData.lastName) updatePayload.last_name = userData.lastName;
+    const updatePayload: Record<string, any> = {};
+    if (userData.firstName !== undefined) updatePayload.first_name = userData.firstName || null;
+    if (userData.lastName !== undefined) updatePayload.last_name = userData.lastName || null;
+    if (userData.phone !== undefined) updatePayload.phone = userData.phone || null;
+    if (userData.address !== undefined) updatePayload.address = userData.address || null;
+    if (userData.status !== undefined) updatePayload.status = userData.status;
+    if (userData.kyc_status !== undefined) updatePayload.kyc_status = userData.kyc_status;
+    if (userData.role !== undefined) updatePayload.role = userData.role;
     if (hashedPassword) updatePayload.password_hash = hashedPassword;
-    if (userData.role) updatePayload.role = userData.role;
 
-    const { data, error } = await this.supabase.getAdminClient().from('users').update(updatePayload).eq('id', id).select().single();
+    if (Object.keys(updatePayload).length === 0) {
+      return user;
+    }
+
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('users')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single();
     if (error) throw new BadRequestException(`Failed to update user: ${error.message}`);
-    return this.mapUser(data);
+    const updatedUser = this.mapUser(data);
+
+    const performedBy = options?.performedBy ?? id;
+    if (Object.keys(updatePayload).length) {
+      const success = await this.auditLogsService.log({
+        userId: id,
+        performedBy,
+        action: 'USER_UPDATED',
+        resourceType: 'user',
+        resourceId: id,
+        metadata: options?.metadata
+          ? { ...options.metadata, changes: { ...(options.metadata?.changes ?? {}), ...updatePayload } }
+          : { changes: updatePayload },
+      });
+
+      if (!success) {
+        this.logger.warn(`Failed to persist audit log for user update (${id})`);
+      }
+    }
+
+    return updatedUser;
   }
 
-  async remove(id: string): Promise<any> {
+  async remove(id: string, options?: { performedBy?: string | null }): Promise<any> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
     const { error } = await this.supabase.getAdminClient().from('users').delete().eq('id', id);
     if (error) throw new BadRequestException(`Failed to delete user: ${error.message}`);
+
+    const performedBy = options?.performedBy ?? id;
+    const success = await this.auditLogsService.log({
+      userId: id,
+      performedBy,
+      action: 'USER_DELETED',
+      resourceType: 'user',
+      resourceId: id,
+    });
+
+    if (!success) {
+      this.logger.warn(`Failed to persist audit log for user deletion (${id})`);
+    }
+
     return user;
   }
 
@@ -84,21 +226,27 @@ export class UsersService {
     return bcrypt.hash(password, salt);
   }
 
-  private generateAccountNumber(): string {
-    const countryCode = 'FR';
-    const checkDigits = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-    const bankCode = '30004';
-    const branchCode = '00001';
-    const accountNumber = Math.floor(Math.random() * 10000000000).toString().padStart(11, '0');
-    const key = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-    return `${countryCode}${checkDigits}${bankCode}${branchCode}${accountNumber}${key}`;
-  }
-
-  private mapUser(user: any): any {
-    return {
-      id: user.id, email: user.email, password: user.password_hash, firstName: user.first_name,
-      lastName: user.last_name, role: user.role, status: user.status, kycStatus: user.kyc_status,
-      refreshToken: user.refresh_token, createdAt: user.created_at, updatedAt: user.updated_at,
+  private mapUser(user: any, options: { includeSensitive?: boolean } = {}): any {
+    const payload: any = {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phone: user.phone,
+      address: user.address,
+      role: user.role,
+      status: user.status,
+      kyc_status: user.kyc_status,
+      hasPassword: Boolean(user.password_hash),
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
     };
+
+    if (options.includeSensitive) {
+      payload.password = user.password_hash;
+      payload.refreshToken = user.refresh_token;
+    }
+
+    return payload;
   }
 }

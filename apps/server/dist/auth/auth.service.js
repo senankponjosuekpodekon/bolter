@@ -49,12 +49,15 @@ const config_1 = require("@nestjs/config");
 const bcrypt = __importStar(require("bcrypt"));
 const users_service_1 = require("../users/users.service");
 const logger_service_1 = require("../common/logger/logger.service");
+const audit_logs_service_1 = require("../audit-logs/audit-logs.service");
 let AuthService = class AuthService {
-    constructor(usersService, jwtService, configService, logger) {
+    constructor(usersService, jwtService, configService, logger, auditLogsService) {
         this.usersService = usersService;
         this.jwtService = jwtService;
         this.configService = configService;
         this.logger = logger;
+        this.auditLogsService = auditLogsService;
+        this.auditLogger = new common_1.Logger('AuthAudit');
     }
     async validateUser(email, password) {
         const user = await this.usersService.findByEmail(email);
@@ -72,14 +75,23 @@ let AuthService = class AuthService {
         const payload = { email: user.email, sub: user.id, role: user.role };
         const refreshToken = this.generateRefreshToken(payload);
         await this.usersService.setRefreshToken(user.id, refreshToken);
+        const success = await this.auditLogsService.log({
+            userId: user.id,
+            performedBy: user.id,
+            action: 'AUTH_LOGIN',
+            resourceType: 'auth',
+            resourceId: user.id,
+            metadata: {
+                method: 'PASSWORD',
+            },
+        });
+        if (!success) {
+            this.auditLogger.warn(`Failed to persist login audit log for ${user.email}`);
+        }
         return {
             accessToken: this.jwtService.sign(payload),
             refreshToken,
-            user: {
-                id: user.id,
-                email: user.email,
-                role: user.role,
-            },
+            user: this.stripSensitiveFields(user),
         };
     }
     async register(registerDto) {
@@ -90,19 +102,34 @@ let AuthService = class AuthService {
         const user = await this.usersService.create({
             ...registerDto,
             role: 'CLIENT',
+        }, {
+            metadata: {
+                channel: 'EMAIL',
+            },
         });
         this.logger.log(`New user registered: ${user.email}`, 'AuthService');
         return this.login(user);
     }
     async refreshToken(userId, refreshToken) {
-        const user = await this.usersService.findById(userId);
+        const user = await this.usersService.findById(userId, { includeSensitive: true });
         if (!user || user.refreshToken !== refreshToken) {
             throw new common_1.UnauthorizedException('Invalid refresh token');
         }
         const payload = { email: user.email, sub: user.id, role: user.role };
-        return {
+        const response = {
             accessToken: this.jwtService.sign(payload),
         };
+        const success = await this.auditLogsService.log({
+            userId: user.id,
+            performedBy: user.id,
+            action: 'AUTH_REFRESH',
+            resourceType: 'auth',
+            resourceId: user.id,
+        });
+        if (!success) {
+            this.auditLogger.warn(`Failed to persist token refresh audit log for ${user.email}`);
+        }
+        return response;
     }
     async validateOAuthUser(profile) {
         const { emails, id: googleId, displayName } = profile;
@@ -118,10 +145,27 @@ let AuthService = class AuthService {
                 firstName,
                 lastName,
                 role: 'CLIENT',
+            }, {
+                metadata: {
+                    channel: 'GOOGLE',
+                },
             });
             this.logger.log(`New user registered via Google: ${email}`, 'AuthService');
         }
-        return user;
+        const success = await this.auditLogsService.log({
+            userId: user.id,
+            performedBy: user.id,
+            action: 'AUTH_LOGIN',
+            resourceType: 'auth',
+            resourceId: user.id,
+            metadata: {
+                method: 'GOOGLE',
+            },
+        });
+        if (!success) {
+            this.auditLogger.warn(`Failed to persist Google login audit log for ${email}`);
+        }
+        return this.stripSensitiveFields(user);
     }
     generateRefreshToken(payload) {
         const refreshToken = this.jwtService.sign(payload, {
@@ -132,7 +176,20 @@ let AuthService = class AuthService {
     }
     async logout(userId) {
         await this.usersService.removeRefreshToken(userId);
+        await this.auditLogsService.log({
+            userId,
+            performedBy: userId,
+            action: 'AUTH_LOGOUT',
+            resourceType: 'auth',
+            resourceId: userId,
+        });
         return { success: true };
+    }
+    stripSensitiveFields(user) {
+        if (!user)
+            return null;
+        const { password, refreshToken, ...rest } = user;
+        return rest;
     }
 };
 exports.AuthService = AuthService;
@@ -141,6 +198,7 @@ exports.AuthService = AuthService = __decorate([
     __metadata("design:paramtypes", [users_service_1.UsersService,
         jwt_1.JwtService,
         config_1.ConfigService,
-        logger_service_1.Logger])
+        logger_service_1.Logger,
+        audit_logs_service_1.AuditLogsService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

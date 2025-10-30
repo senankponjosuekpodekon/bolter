@@ -13,13 +13,13 @@ import { QueryUserDto } from './dto/query-user.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Create a new user (Admin only)' })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Req() req, @Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto, { performedBy: req.user.id });
   }
 
   @Get()
@@ -46,20 +46,21 @@ export class UsersController {
   @Patch('profile')
   @ApiOperation({ summary: 'Update current user profile' })
   updateProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(req.user.id, updateUserDto);
+    const { role: _role, status: _status, kyc_status: _kycStatus, ...allowed } = updateUserDto;
+    return this.usersService.update(req.user.id, allowed, { performedBy: req.user.id });
   }
 
   @Patch(':id')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Update user (Admin only)' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(@Req() req, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto, { performedBy: req.user.id });
   }
 
   @Delete(':id')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Delete user (Admin only)' })
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@Req() req, @Param('id') id: string) {
+    return this.usersService.remove(id, { performedBy: req.user.id });
   }
 }

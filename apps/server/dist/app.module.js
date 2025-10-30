@@ -20,6 +20,7 @@ const accounts_module_1 = require("./accounts/accounts.module");
 const transactions_module_1 = require("./transactions/transactions.module");
 const kyc_module_1 = require("./kyc/kyc.module");
 const logger_module_1 = require("./common/logger/logger.module");
+const audit_logs_module_1 = require("./audit-logs/audit-logs.module");
 const configuration_1 = __importDefault(require("./config/configuration"));
 let AppModule = class AppModule {
 };
@@ -39,6 +40,7 @@ exports.AppModule = AppModule = __decorate([
             accounts_module_1.AccountsModule,
             transactions_module_1.TransactionsModule,
             kyc_module_1.KycModule,
+            audit_logs_module_1.AuditLogsModule,
         ],
     })
 ], AppModule);

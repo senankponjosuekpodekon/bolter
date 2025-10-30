@@ -24,12 +24,13 @@ banking-platform/
 
 - **Auth Module**: JWT + Google OAuth, login/register
 - **Users Module**: Gestion utilisateurs avec rôles (CLIENT, ADMIN, COMPLIANCE)
-- **Accounts Module**: Comptes bancaires avec IBAN français auto-générés + **édition IBAN par admin** ⭐
+- **Accounts Module**: Comptes bancaires avec IBAN français auto-générés + **édition IBAN/Type/Status/Balance par admin (auditée)** ⭐⭐
 - **Transactions Module**:
   - **Virements** (TRANSFER) avec validation admin obligatoire ⭐
   - **Dépôts** (DEPOSIT) avec validation admin obligatoire ⭐⭐
   - **Retraits** (WITHDRAWAL) avec validation admin obligatoire ⭐⭐
   - **Vérification solde automatique** avant transactions ✅
+  - **Création transaction administrateur** (auto-approve option + audit) ⭐⭐
 - **KYC Module**: Upload documents avec **workflow de review** ⭐
 
 **Features clés**:
@@ -37,6 +38,7 @@ banking-platform/
 - ✅ Swagger documentation: http://localhost:3000/api/docs
 - ✅ Row Level Security (RLS) sur toutes les tables
 - ✅ Audit trail complet (validated_by, reviewed_by, changes)
+- ✅ Service d'audit centralisé (auth, users, accounts, transactions)
 - ✅ États transactions: PENDING → APPROVED/REJECTED
 - ✅ États KYC: PENDING → APPROVED/REJECTED
 - ✅ Vérification solde suffisant avant virements/retraits
@@ -87,18 +89,39 @@ banking-platform/
   - Support TRANSFER, DEPOSIT, WITHDRAWAL
   - Validation avec mise à jour automatique des soldes
 - **Pending KYC Documents** - **Liste + Review (Approve/Reject)** ⭐⭐⭐
-- **Accounts** - **Vue + Édition IBAN** ⭐⭐
-  - Liste tous les comptes bancaires
-  - **Édition IBAN par admin** avec validation format
+- **Accounts** - **Vue + Édition IBAN/Type/Status/Balance** ⭐⭐
+  - Liste tous les comptes bancaires avec owner et soldes
+  - Edition complète avec validation (IBAN, type, statut, balance)
   - Audit log automatique des modifications
+- **Audit Logs** - **Historique complet des actions** ⭐⭐
+  - Filtres par action, ressource, user ou performedBy
+  - Préfiltre sur l'admin connecté
+  - Visualisation des `changes` (JSON) et métadonnées
 
 **Workflows administratifs**:
 
 - ✅ Validation transactions (TRANSFER/DEPOSIT/WITHDRAWAL): Approve → soldes mis à jour automatiquement
 - ✅ Review documents KYC: Preview document + Approve/Reject
 - ✅ Gestion utilisateurs avec modification rôles
-- ✅ **Édition IBAN avec audit trail** - Nouveau! ⭐
+- ✅ **Edition comptes complètes (IBAN/Type/Status/Balance) avec audit trail** - Nouveau! ⭐⭐
+- ✅ **Consultation Audit Logs** depuis l'admin pour tracer toutes les actions
 - ✅ Auth réservée aux rôles ADMIN et COMPLIANCE
+
+#### Logiques Admin ↔ Utilisateurs (Frontend & Backend)
+
+- **Backend (NestJS)**
+  - Endpoints sécurisés (ROLE = ADMIN/COMPLIANCE) pour listing, édition profil, changement rôle/statut, activation/désactivation.
+  - Services appliquent validations (immutabilité email, rôles autorisés) et publient les entrées `audit_logs` (`resource_type = "user"`, `action` = role_change|status_update|profile_update).
+  - DTO retournent métadonnées (`validated_by`, `updated_at`) afin d’alimenter l’UI React-Admin.
+
+- **Frontend (React-Admin)**
+  - Resource `users`: `Datagrid` + `Edit` form pilotant les mutations (role/status toggle, reset 2FA).
+  - `useMutation` déclenche un `PATCH`/`POST` vers chaque endpoint dédié, puis rafraîchit la liste (`refresh` + `invalidateStore`).
+  - Affichage des retours backend (snackbar succès/erreur) et des informations d’audit (`lastActionBy`, `lastActionAt`).
+
+- **Audit & Traçabilité**
+  - Services Nest injectent `AuditLogsService` pour consigner authentification, comptes, utilisateurs et transactions.
+  - L'admin panel consomme `GET /audit-logs` (filtres action/resource/user) pour afficher l'historique des opérations.
 
 ## 🚀 Quick Start
 
@@ -277,17 +300,26 @@ Documentation Swagger disponible sur: `http://localhost:3000/api/docs`
 - GET /api/users - Liste (ADMIN)
 - GET /api/users/profile - Mon profil
 - PATCH /api/users/profile - Mettre à jour profil
+- POST /api/users - Création par admin (audit automatique)
+- PATCH /api/users/:id - Mise à jour par admin (audit automatique)
+- DELETE /api/users/:id - Suppression par admin (audit automatique)
 
 **Accounts**
 
 - GET /api/accounts - Mes comptes
+- GET /api/accounts?scope=admin - Liste complète (ADMIN)
 - GET /api/accounts/:id/balance - Consulter solde
+- PATCH /api/accounts/:id - Edition IBAN/Type/Status/Balance (ADMIN)
 
 **Transactions**
 
 - POST /api/transactions/transfer - Créer virement
+- POST /api/transactions/deposit - Créer dépôt
+- POST /api/transactions/withdraw - Créer retrait
+- POST /api/transactions/admin - Créer transaction administrateur (auto approve option)
 - GET /api/transactions - Mes transactions
 - GET /api/transactions/pending - En attente (ADMIN)
+- GET /api/transactions?scope=admin - Historique complet (ADMIN)
 - PATCH /api/transactions/:id/validate - Valider (ADMIN)
 
 **KYC**
@@ -296,6 +328,10 @@ Documentation Swagger disponible sur: `http://localhost:3000/api/docs`
 - GET /api/kyc/documents - Mes documents
 - GET /api/kyc/documents/pending - En attente (ADMIN)
 - PATCH /api/kyc/documents/:id/review - Valider (ADMIN)
+
+**Audit Logs**
+
+- GET /api/audit-logs - Liste filtrable (action, resource_type, user, performedBy)
 
 ## Workflow utilisateur
 
@@ -384,9 +420,10 @@ PATCH /api/transactions/:id/validate
 ```
 
 → Soldes mis à jour automatiquement selon le type:
-  - DEPOSIT: +montant sur to_account
-  - TRANSFER: -montant sur from_account, +montant sur to_account
-  - WITHDRAWAL: -montant sur from_account
+
+- DEPOSIT: +montant sur to_account
+- TRANSFER: -montant sur from_account, +montant sur to_account
+- WITHDRAWAL: -montant sur from_account
 
 ## Sécurité
 
@@ -411,7 +448,7 @@ PATCH /api/transactions/:id/validate
 
 - ✅ Authentication JWT + Google OAuth
 - ✅ Users management avec rôles
-- ✅ Accounts avec IBAN français + **édition IBAN admin** ⭐
+- ✅ Accounts avec IBAN français + **édition IBAN/Type/Status/Balance (audit)** ⭐⭐
 - ✅ Transactions complètes:
   - ✅ **DEPOSIT** (dépôts) avec validation admin ⭐⭐
   - ✅ **TRANSFER** (virements) avec validation admin ⭐
@@ -420,6 +457,7 @@ PATCH /api/transactions/:id/validate
 - ✅ KYC workflow complet avec review ⭐
 - ✅ Row Level Security (RLS)
 - ✅ Audit trail complet avec logs modifications
+- ✅ Service d'audit global (auth, users, accounts, transactions)
 
 **Features Frontend Client**:
 
@@ -439,7 +477,8 @@ PATCH /api/transactions/:id/validate
 - ✅ Validation transactions (Approve/Reject) - TOUS TYPES ⭐⭐⭐
 - ✅ Review documents KYC (Approve/Reject) ⭐
 - ✅ Gestion utilisateurs (CRUD + rôles)
-- ✅ **Édition IBAN comptes bancaires** avec audit ⭐⭐
+- ✅ **Edition comptes bancaires (IBAN/Type/Status/Balance) avec audit** ⭐⭐
+- ✅ **Vue Audit Logs** filtrable (actions, entités, user)
 
 ### 🚧 Améliorations Futures
 
@@ -465,8 +504,8 @@ PATCH /api/transactions/:id/validate
 
 - [ ] Dashboard analytics avec graphiques
 - [ ] Export CSV/PDF des données
-- [ ] Filtres avancés
-- [ ] Audit logs complet avec recherche
+- [ ] Filtres avancés supplémentaires (multi critères)
+- [ ] Actions bulk (validation multiple, mises à jour groupées)
 
 **DevOps**:
 

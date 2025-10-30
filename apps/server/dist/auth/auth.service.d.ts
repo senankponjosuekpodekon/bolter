@@ -3,30 +3,25 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { Logger } from '../common/logger/logger.service';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 export declare class AuthService {
     private readonly usersService;
     private readonly jwtService;
     private readonly configService;
     private readonly logger;
-    constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, logger: Logger);
+    private readonly auditLogsService;
+    private readonly auditLogger;
+    constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, logger: Logger, auditLogsService: AuditLogsService);
     validateUser(email: string, password: string): Promise<any>;
     login(user: any): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: {
-            id: any;
-            email: any;
-            role: any;
-        };
+        user: any;
     }>;
     register(registerDto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: {
-            id: any;
-            email: any;
-            role: any;
-        };
+        user: any;
     }>;
     refreshToken(userId: string, refreshToken: string): Promise<{
         accessToken: string;
@@ -36,4 +31,5 @@ export declare class AuthService {
     logout(userId: string): Promise<{
         success: boolean;
     }>;
+    private stripSensitiveFields;
 }

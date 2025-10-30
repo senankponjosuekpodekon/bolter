@@ -1,0 +1,1 @@
+- [ ] Add automated tests covering the new account creation endpoint and UI flow.

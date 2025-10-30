@@ -1,5 +1,13 @@
-import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
+import { IsEmail, IsString, IsOptional, MinLength, MaxLength, IsIn } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+const USER_ROLES = ['CLIENT', 'ADMIN', 'COMPLIANCE'] as const;
+const USER_STATUSES = ['ACTIVE', 'SUSPENDED', 'PENDING_VERIFICATION', 'CLOSED'] as const;
+const KYC_STATUSES = ['PENDING', 'SUBMITTED', 'APPROVED', 'REJECTED'] as const;
+
+export type UserRole = (typeof USER_ROLES)[number];
+export type UserStatus = (typeof USER_STATUSES)[number];
+export type UserKycStatus = (typeof KYC_STATUSES)[number];
 
 export class CreateUserDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -21,8 +29,30 @@ export class CreateUserDto {
   @IsOptional()
   lastName?: string;
 
-  @ApiPropertyOptional({ example: 'CLIENT' })
+  @ApiPropertyOptional({ example: '+33 6 12 34 56 78' })
   @IsString()
   @IsOptional()
-  role?: string;
+  @MaxLength(20)
+  phone?: string;
+
+  @ApiPropertyOptional({ example: '123 Rue Example, 75001 Paris' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  address?: string;
+
+  @ApiPropertyOptional({ example: 'CLIENT', enum: USER_ROLES })
+  @IsOptional()
+  @IsIn(USER_ROLES, { message: 'Role must be CLIENT, ADMIN, or COMPLIANCE' })
+  role?: UserRole;
+
+  @ApiPropertyOptional({ example: 'ACTIVE', enum: USER_STATUSES })
+  @IsOptional()
+  @IsIn(USER_STATUSES, { message: 'Status must be a valid user status' })
+  status?: UserStatus;
+
+  @ApiPropertyOptional({ name: 'kyc_status', example: 'PENDING', enum: KYC_STATUSES })
+  @IsOptional()
+  @IsIn(KYC_STATUSES, { message: 'KYC status must be a valid value' })
+  kyc_status?: UserKycStatus;
 }

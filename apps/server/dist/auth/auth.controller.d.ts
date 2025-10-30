@@ -8,20 +8,12 @@ export declare class AuthController {
     register(registerDto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: {
-            id: any;
-            email: any;
-            role: any;
-        };
+        user: any;
     }>;
     login(loginDto: LoginDto, req: any): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: {
-            id: any;
-            email: any;
-            role: any;
-        };
+        user: any;
     }>;
     refresh(refreshTokenDto: RefreshTokenDto, req: any): Promise<{
         accessToken: string;
@@ -33,11 +25,7 @@ export declare class AuthController {
     googleAuthCallback(req: any): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: {
-            id: any;
-            email: any;
-            role: any;
-        };
+        user: any;
     }>;
     getProfile(req: any): any;
 }

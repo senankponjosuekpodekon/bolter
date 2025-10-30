@@ -22,6 +22,11 @@ export const KYCDocumentReview = () => {
   const [rejectionReason, setRejectionReason] = useState('')
 
   const handleReview = async () => {
+    if (!record) {
+      notify('Record not found', { type: 'warning' })
+      return
+    }
+
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(`/api/kyc/documents/${record.id}/review`, {

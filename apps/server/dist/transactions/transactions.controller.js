@@ -23,6 +23,8 @@ const validate_transaction_dto_1 = require("./dto/validate-transaction.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const query_transactions_dto_1 = require("./dto/query-transactions.dto");
+const admin_create_transaction_dto_1 = require("./dto/admin-create-transaction.dto");
 let TransactionsController = class TransactionsController {
     constructor(transactionsService) {
         this.transactionsService = transactionsService;
@@ -36,14 +38,29 @@ let TransactionsController = class TransactionsController {
     createWithdraw(req, createWithdrawDto) {
         return this.transactionsService.createWithdraw(req.user.id, createWithdrawDto);
     }
-    getUserTransactions(req) {
+    getTransactions(req, query) {
+        if (query.scope === 'admin') {
+            this.ensureAdminRole(req.user?.role);
+            return this.transactionsService.findAllForAdmin(query);
+        }
         return this.transactionsService.findByUserId(req.user.id);
     }
     getPendingTransactions() {
         return this.transactionsService.findPending();
     }
+    getPendingTransaction(id) {
+        return this.transactionsService.findPendingById(id);
+    }
+    createAdminTransaction(req, dto) {
+        return this.transactionsService.createAdminTransaction(req.user.id, dto);
+    }
     validateTransaction(req, id, validateDto) {
         return this.transactionsService.validateTransaction(req.user.id, id, validateDto);
+    }
+    ensureAdminRole(role) {
+        if (!['ADMIN', 'COMPLIANCE'].includes(role)) {
+            throw new common_1.ForbiddenException('Admin privileges required');
+        }
     }
 };
 exports.TransactionsController = TransactionsController;
@@ -76,12 +93,13 @@ __decorate([
 ], TransactionsController.prototype, "createWithdraw", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get user transactions' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get user transactions or full ledger for admin' }),
     __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, query_transactions_dto_1.QueryTransactionsDto]),
     __metadata("design:returntype", void 0)
-], TransactionsController.prototype, "getUserTransactions", null);
+], TransactionsController.prototype, "getTransactions", null);
 __decorate([
     (0, common_1.Get)('pending'),
     (0, roles_decorator_1.Roles)('ADMIN', 'COMPLIANCE'),
@@ -90,6 +108,25 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "getPendingTransactions", null);
+__decorate([
+    (0, common_1.Get)('pending/:id'),
+    (0, roles_decorator_1.Roles)('ADMIN', 'COMPLIANCE'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get pending transaction by ID (Admin only)' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "getPendingTransaction", null);
+__decorate([
+    (0, common_1.Post)('admin'),
+    (0, roles_decorator_1.Roles)('ADMIN', 'COMPLIANCE'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a transaction on behalf of clients (Admin only)' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, admin_create_transaction_dto_1.AdminCreateTransactionDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "createAdminTransaction", null);
 __decorate([
     (0, common_1.Patch)(':id/validate'),
     (0, roles_decorator_1.Roles)('ADMIN', 'COMPLIANCE'),
