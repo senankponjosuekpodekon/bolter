@@ -1,7 +1,9 @@
 import { AppBar, AppBarProps, TitlePortal, useGetIdentity } from "react-admin";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { NotificationsMenu } from "./NotificationsMenu";
 
 export const AdminAppBar = (props: AppBarProps) => {
   const { data } = useGetIdentity();
@@ -20,7 +22,8 @@ export const AdminAppBar = (props: AppBarProps) => {
     >
       <TitlePortal />
       <Box sx={{ flex: 1 }} />
-      <Box display="flex" alignItems="center" gap={1.5} mr={2}>
+      <Stack direction="row" alignItems="center" spacing={1.5} mr={2}>
+        <NotificationsMenu />
         <Box textAlign="right">
           <Typography variant="body2" fontWeight={600} color="text.primary">
             {data?.email || "Administrator"}
@@ -39,7 +42,7 @@ export const AdminAppBar = (props: AppBarProps) => {
         >
           {initials}
         </Avatar>
-      </Box>
+      </Stack>
     </AppBar>
   );
 };

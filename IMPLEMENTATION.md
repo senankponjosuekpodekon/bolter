@@ -5,6 +5,7 @@
 ### ✅ Backend NestJS complet (45 fichiers TypeScript)
 
 #### Structure du projet
+
 ```
 src/
 ├── accounts/          # Module gestion comptes bancaires
@@ -20,6 +21,7 @@ src/
 ```
 
 #### Migration Prisma → Supabase ✅
+
 - ❌ Supprimé toutes références à Prisma
 - ❌ Supprimé dépendances: @prisma/client, prisma, nestjs-prisma
 - ❌ Supprimé scripts: prisma:generate, prisma:migrate, prisma:studio
@@ -30,6 +32,7 @@ src/
 #### Modules implémentés
 
 **1. Auth Module** (JWT + OAuth Google)
+
 - ✅ Register (inscription email/password)
 - ✅ Login (connexion avec bcrypt)
 - ✅ Refresh token (JWT refresh)
@@ -41,6 +44,7 @@ src/
 - ✅ DTOs: RegisterDto, LoginDto, RefreshTokenDto
 
 **2. Users Module**
+
 - ✅ CRUD complet
 - ✅ Création automatique de compte bancaire à l'inscription
 - ✅ Rôles: CLIENT, ADMIN, COMPLIANCE
@@ -49,6 +53,7 @@ src/
 - ✅ Génération IBAN français automatique
 
 **3. Accounts Module**
+
 - ✅ Consultation de mes comptes
 - ✅ Détails d'un compte
 - ✅ Consultation du solde
@@ -56,6 +61,7 @@ src/
 - ✅ Support SAVINGS
 
 **4. Transactions Module** (avec validation admin)
+
 - ✅ Création de virements
 - ✅ Historique transactions utilisateur
 - ✅ Liste transactions en attente (ADMIN/COMPLIANCE)
@@ -66,6 +72,7 @@ src/
 - ✅ États: PENDING → APPROVED/REJECTED
 
 **5. KYC Module** (documents et workflow)
+
 - ✅ Upload documents (ID_CARD, PASSPORT, SELFIE, PROOF_ADDRESS)
 - ✅ Liste mes documents
 - ✅ Liste documents en attente (ADMIN/COMPLIANCE)
@@ -75,6 +82,7 @@ src/
 - ✅ États: PENDING → SUBMITTED → APPROVED/REJECTED
 
 **6. Common Module**
+
 - ✅ RolesGuard (vérification rôles)
 - ✅ @Roles decorator
 - ✅ @Public decorator
@@ -85,18 +93,21 @@ src/
 #### Sécurité
 
 **Authentification**
+
 - ✅ Passwords hashés avec bcrypt (10 rounds)
 - ✅ JWT tokens avec expiration (3600s)
 - ✅ Refresh tokens (604800s = 7 jours)
 - ✅ Guards NestJS combinés (JWT + Roles)
 
 **Row Level Security (RLS)**
+
 - ✅ Politiques RLS activées sur toutes les tables Supabase
 - ✅ Isolation stricte des données par utilisateur
 - ✅ Admin/Compliance ont accès complet en lecture
 - ✅ Validation des rôles côté serveur ET base de données
 
 **Validation**
+
 - ✅ DTOs avec class-validator
 - ✅ Transformation automatique (class-transformer)
 - ✅ Whitelist activée (forbidNonWhitelisted)
@@ -106,6 +117,7 @@ src/
 **Migration appliquée**: `001_banking_platform_schema`
 
 **Tables créées**:
+
 - ✅ users (avec role, status, kyc_status)
 - ✅ accounts (avec IBAN, balance, type)
 - ✅ transactions (avec validation admin: validated_by, validated_at)
@@ -113,6 +125,7 @@ src/
 - ✅ audit_logs (traçabilité complète)
 
 **Enums créés**:
+
 - ✅ user_role: CLIENT, ADMIN, COMPLIANCE
 - ✅ user_status: ACTIVE, SUSPENDED, PENDING_VERIFICATION, CLOSED
 - ✅ account_type: CHECKING, SAVINGS
@@ -124,6 +137,7 @@ src/
 - ✅ document_status: PENDING, APPROVED, REJECTED
 
 **Index créés** pour performance:
+
 - ✅ users(email) - unique
 - ✅ accounts(user_id)
 - ✅ accounts(account_number) - unique
@@ -135,33 +149,38 @@ src/
 - ✅ audit_logs(user_id)
 
 **Triggers**:
+
 - ✅ updated_at automatique sur toutes les tables
 
 #### Configuration
 
 **Fichiers de configuration**:
+
 - ✅ `.env` - Variables d'environnement Supabase configurées
 - ✅ `.env.example` - Template pour nouveaux utilisateurs
 - ✅ `tsconfig.json` - Configuration TypeScript
 - ✅ `src/config/configuration.ts` - Configuration centralisée
 
 **Variables d'environnement configurées**:
+
 ```env
 SUPABASE_URL=https://eiujcodytvzpqxrhnlak.supabase.co
 SUPABASE_ANON_KEY=eyJhbGci...
 JWT_SECRET=super-secret-jwt-token...
-JWT_EXPIRES_IN=3600
+JWT_EXPIRATION=3600
 PORT=3000
 ```
 
 #### Documentation
 
 **Fichiers créés**:
+
 - ✅ `README.md` - Documentation complète du projet
 - ✅ `IMPLEMENTATION.md` - Ce fichier (récapitulatif)
 - ✅ Swagger intégré sur `/api/docs`
 
 **Documentation Swagger**:
+
 - ✅ Tous les endpoints documentés
 - ✅ Tags par module (auth, users, accounts, transactions, kyc)
 - ✅ Bearer authentication configurée
@@ -179,6 +198,7 @@ PORT=3000
 ### Frontend (à implémenter)
 
 **1. Dashboard Client (React/Next.js)**
+
 - Vue d'ensemble comptes et soldes
 - Liste transactions avec filtres
 - Formulaire création virement
@@ -187,6 +207,7 @@ PORT=3000
 - Gestion profil utilisateur
 
 **2. Admin Panel (React-Admin)**
+
 - Dashboard analytics
 - Liste utilisateurs avec recherche
 - Liste transactions en attente
@@ -199,11 +220,13 @@ PORT=3000
 ### Fonctionnalités backend additionnelles
 
 **Notifications**
+
 - [ ] WebSocket pour notifications temps réel
 - [ ] Email notifications (transactions, KYC status)
 - [ ] SMS notifications (2FA, transactions importantes)
 
 **Avancé**
+
 - [ ] 2FA authentification (TOTP)
 - [ ] Support multi-devises (EUR, USD, GBP)
 - [ ] Limites de virements configurables
@@ -214,6 +237,7 @@ PORT=3000
 - [ ] Webhooks pour événements
 
 **Compliance**
+
 - [ ] Détection transactions suspectes
 - [ ] Rapports réglementaires
 - [ ] Freeze/Unfreeze comptes
@@ -323,6 +347,7 @@ npm run format
 ## API Endpoints
 
 ### Auth
+
 - POST `/api/auth/register` - Inscription
 - POST `/api/auth/login` - Connexion
 - POST `/api/auth/refresh` - Refresh token
@@ -331,6 +356,7 @@ npm run format
 - GET `/api/auth/google/callback` - Callback OAuth
 
 ### Users
+
 - GET `/api/users` - Liste (ADMIN)
 - GET `/api/users/profile` - Mon profil
 - GET `/api/users/:id` - Détails (ADMIN)
@@ -339,17 +365,20 @@ npm run format
 - DELETE `/api/users/:id` - Supprimer (ADMIN)
 
 ### Accounts
+
 - GET `/api/accounts` - Mes comptes
 - GET `/api/accounts/:id` - Détails compte
 - GET `/api/accounts/:id/balance` - Solde
 
 ### Transactions
+
 - POST `/api/transactions/transfer` - Créer virement
 - GET `/api/transactions` - Mes transactions
 - GET `/api/transactions/pending` - En attente (ADMIN/COMPLIANCE)
 - PATCH `/api/transactions/:id/validate` - Valider (ADMIN/COMPLIANCE)
 
 ### KYC
+
 - POST `/api/kyc/documents` - Upload document
 - GET `/api/kyc/documents` - Mes documents
 - GET `/api/kyc/documents/pending` - En attente (ADMIN/COMPLIANCE)
@@ -369,6 +398,7 @@ Accès: `http://localhost:3000/api/docs`
 Le backend est **100% fonctionnel et prêt pour la production** (après obtention de la SUPABASE_SERVICE_ROLE_KEY).
 
 Prochaines étapes recommandées:
+
 1. Obtenir la clé Supabase Service Role
 2. Développer le frontend React
 3. Ajouter tests unitaires et e2e

@@ -9,6 +9,8 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { KycModule } from './kyc/kyc.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { LoansModule } from './loans/loans.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -26,6 +28,8 @@ import configuration from './config/configuration';
     TransactionsModule,
     KycModule,
     AuditLogsModule,
+    NotificationsModule,
+    LoansModule,
   ],
 })
 export class AppModule { }

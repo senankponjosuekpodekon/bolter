@@ -6,6 +6,7 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import PaidIcon from "@mui/icons-material/Paid";
 import HistoryIcon from "@mui/icons-material/History";
+import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 
 export const AdminMenu = () => (
   <Menu
@@ -43,6 +44,11 @@ export const AdminMenu = () => (
       to="/audit-logs"
       primaryText="Audit Trail"
       leftIcon={<HistoryIcon />}
+    />
+    <Menu.Item
+      to="/loans"
+      primaryText="Loan Requests"
+      leftIcon={<RequestQuoteIcon />}
     />
   </Menu>
 );

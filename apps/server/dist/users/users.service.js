@@ -49,10 +49,12 @@ const supabase_service_1 = require("../supabase/supabase.service");
 const bcrypt = __importStar(require("bcrypt"));
 const account_number_util_1 = require("../common/utils/account-number.util");
 const audit_logs_service_1 = require("../audit-logs/audit-logs.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 let UsersService = UsersService_1 = class UsersService {
-    constructor(supabase, auditLogsService) {
+    constructor(supabase, auditLogsService, notificationsService) {
         this.supabase = supabase;
         this.auditLogsService = auditLogsService;
+        this.notificationsService = notificationsService;
         this.logger = new common_1.Logger(UsersService_1.name);
     }
     async create(data, options) {
@@ -130,6 +132,7 @@ let UsersService = UsersService_1 = class UsersService {
         if (!successAccountLog) {
             this.logger.warn(`Failed to persist audit log for default account creation (${account.id})`);
         }
+        await this.notificationsService.notifyAccountCreated(user.id, accountNumber);
         return this.mapUser(user);
     }
     async findAll(params) {
@@ -275,6 +278,7 @@ exports.UsersService = UsersService;
 exports.UsersService = UsersService = UsersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [supabase_service_1.SupabaseService,
-        audit_logs_service_1.AuditLogsService])
+        audit_logs_service_1.AuditLogsService,
+        notifications_service_1.NotificationsService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

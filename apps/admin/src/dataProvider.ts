@@ -99,7 +99,7 @@ const provider: DataProvider = {
 
     appendFilters(searchParams, params.filter ?? {});
 
-    if (isAdminUser() && (resource === 'accounts' || resource === 'transactions')) {
+  if (isAdminUser() && (resource === 'accounts' || resource === 'transactions' || resource === 'loans')) {
       searchParams.set('scope', 'admin');
     }
 

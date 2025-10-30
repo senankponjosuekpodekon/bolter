@@ -2,10 +2,14 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { SupabaseService } from '../supabase/supabase.service';
 import { UploadKycDocumentDto } from './dto/upload-kyc-document.dto';
 import { ReviewKycDocumentDto } from './dto/review-kyc-document.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class KycService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private readonly notificationsService: NotificationsService,
+  ) { }
 
   async uploadDocument(userId: string, dto: UploadKycDocumentDto) {
     const { data, error } = await this.supabase.getAdminClient().from('kyc_documents').insert({
@@ -40,15 +44,39 @@ export class KycService {
 
     if (error) throw new BadRequestException(`Failed to review document: ${error.message}`);
     await this.updateUserKycStatus(document.user_id);
+
+    await this.notificationsService.notifyKycDocumentReviewed({
+      userId: document.user_id,
+      documentType: document.document_type,
+      approved: dto.approved,
+      rejectionReason: dto.rejectionReason ?? null,
+    });
     return data;
   }
 
   private async updateUserKycStatus(userId: string) {
+    const { data: userRecord, error: userError } = await this.supabase
+      .getAdminClient()
+      .from('users')
+      .select('kyc_status')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (userError) {
+      throw new BadRequestException(`Failed to fetch user status: ${userError.message}`);
+    }
+
+    const previousStatus = userRecord?.kyc_status ?? null;
     const documents = await this.findByUserId(userId);
     const requiredTypes = ['ID_CARD', 'SELFIE', 'PROOF_ADDRESS'];
     const hasAllRequired = requiredTypes.every(type => documents.some(doc => doc.document_type === type));
     if (!hasAllRequired) {
       await this.supabase.getAdminClient().from('users').update({ kyc_status: 'PENDING' }).eq('id', userId);
+      await this.notificationsService.notifyKycStatusChanged({
+        userId,
+        previousStatus,
+        newStatus: 'PENDING',
+      });
       return;
     }
     const hasPending = documents.some(doc => doc.status === 'PENDING');
@@ -58,5 +86,10 @@ export class KycService {
     else if (hasRejected) kycStatus = 'REJECTED';
     else kycStatus = 'APPROVED';
     await this.supabase.getAdminClient().from('users').update({ kyc_status: kycStatus }).eq('id', userId);
+    await this.notificationsService.notifyKycStatusChanged({
+      userId,
+      previousStatus,
+      newStatus: kycStatus,
+    });
   }
 }

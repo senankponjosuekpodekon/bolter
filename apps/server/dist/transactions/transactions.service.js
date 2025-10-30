@@ -15,11 +15,13 @@ const common_1 = require("@nestjs/common");
 const supabase_service_1 = require("../supabase/supabase.service");
 const accounts_service_1 = require("../accounts/accounts.service");
 const audit_logs_service_1 = require("../audit-logs/audit-logs.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 let TransactionsService = TransactionsService_1 = class TransactionsService {
-    constructor(supabase, accountsService, auditLogsService) {
+    constructor(supabase, accountsService, auditLogsService, notificationsService) {
         this.supabase = supabase;
         this.accountsService = accountsService;
         this.auditLogsService = auditLogsService;
+        this.notificationsService = notificationsService;
         this.logger = new common_1.Logger(TransactionsService_1.name);
     }
     async createTransfer(userId, dto) {
@@ -65,6 +67,14 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             toAccountId: dto.toAccountId ?? null,
             ibanExternal: dto.ibanExternal ?? null,
         });
+        await this.notificationsService.notifyTransactionCreated({
+            transactionId: data.id,
+            userId,
+            amount: Number(data.amount ?? dto.amount),
+            type: 'TRANSFER',
+            currency: data.currency,
+            description: dto.description ?? undefined,
+        });
         return data;
     }
     async createDeposit(userId, dto) {
@@ -98,6 +108,14 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             type: 'DEPOSIT',
             amount: dto.amount,
             paymentMethod: dto.paymentMethod,
+        });
+        await this.notificationsService.notifyTransactionCreated({
+            transactionId: data.id,
+            userId,
+            amount: Number(data.amount ?? dto.amount),
+            type: 'DEPOSIT',
+            currency: data.currency,
+            description,
         });
         return data;
     }
@@ -136,6 +154,14 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             type: 'WITHDRAWAL',
             amount: dto.amount,
             ibanExternal: dto.bankDetails.iban,
+        });
+        await this.notificationsService.notifyTransactionCreated({
+            transactionId: data.id,
+            userId,
+            amount: Number(data.amount ?? dto.amount),
+            type: 'WITHDRAWAL',
+            currency: data.currency,
+            description,
         });
         return data;
     }
@@ -354,6 +380,17 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             amount: transaction.amount,
             rejectionReason: dto.rejectionReason ?? null,
         });
+        if (targetUserId) {
+            await this.notificationsService.notifyTransactionUpdated({
+                transactionId,
+                userId: targetUserId,
+                status: dto.approved ? 'APPROVED' : 'REJECTED',
+                amount: Number(transaction.amount ?? data.amount),
+                type: transaction.type,
+                currency: transaction.currency ?? data?.currency ?? 'EUR',
+                rejectionReason: dto.rejectionReason ?? undefined,
+            });
+        }
         return data;
     }
     buildDepositDescription(paymentMethod, reference, description) {
@@ -421,6 +458,47 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
                 amount: data.amount,
             });
         }
+        const amountValue = Number(data.amount ?? dto.amount);
+        if (!autoApprove) {
+            await this.notificationsService.notifyTransactionCreated({
+                transactionId: data.id,
+                userId: fromAccount.user_id,
+                amount: amountValue,
+                type: 'TRANSFER',
+                currency: data.currency,
+                description,
+            });
+            if (toAccount && toAccount.user_id && toAccount.user_id !== fromAccount.user_id) {
+                await this.notificationsService.notifyTransactionCreated({
+                    transactionId: data.id,
+                    userId: toAccount.user_id,
+                    amount: amountValue,
+                    type: 'TRANSFER',
+                    currency: data.currency,
+                    description,
+                });
+            }
+        }
+        else {
+            await this.notificationsService.notifyTransactionUpdated({
+                transactionId: data.id,
+                userId: fromAccount.user_id,
+                status: 'APPROVED',
+                amount: amountValue,
+                type: 'TRANSFER',
+                currency,
+            });
+            if (toAccount && toAccount.user_id && toAccount.user_id !== fromAccount.user_id) {
+                await this.notificationsService.notifyTransactionUpdated({
+                    transactionId: data.id,
+                    userId: toAccount.user_id,
+                    status: 'APPROVED',
+                    amount: amountValue,
+                    type: 'TRANSFER',
+                    currency,
+                });
+            }
+        }
         return data;
     }
     async createAdminDeposit(adminId, dto, currency, autoApprove) {
@@ -467,6 +545,27 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             await this.logTransactionAction(account.user_id, adminId, 'TRANSACTION_APPROVED', data.id, {
                 type: 'DEPOSIT',
                 amount: data.amount,
+            });
+        }
+        const amountValue = Number(data.amount ?? dto.amount);
+        if (!autoApprove) {
+            await this.notificationsService.notifyTransactionCreated({
+                transactionId: data.id,
+                userId: account.user_id,
+                amount: amountValue,
+                type: 'DEPOSIT',
+                currency: data.currency,
+                description,
+            });
+        }
+        else {
+            await this.notificationsService.notifyTransactionUpdated({
+                transactionId: data.id,
+                userId: account.user_id,
+                status: 'APPROVED',
+                amount: amountValue,
+                type: 'DEPOSIT',
+                currency,
             });
         }
         return data;
@@ -524,6 +623,27 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
                 amount: data.amount,
             });
         }
+        const amountValue = Number(data.amount ?? dto.amount);
+        if (!autoApprove) {
+            await this.notificationsService.notifyTransactionCreated({
+                transactionId: data.id,
+                userId: account.user_id,
+                amount: amountValue,
+                type: 'WITHDRAWAL',
+                currency: data.currency,
+                description,
+            });
+        }
+        else {
+            await this.notificationsService.notifyTransactionUpdated({
+                transactionId: data.id,
+                userId: account.user_id,
+                status: 'APPROVED',
+                amount: amountValue,
+                type: 'WITHDRAWAL',
+                currency,
+            });
+        }
         return data;
     }
     async updateAccountBalance(accountId, newBalance) {
@@ -557,6 +677,7 @@ exports.TransactionsService = TransactionsService = TransactionsService_1 = __de
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [supabase_service_1.SupabaseService,
         accounts_service_1.AccountsService,
-        audit_logs_service_1.AuditLogsService])
+        audit_logs_service_1.AuditLogsService,
+        notifications_service_1.NotificationsService])
 ], TransactionsService);
 //# sourceMappingURL=transactions.service.js.map

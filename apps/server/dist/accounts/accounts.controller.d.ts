@@ -5,10 +5,10 @@ import { QueryAccountsDto } from './dto/query-accounts.dto';
 export declare class AccountsController {
     private readonly accountsService;
     constructor(accountsService: AccountsService);
-    getAccounts(req: any, query: QueryAccountsDto): Promise<{
+    getAccounts(req: any, query: QueryAccountsDto): Promise<any[]> | Promise<{
         data: any[];
         total: number;
-    }> | Promise<any[]>;
+    }>;
     getAccount(id: string): Promise<any>;
     getBalance(id: string): Promise<number>;
     createAccount(req: any, createAccountDto: CreateAccountDto): Promise<any>;

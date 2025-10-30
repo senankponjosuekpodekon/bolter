@@ -8,6 +8,7 @@ import Accounts from './pages/Accounts'
 import Transactions from './pages/Transactions'
 import KYC from './pages/KYC'
 import Profile from './pages/Profile'
+import Loans from './pages/Loans'
 
 function App() {
   const { isAuthenticated } = useAuthStore()
@@ -22,6 +23,7 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="accounts" element={<Accounts />} />
         <Route path="transactions" element={<Transactions />} />
+  <Route path="loans" element={<Loans />} />
         <Route path="kyc" element={<KYC />} />
         <Route path="profile" element={<Profile />} />
       </Route>

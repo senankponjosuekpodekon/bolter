@@ -209,7 +209,16 @@ SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-key
 JWT_SECRET=your-jwt-secret
 JWT_REFRESH_SECRET=your-refresh-secret
-JWT_EXPIRES_IN=3600
+JWT_EXPIRATION=3600
+JWT_REFRESH_EXPIRATION=604800
+EMAIL_HOST=smtp.sendgrid.net
+EMAIL_PORT=587
+EMAIL_USER=apikey
+EMAIL_PASSWORD=your-smtp-password
+EMAIL_FROM=notifications@banking-platform.test
+APP_URL=http://localhost:5173
+VITE_API_URL=http://localhost:3000
+VITE_NOTIFICATIONS_URL=http://localhost:3000
 PORT=3000
 ```
 
@@ -256,9 +265,19 @@ SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 JWT_SECRET=your-super-secret-jwt-key
-JWT_EXPIRES_IN=3600
+JWT_EXPIRATION=3600
 JWT_REFRESH_SECRET=your-refresh-secret
-JWT_REFRESH_EXPIRES_IN=2592000
+JWT_REFRESH_EXPIRATION=2592000
+
+EMAIL_HOST=smtp.sendgrid.net
+EMAIL_PORT=587
+EMAIL_USER=apikey
+EMAIL_PASSWORD=your-smtp-password
+EMAIL_FROM=notifications@banking-platform.test
+
+APP_URL=http://localhost:5173
+VITE_API_URL=http://localhost:3000
+VITE_NOTIFICATIONS_URL=http://localhost:3000
 
 PORT=3000
 NODE_ENV=development

@@ -8,6 +8,7 @@ import { ValidateTransactionDto } from './dto/validate-transaction.dto';
 import { AdminCreateTransactionDto } from './dto/admin-create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class TransactionsService {
@@ -17,6 +18,7 @@ export class TransactionsService {
     private readonly supabase: SupabaseService,
     private readonly accountsService: AccountsService,
     private readonly auditLogsService: AuditLogsService,
+    private readonly notificationsService: NotificationsService,
   ) { }
 
   async createTransfer(userId: string, dto: CreateTransferDto) {
@@ -69,6 +71,15 @@ export class TransactionsService {
       ibanExternal: dto.ibanExternal ?? null,
     });
 
+    await this.notificationsService.notifyTransactionCreated({
+      transactionId: data.id,
+      userId,
+      amount: Number(data.amount ?? dto.amount),
+      type: 'TRANSFER',
+      currency: data.currency,
+      description: dto.description ?? undefined,
+    });
+
     return data;
   }
 
@@ -108,6 +119,15 @@ export class TransactionsService {
       type: 'DEPOSIT',
       amount: dto.amount,
       paymentMethod: dto.paymentMethod,
+    });
+
+    await this.notificationsService.notifyTransactionCreated({
+      transactionId: data.id,
+      userId,
+      amount: Number(data.amount ?? dto.amount),
+      type: 'DEPOSIT',
+      currency: data.currency,
+      description,
     });
 
     return data;
@@ -154,6 +174,15 @@ export class TransactionsService {
       type: 'WITHDRAWAL',
       amount: dto.amount,
       ibanExternal: dto.bankDetails.iban,
+    });
+
+    await this.notificationsService.notifyTransactionCreated({
+      transactionId: data.id,
+      userId,
+      amount: Number(data.amount ?? dto.amount),
+      type: 'WITHDRAWAL',
+      currency: data.currency,
+      description,
     });
 
     return data;
@@ -423,6 +452,18 @@ export class TransactionsService {
       rejectionReason: dto.rejectionReason ?? null,
     });
 
+    if (targetUserId) {
+      await this.notificationsService.notifyTransactionUpdated({
+        transactionId,
+        userId: targetUserId,
+        status: dto.approved ? 'APPROVED' : 'REJECTED',
+        amount: Number(transaction.amount ?? data.amount),
+        type: transaction.type,
+        currency: transaction.currency ?? data?.currency ?? 'EUR',
+        rejectionReason: dto.rejectionReason ?? undefined,
+      });
+    }
+
     return data;
   }
 
@@ -502,6 +543,50 @@ export class TransactionsService {
       });
     }
 
+    const amountValue = Number(data.amount ?? dto.amount);
+
+    if (!autoApprove) {
+      await this.notificationsService.notifyTransactionCreated({
+        transactionId: data.id,
+        userId: fromAccount.user_id,
+        amount: amountValue,
+        type: 'TRANSFER',
+        currency: data.currency,
+        description,
+      });
+
+      if (toAccount && toAccount.user_id && toAccount.user_id !== fromAccount.user_id) {
+        await this.notificationsService.notifyTransactionCreated({
+          transactionId: data.id,
+          userId: toAccount.user_id,
+          amount: amountValue,
+          type: 'TRANSFER',
+          currency: data.currency,
+          description,
+        });
+      }
+    } else {
+      await this.notificationsService.notifyTransactionUpdated({
+        transactionId: data.id,
+        userId: fromAccount.user_id,
+        status: 'APPROVED',
+        amount: amountValue,
+        type: 'TRANSFER',
+        currency,
+      });
+
+      if (toAccount && toAccount.user_id && toAccount.user_id !== fromAccount.user_id) {
+        await this.notificationsService.notifyTransactionUpdated({
+          transactionId: data.id,
+          userId: toAccount.user_id,
+          status: 'APPROVED',
+          amount: amountValue,
+          type: 'TRANSFER',
+          currency,
+        });
+      }
+    }
+
     return data;
   }
 
@@ -556,6 +641,28 @@ export class TransactionsService {
       await this.logTransactionAction(account.user_id, adminId, 'TRANSACTION_APPROVED', data.id, {
         type: 'DEPOSIT',
         amount: data.amount,
+      });
+    }
+
+    const amountValue = Number(data.amount ?? dto.amount);
+
+    if (!autoApprove) {
+      await this.notificationsService.notifyTransactionCreated({
+        transactionId: data.id,
+        userId: account.user_id,
+        amount: amountValue,
+        type: 'DEPOSIT',
+        currency: data.currency,
+        description,
+      });
+    } else {
+      await this.notificationsService.notifyTransactionUpdated({
+        transactionId: data.id,
+        userId: account.user_id,
+        status: 'APPROVED',
+        amount: amountValue,
+        type: 'DEPOSIT',
+        currency,
       });
     }
 
@@ -621,6 +728,28 @@ export class TransactionsService {
       await this.logTransactionAction(account.user_id, adminId, 'TRANSACTION_APPROVED', data.id, {
         type: 'WITHDRAWAL',
         amount: data.amount,
+      });
+    }
+
+    const amountValue = Number(data.amount ?? dto.amount);
+
+    if (!autoApprove) {
+      await this.notificationsService.notifyTransactionCreated({
+        transactionId: data.id,
+        userId: account.user_id,
+        amount: amountValue,
+        type: 'WITHDRAWAL',
+        currency: data.currency,
+        description,
+      });
+    } else {
+      await this.notificationsService.notifyTransactionUpdated({
+        transactionId: data.id,
+        userId: account.user_id,
+        status: 'APPROVED',
+        amount: amountValue,
+        type: 'WITHDRAWAL',
+        currency,
       });
     }
 

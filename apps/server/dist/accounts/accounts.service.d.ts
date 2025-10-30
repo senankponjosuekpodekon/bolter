@@ -3,11 +3,13 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { QueryAccountsDto } from './dto/query-accounts.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class AccountsService {
     private supabase;
     private readonly auditLogsService;
+    private readonly notificationsService;
     private readonly logger;
-    constructor(supabase: SupabaseService, auditLogsService: AuditLogsService);
+    constructor(supabase: SupabaseService, auditLogsService: AuditLogsService, notificationsService: NotificationsService);
     findByUserId(userId: string): Promise<any[]>;
     findById(id: string): Promise<any>;
     findAll(query: QueryAccountsDto): Promise<{

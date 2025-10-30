@@ -5,6 +5,7 @@ import { CreateAccountDto, AccountType } from './dto/create-account.dto';
 import { generateFrenchIban } from '../common/utils/account-number.util';
 import { QueryAccountsDto } from './dto/query-accounts.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AccountsService {
@@ -13,6 +14,7 @@ export class AccountsService {
   constructor(
     private supabase: SupabaseService,
     private readonly auditLogsService: AuditLogsService,
+    private readonly notificationsService: NotificationsService,
   ) { }
 
   async findByUserId(userId: string): Promise<any[]> {
@@ -115,6 +117,8 @@ export class AccountsService {
     if (!success) {
       this.logger.warn(`Failed to persist audit log for account creation (${data.id})`);
     }
+
+    await this.notificationsService.notifyAccountCreated(userId, accountNumber);
 
     return data;
   }

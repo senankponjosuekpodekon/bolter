@@ -7,12 +7,14 @@ import { ValidateTransactionDto } from './dto/validate-transaction.dto';
 import { AdminCreateTransactionDto } from './dto/admin-create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class TransactionsService {
     private readonly supabase;
     private readonly accountsService;
     private readonly auditLogsService;
+    private readonly notificationsService;
     private readonly logger;
-    constructor(supabase: SupabaseService, accountsService: AccountsService, auditLogsService: AuditLogsService);
+    constructor(supabase: SupabaseService, accountsService: AccountsService, auditLogsService: AuditLogsService, notificationsService: NotificationsService);
     createTransfer(userId: string, dto: CreateTransferDto): Promise<any>;
     createDeposit(userId: string, dto: CreateDepositDto): Promise<any>;
     createWithdraw(userId: string, dto: CreateWithdrawDto): Promise<any>;

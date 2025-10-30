@@ -15,6 +15,7 @@ import { AdminLayout } from "./layout/AdminLayout";
 import { adminTheme } from "./theme";
 import { AccountList, AccountEdit } from "./resources/accounts";
 import { AuditLogList } from "./resources/auditLogs";
+import { LoanList, LoanShow } from "./resources/loans";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -54,6 +55,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         name="audit-logs"
         options={{ label: "Audit Trail" }}
         list={AuditLogList}
+      />
+      <Resource
+        name="loans"
+        options={{ label: "Loan Requests" }}
+        list={LoanList}
+        show={LoanShow}
       />
     </Admin>
   </React.StrictMode>

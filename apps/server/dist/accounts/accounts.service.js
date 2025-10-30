@@ -15,10 +15,12 @@ const common_1 = require("@nestjs/common");
 const supabase_service_1 = require("../supabase/supabase.service");
 const account_number_util_1 = require("../common/utils/account-number.util");
 const audit_logs_service_1 = require("../audit-logs/audit-logs.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 let AccountsService = AccountsService_1 = class AccountsService {
-    constructor(supabase, auditLogsService) {
+    constructor(supabase, auditLogsService, notificationsService) {
         this.supabase = supabase;
         this.auditLogsService = auditLogsService;
+        this.notificationsService = notificationsService;
         this.logger = new common_1.Logger(AccountsService_1.name);
     }
     async findByUserId(userId) {
@@ -110,6 +112,7 @@ let AccountsService = AccountsService_1 = class AccountsService {
         if (!success) {
             this.logger.warn(`Failed to persist audit log for account creation (${data.id})`);
         }
+        await this.notificationsService.notifyAccountCreated(userId, accountNumber);
         return data;
     }
     async getBalance(accountId) {
@@ -162,6 +165,7 @@ exports.AccountsService = AccountsService;
 exports.AccountsService = AccountsService = AccountsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [supabase_service_1.SupabaseService,
-        audit_logs_service_1.AuditLogsService])
+        audit_logs_service_1.AuditLogsService,
+        notifications_service_1.NotificationsService])
 ], AccountsService);
 //# sourceMappingURL=accounts.service.js.map

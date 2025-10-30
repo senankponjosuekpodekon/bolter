@@ -2,11 +2,13 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class UsersService {
     private supabase;
     private readonly auditLogsService;
+    private readonly notificationsService;
     private readonly logger;
-    constructor(supabase: SupabaseService, auditLogsService: AuditLogsService);
+    constructor(supabase: SupabaseService, auditLogsService: AuditLogsService, notificationsService: NotificationsService);
     create(data: CreateUserDto, options?: {
         performedBy?: string | null;
         metadata?: Record<string, any>;
