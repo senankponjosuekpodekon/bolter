@@ -25,6 +25,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import { StatusChip } from "./components/StatusChip";
+import { UserActivity } from "./components/UserActivity";
 
 const roleChoices = [
   { id: "CLIENT", name: "Client" },
@@ -186,23 +187,48 @@ const UserForm = ({
       />
     </Box>
 
+    <Typography variant="subtitle1" fontWeight={600} sx={{ mt: 3 }}>
+      Préférences
+    </Typography>
+    <Box display="flex" gap={2} flexWrap="wrap">
+      <TextInput
+        source="language"
+        label="Langue"
+        fullWidth
+        sx={{ flex: 1, minWidth: 220 }}
+      />
+      <SelectInput
+        source="notificationsEnabled"
+        label="Notifications"
+        choices={[
+          { id: true, name: "Activées" },
+          { id: false, name: "Désactivées" },
+        ]}
+        fullWidth
+        sx={{ flex: 1, minWidth: 220 }}
+      />
+    </Box>
+
     {isEdit && (
       <FormDataConsumer>
         {({ formData }) => (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ mt: 2, display: "block" }}
-          >
-            Created{" "}
-            {formData?.createdAt
-              ? new Date(formData.createdAt).toLocaleString()
-              : "—"}{" "}
-            · Updated{" "}
-            {formData?.updatedAt
-              ? new Date(formData.updatedAt).toLocaleString()
-              : "—"}
-          </Typography>
+          <>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 2, display: "block" }}
+            >
+              Created{" "}
+              {formData?.createdAt
+                ? new Date(formData.createdAt).toLocaleString()
+                : "—"}{" "}
+              · Updated{" "}
+              {formData?.updatedAt
+                ? new Date(formData.updatedAt).toLocaleString()
+                : "—"}
+            </Typography>
+            <UserActivity userId={formData?.id || "me"} />
+          </>
         )}
       </FormDataConsumer>
     )}

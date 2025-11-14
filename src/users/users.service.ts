@@ -1,15 +1,21 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
+import { SupabaseService } from '../../apps/server/src/supabase/supabase.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ActivityLogService } from '../auth/activity-log.service';
+
+const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{12,}$/;
 
 @Injectable()
 export class UsersService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService, private readonly activityLogService: ActivityLogService) {}
 
   async create(data: CreateUserDto): Promise<any> {
     const { password, email, firstName, lastName, role } = data;
+    if (password && !PASSWORD_COMPLEXITY_REGEX.test(password)) {
+      throw new BadRequestException('Password must be at least 12 characters and include uppercase, lowercase, number, and special character.');
+    }
     const hashedPassword = password ? await this.hashPassword(password) : null;
 
     const { data: user, error } = await this.supabase.getAdminClient().from('users').insert({
@@ -17,6 +23,15 @@ export class UsersService {
     }).select().single();
 
     if (error) throw new BadRequestException(`Failed to create user: ${error.message}`);
+
+    // Enregistrer le mot de passe dans l'historique
+    if (hashedPassword) {
+      await this.supabase.getAdminClient().from('password_history').insert({
+        user_id: user.id,
+        password_hash: hashedPassword,
+        changed_at: new Date().toISOString(),
+      });
+    }
 
     const accountNumber = this.generateAccountNumber();
     await this.supabase.getAdminClient().from('accounts').insert({
@@ -45,21 +60,27 @@ export class UsersService {
     return data ? this.mapUser(data) : null;
   }
 
-  async update(id: string, updateData: UpdateUserDto): Promise<any> {
+  async update(id: string, updateData: UpdateUserDto | any): Promise<any> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
-    const { password, ...userData } = updateData;
+    const { password, email, firstName, lastName, language, notificationsEnabled, ...userData } = updateData;
     const hashedPassword = password ? await this.hashPassword(password) : undefined;
 
     const updatePayload: any = {};
-    if (userData.firstName) updatePayload.first_name = userData.firstName;
-    if (userData.lastName) updatePayload.last_name = userData.lastName;
+    if (email) updatePayload.email = email;
+    if (firstName) updatePayload.first_name = firstName;
+    if (lastName) updatePayload.last_name = lastName;
+    if (language) updatePayload.language = language;
+    if (typeof notificationsEnabled === 'boolean') updatePayload.notifications_enabled = notificationsEnabled;
     if (hashedPassword) updatePayload.password_hash = hashedPassword;
     if (userData.role) updatePayload.role = userData.role;
 
     const { data, error } = await this.supabase.getAdminClient().from('users').update(updatePayload).eq('id', id).select().single();
     if (error) throw new BadRequestException(`Failed to update user: ${error.message}`);
+    if (password) {
+      await this.activityLogService.log(id, 'PASSWORD_CHANGE');
+    }
     return this.mapUser(data);
   }
 
@@ -77,6 +98,42 @@ export class UsersService {
 
   async removeRefreshToken(userId: string): Promise<void> {
     await this.supabase.getAdminClient().from('users').update({ refresh_token: null }).eq('id', userId);
+  }
+
+  async enableTwoFactor(userId: string, secret: string): Promise<void> {
+    await this.supabase.getAdminClient().from('users').update({
+      two_factor_secret: secret,
+      two_factor_enabled: true
+    }).eq('id', userId);
+  }
+
+  async disableTwoFactor(userId: string): Promise<void> {
+    await this.supabase.getAdminClient().from('users').update({
+      two_factor_secret: null,
+      two_factor_enabled: false
+    }).eq('id', userId);
+  }
+
+  async getTwoFactorSecret(userId: string): Promise<string | null> {
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('users')
+      .select('two_factor_secret')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw new BadRequestException(`Failed to get 2FA secret: ${error.message}`);
+    return data?.two_factor_secret || null;
+  }
+
+  async isTwoFactorEnabled(userId: string): Promise<boolean> {
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('users')
+      .select('two_factor_enabled')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw new BadRequestException(`Failed to check 2FA status: ${error.message}`);
+    return data?.two_factor_enabled || false;
   }
 
   private async hashPassword(password: string): Promise<string> {
@@ -98,7 +155,8 @@ export class UsersService {
     return {
       id: user.id, email: user.email, password: user.password_hash, firstName: user.first_name,
       lastName: user.last_name, role: user.role, status: user.status, kycStatus: user.kyc_status,
-      refreshToken: user.refresh_token, createdAt: user.created_at, updatedAt: user.updated_at,
+      refreshToken: user.refresh_token, twoFactorEnabled: user.two_factor_enabled,
+      twoFactorSecret: user.two_factor_secret, createdAt: user.created_at, updatedAt: user.updated_at,
     };
   }
 }

@@ -53,63 +53,24 @@ banking-platform/
 - `/login` - Connexion utilisateur
 - `/register` - Inscription nouveau compte
 - `/dashboard` - Vue d'ensemble (soldes, transactions récentes)
-- `/accounts` - Liste des comptes bancaires avec soldes
 - `/transactions` - **Onglets Transfer/Deposit/Withdraw** ⭐⭐⭐
   - Formulaire virement (TRANSFER)
-  - **Formulaire dépôt (DEPOSIT)** - Nouveau! ⭐
-  - **Formulaire retrait (WITHDRAWAL)** - Nouveau! ⭐
-  - Affichage solde disponible en temps réel
   - Historique complet avec statuts
-- `/kyc` - **Upload documents** (ID, Selfie, Proof of Address) ⭐
 - `/profile` - **Gestion profil éditable** ⭐⭐
   - Modification firstName, lastName, phone, address
   - Vue des statuts (role, account status, KYC status)
 
-**Tech Stack**:
-
-- TanStack Query (react-query) pour data fetching
-- Zustand pour state management
-- React Router pour navigation
-- Axios pour API calls
-
-**Navigation intelligente**:
 
 - ✅ **Menu Administration conditionnel** - Visible uniquement pour ADMIN/COMPLIANCE ⭐
-- ✅ Badge rôle affiché dans la navbar
-- ✅ Lien direct vers Admin Panel (port 5174)
-
-### 3. Admin Panel (apps/admin/) - Port 5174
-
-**React-Admin 4 + TypeScript + Material-UI**
-
-**Resources**:
 
 - **Users** - CRUD utilisateurs, gestion rôles et statuts
-- **Pending Transactions** - **Liste + Validation (Approve/Reject)** ⭐⭐⭐
-  - Support TRANSFER, DEPOSIT, WITHDRAWAL
-  - Validation avec mise à jour automatique des soldes
-- **Pending KYC Documents** - **Liste + Review (Approve/Reject)** ⭐⭐⭐
-- **Accounts** - **Vue + Édition IBAN/Type/Status/Balance** ⭐⭐
   - Liste tous les comptes bancaires avec owner et soldes
-  - Edition complète avec validation (IBAN, type, statut, balance)
   - Audit log automatique des modifications
 - **Audit Logs** - **Historique complet des actions** ⭐⭐
-  - Filtres par action, ressource, user ou performedBy
-  - Préfiltre sur l'admin connecté
-  - Visualisation des `changes` (JSON) et métadonnées
-
-**Workflows administratifs**:
-
-- ✅ Validation transactions (TRANSFER/DEPOSIT/WITHDRAWAL): Approve → soldes mis à jour automatiquement
-- ✅ Review documents KYC: Preview document + Approve/Reject
 - ✅ Gestion utilisateurs avec modification rôles
-- ✅ **Edition comptes complètes (IBAN/Type/Status/Balance) avec audit trail** - Nouveau! ⭐⭐
 - ✅ **Consultation Audit Logs** depuis l'admin pour tracer toutes les actions
 - ✅ Auth réservée aux rôles ADMIN et COMPLIANCE
 
-#### Logiques Admin ↔ Utilisateurs (Frontend & Backend)
-
-- **Backend (NestJS)**
   - Endpoints sécurisés (ROLE = ADMIN/COMPLIANCE) pour listing, édition profil, changement rôle/statut, activation/désactivation.
   - Services appliquent validations (immutabilité email, rôles autorisés) et publient les entrées `audit_logs` (`resource_type = "user"`, `action` = role_change|status_update|profile_update).
   - DTO retournent métadonnées (`validated_by`, `updated_at`) afin d’alimenter l’UI React-Admin.
@@ -119,60 +80,27 @@ banking-platform/
   - `useMutation` déclenche un `PATCH`/`POST` vers chaque endpoint dédié, puis rafraîchit la liste (`refresh` + `invalidateStore`).
   - Affichage des retours backend (snackbar succès/erreur) et des informations d’audit (`lastActionBy`, `lastActionAt`).
 
-- **Audit & Traçabilité**
   - Services Nest injectent `AuditLogsService` pour consigner authentification, comptes, utilisateurs et transactions.
   - L'admin panel consomme `GET /audit-logs` (filtres action/resource/user) pour afficher l'historique des opérations.
 
 ## 🚀 Quick Start
 
 ```bash
-# Install all dependencies (root + all apps)
-npm install
-
-# Start all applications simultaneously
-npm run dev
 ```
 
-**URLs**:
-
-- Backend API: http://localhost:3000
-- Swagger docs: http://localhost:3000/api/docs
-- Client dashboard: http://localhost:5173
 - Admin panel: http://localhost:5174
-
 **Démarrage individuel**:
 
-```bash
-npm run dev:server    # Backend only
-npm run dev:client    # Client only
 npm run dev:admin     # Admin only
-```
 
 ## 🔐 Workflows Principaux
-
-### Workflow 1: Transaction avec Validation Admin
-
-```
-1. CLIENT crée virement (Client app)
    → Transaction status: PENDING
-   → Soldes NON modifiés (en attente validation)
 
 2. ADMIN consulte transactions pending (Admin app)
-   → Liste toutes les transactions PENDING
-
-3. ADMIN valide la transaction (Admin app)
    → Approve: Status APPROVED + Soldes mis à jour
-   → Reject: Status REJECTED + Raison enregistrée
 ```
 
-### Workflow 2: KYC avec Review Compliance
 
-```
-1. CLIENT upload documents (Client app)
-   → Documents status: PENDING
-   → User KYC status: SUBMITTED
-
-2. COMPLIANCE review documents (Admin app)
    → Preview document (image/PDF)
    → Liste tous les documents PENDING
 

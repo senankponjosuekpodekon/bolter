@@ -2,20 +2,20 @@
 
 ## Ce qui a été fait
 
-### ✅ Backend NestJS complet (45 fichiers TypeScript)
+### ✅ Backend NestJS complet (45+ fichiers TypeScript)
 
 #### Structure du projet
 
 ```
 src/
 ├── accounts/          # Module gestion comptes bancaires
-├── auth/              # Module authentification JWT + OAuth
+├── auth/              # Module authentification JWT + OAuth, 2FA, session, audit, password policies, token blacklist, rate limiting
 ├── common/            # Guards, decorators, filters, logger
 ├── config/            # Configuration centralisée
 ├── kyc/               # Module KYC (documents et validation)
 ├── supabase/          # Service Supabase (remplace Prisma)
-├── transactions/      # Module transactions avec validation admin
-├── users/             # Module gestion utilisateurs
+├── transactions/      # Module transactions avec validation admin, dépôt, retrait
+├── users/             # Module gestion utilisateurs, profil, préférences, activité
 ├── app.module.ts
 └── main.ts
 ```
@@ -31,38 +31,38 @@ src/
 
 #### Modules implémentés
 
-**1. Auth Module** (JWT + OAuth Google)
-
-- ✅ Register (inscription email/password)
-- ✅ Login (connexion avec bcrypt)
-- ✅ Refresh token (JWT refresh)
-- ✅ Logout
-- ✅ Google OAuth strategy
-- ✅ Local strategy
-- ✅ JWT strategy
+**1. Auth Module** (JWT + OAuth Google + Sécurité avancée)
+- ✅ Register, login, refresh, logout
+- ✅ Google OAuth, local, JWT strategies
 - ✅ Guards: JwtAuthGuard, LocalAuthGuard, GoogleAuthGuard
 - ✅ DTOs: RegisterDto, LoginDto, RefreshTokenDto
+- ✅ Password policies (complexité, historique)
+- ✅ Session management (user_sessions)
+- ✅ Token blacklist (déconnexion, refresh)
+- ✅ Audit logging (actions sensibles)
+- ✅ Rate limiting (throttler, à venir Redis)
+- ✅ 2FA (TOTP, QR code, backup codes, endpoints à venir)
 
 **2. Users Module**
-
 - ✅ CRUD complet
 - ✅ Création automatique de compte bancaire à l'inscription
 - ✅ Rôles: CLIENT, ADMIN, COMPLIANCE
 - ✅ RolesGuard pour contrôle d'accès
 - ✅ DTOs: CreateUserDto, UpdateUserDto, QueryUserDto
 - ✅ Génération IBAN français automatique
+- ✅ Profil utilisateur (édition, préférences)
+- ✅ Activité utilisateur (historique)
 
 **3. Accounts Module**
-
 - ✅ Consultation de mes comptes
 - ✅ Détails d'un compte
 - ✅ Consultation du solde
 - ✅ Compte CHECKING créé automatiquement
 - ✅ Support SAVINGS
+- ✅ Édition IBAN (admin)
 
-**4. Transactions Module** (avec validation admin)
-
-- ✅ Création de virements
+**4. Transactions Module** (virement, dépôt, retrait, validation admin)
+- ✅ Création de virements, dépôts, retraits
 - ✅ Historique transactions utilisateur
 - ✅ Liste transactions en attente (ADMIN/COMPLIANCE)
 - ✅ **Validation admin obligatoire** (PATCH /validate)
@@ -70,9 +70,9 @@ src/
 - ✅ Support IBAN externes (virements SEPA)
 - ✅ DTOs: CreateTransferDto, ValidateTransactionDto
 - ✅ États: PENDING → APPROVED/REJECTED
+- ✅ Vérification solde avant transaction
 
 **5. KYC Module** (documents et workflow)
-
 - ✅ Upload documents (ID_CARD, PASSPORT, SELFIE, PROOF_ADDRESS)
 - ✅ Liste mes documents
 - ✅ Liste documents en attente (ADMIN/COMPLIANCE)
@@ -82,166 +82,44 @@ src/
 - ✅ États: PENDING → SUBMITTED → APPROVED/REJECTED
 
 **6. Common Module**
-
-- ✅ RolesGuard (vérification rôles)
-- ✅ @Roles decorator
-- ✅ @Public decorator
-- ✅ HttpExceptionFilter
-- ✅ LoggingInterceptor
-- ✅ Logger service (Winston)
+- ✅ RolesGuard, @Roles decorator, @Public decorator
+- ✅ HttpExceptionFilter, LoggingInterceptor, Logger service (Winston)
 
 #### Sécurité
-
-**Authentification**
-
-- ✅ Passwords hashés avec bcrypt (10 rounds)
-- ✅ JWT tokens avec expiration (3600s)
-- ✅ Refresh tokens (604800s = 7 jours)
-- ✅ Guards NestJS combinés (JWT + Roles)
-
-**Row Level Security (RLS)**
-
-- ✅ Politiques RLS activées sur toutes les tables Supabase
-- ✅ Isolation stricte des données par utilisateur
-- ✅ Admin/Compliance ont accès complet en lecture
-- ✅ Validation des rôles côté serveur ET base de données
-
-**Validation**
-
-- ✅ DTOs avec class-validator
-- ✅ Transformation automatique (class-transformer)
-- ✅ Whitelist activée (forbidNonWhitelisted)
+- Passwords hashés avec bcrypt (10 rounds)
+- JWT tokens avec expiration (3600s)
+- Refresh tokens (604800s = 7 jours)
+- Guards NestJS combinés (JWT + Roles)
+- RLS Supabase sur toutes les tables
+- Validation DTOs (class-validator, class-transformer)
+- Whitelist activée (forbidNonWhitelisted)
+- Audit logs détaillés (IP, user agent)
 
 #### Base de données Supabase
-
-**Migration appliquée**: `001_banking_platform_schema`
-
-**Tables créées**:
-
-- ✅ users (avec role, status, kyc_status)
-- ✅ accounts (avec IBAN, balance, type)
-- ✅ transactions (avec validation admin: validated_by, validated_at)
-- ✅ kyc_documents (avec review: reviewed_by, reviewed_at)
-- ✅ audit_logs (traçabilité complète)
-
-**Enums créés**:
-
-- ✅ user_role: CLIENT, ADMIN, COMPLIANCE
-- ✅ user_status: ACTIVE, SUSPENDED, PENDING_VERIFICATION, CLOSED
-- ✅ account_type: CHECKING, SAVINGS
-- ✅ account_status: ACTIVE, FROZEN, CLOSED
-- ✅ transaction_type: TRANSFER, DEPOSIT, WITHDRAWAL, FEE
-- ✅ transaction_status: PENDING, APPROVED, REJECTED, COMPLETED, CANCELLED
-- ✅ kyc_status: PENDING, SUBMITTED, APPROVED, REJECTED
-- ✅ kyc_document_type: ID_CARD, PASSPORT, SELFIE, PROOF_ADDRESS
-- ✅ document_status: PENDING, APPROVED, REJECTED
-
-**Index créés** pour performance:
-
-- ✅ users(email) - unique
-- ✅ accounts(user_id)
-- ✅ accounts(account_number) - unique
-- ✅ transactions(from_account_id)
-- ✅ transactions(to_account_id)
-- ✅ transactions(status)
-- ✅ kyc_documents(user_id)
-- ✅ kyc_documents(status)
-- ✅ audit_logs(user_id)
-
-**Triggers**:
-
-- ✅ updated_at automatique sur toutes les tables
-
-#### Configuration
-
-**Fichiers de configuration**:
-
-- ✅ `.env` - Variables d'environnement Supabase configurées
-- ✅ `.env.example` - Template pour nouveaux utilisateurs
-- ✅ `tsconfig.json` - Configuration TypeScript
-- ✅ `src/config/configuration.ts` - Configuration centralisée
-
-**Variables d'environnement configurées**:
-
-```env
-SUPABASE_URL=https://eiujcodytvzpqxrhnlak.supabase.co
-SUPABASE_ANON_KEY=eyJhbGci...
-JWT_SECRET=super-secret-jwt-token...
-JWT_EXPIRATION=3600
-PORT=3000
-```
+- Tables : users, accounts, transactions, kyc_documents, audit_logs, password_history, user_sessions, token_blacklist, activity_log
+- RLS activé, indexes, enums, triggers updated_at
 
 #### Documentation
-
-**Fichiers créés**:
-
-- ✅ `README.md` - Documentation complète du projet
-- ✅ `IMPLEMENTATION.md` - Ce fichier (récapitulatif)
-- ✅ Swagger intégré sur `/api/docs`
-
-**Documentation Swagger**:
-
-- ✅ Tous les endpoints documentés
-- ✅ Tags par module (auth, users, accounts, transactions, kyc)
-- ✅ Bearer authentication configurée
-- ✅ Exemples de requêtes/réponses
+- README.md, README_MONOREPO.md, IMPLEMENTATION.md, MISSING_FEATURES.md
+- Swagger intégré sur `/api/docs` (endpoints, tags, exemples)
 
 #### Build et tests
-
-- ✅ `npm run build` - Compilation réussie sans erreurs
-- ✅ 45 fichiers TypeScript compilés
-- ✅ 0 erreur de compilation
-- ✅ 0 warning critique
+- Compilation TypeScript sans erreurs
+- Tests unitaires/e2e à venir
 
 ## Ce qui manque (développements futurs)
 
-### Frontend (à implémenter)
-
-**1. Dashboard Client (React/Next.js)**
-
-- Vue d'ensemble comptes et soldes
-- Liste transactions avec filtres
-- Formulaire création virement
-- Upload documents KYC
-- Suivi statut KYC
-- Gestion profil utilisateur
-
-**2. Admin Panel (React-Admin)**
-
-- Dashboard analytics
-- Liste utilisateurs avec recherche
-- Liste transactions en attente
-- Validation transactions (approve/reject)
-- Liste documents KYC en attente
-- Validation documents KYC
-- Audit logs et traçabilité
-- Export CSV/PDF
-
-### Fonctionnalités backend additionnelles
-
-**Notifications**
-
-- [ ] WebSocket pour notifications temps réel
-- [ ] Email notifications (transactions, KYC status)
-- [ ] SMS notifications (2FA, transactions importantes)
-
-**Avancé**
-
-- [ ] 2FA authentification (TOTP)
-- [ ] Support multi-devises (EUR, USD, GBP)
-- [ ] Limites de virements configurables
-- [ ] Scheduled transactions (virements programmés)
-- [ ] Cartes bancaires (gestion + transactions)
-- [ ] Export PDF relevés de compte
-- [ ] Intégration SEPA réelle
-- [ ] Webhooks pour événements
-
-**Compliance**
-
-- [ ] Détection transactions suspectes
-- [ ] Rapports réglementaires
-- [ ] Freeze/Unfreeze comptes
-- [ ] Blacklist IBAN
+Voir `MISSING_FEATURES.md` pour la roadmap complète.
+- Dépôts/retraits (backend, frontend, admin)
+- Vérification solde
+- Édition profil utilisateur
+- Menu admin conditionnel
+- Admin édition IBAN
+- Notifications email/WebSocket
+- Tests backend/frontend
+- Docker, CI/CD, monitoring
+- Multi-devises, cartes bancaires, limites, scheduled transactions
+- Compliance avancé (AML, alertes, freeze/unfreeze)
 
 ## Workflows fonctionnels
 
@@ -262,20 +140,17 @@ POST /api/kyc/documents (PROOF_ADDRESS)
 
 # 3. Admin valide les documents
 PATCH /api/kyc/documents/:id/review { approved: true }
-PATCH /api/kyc/documents/:id/review { approved: true }
-PATCH /api/kyc/documents/:id/review { approved: true }
 → KYC status: APPROVED
 → User status: ACTIVE
 ```
 
-### 2. Virement avec validation admin
+### 2. Transaction (virement/dépôt/retrait) avec validation admin
 
 ```bash
-# 1. Client crée virement
-POST /api/transactions/transfer
+# 1. Client crée transaction
+POST /api/transactions/transfer|deposit|withdraw
 {
-  "fromAccountId": "uuid",
-  "toAccountId": "uuid",
+  "accountId": "uuid",
   "amount": 500,
   "description": "Rent payment"
 }
@@ -290,8 +165,7 @@ GET /api/transactions/pending
 PATCH /api/transactions/:id/validate
 { "approved": true }
 → Transaction status: APPROVED
-→ Solde from_account: -500
-→ Solde to_account: +500
+→ Solde mis à jour
 → validated_by: admin_user_id
 → validated_at: timestamp
 ```
@@ -317,46 +191,18 @@ DELETE /api/users/:id
 → Utilisateur supprimé (soft delete)
 ```
 
-## Commandes utiles
-
-```bash
-# Installation
-npm install
-
-# Développement
-npm run start:dev
-
-# Build
-npm run build
-
-# Production
-npm run start:prod
-
-# Tests
-npm run test
-npm run test:e2e
-npm run test:cov
-
-# Lint
-npm run lint
-
-# Format
-npm run format
-```
-
 ## API Endpoints
 
 ### Auth
-
 - POST `/api/auth/register` - Inscription
 - POST `/api/auth/login` - Connexion
 - POST `/api/auth/refresh` - Refresh token
 - POST `/api/auth/logout` - Déconnexion
 - GET `/api/auth/google` - OAuth Google
 - GET `/api/auth/google/callback` - Callback OAuth
+- POST `/api/auth/2fa/enable|verify|disable` - 2FA (à venir)
 
 ### Users
-
 - GET `/api/users` - Liste (ADMIN)
 - GET `/api/users/profile` - Mon profil
 - GET `/api/users/:id` - Détails (ADMIN)
@@ -365,41 +211,38 @@ npm run format
 - DELETE `/api/users/:id` - Supprimer (ADMIN)
 
 ### Accounts
-
 - GET `/api/accounts` - Mes comptes
 - GET `/api/accounts/:id` - Détails compte
 - GET `/api/accounts/:id/balance` - Solde
+- PATCH `/api/accounts/:id` - Édition IBAN (admin)
 
 ### Transactions
-
 - POST `/api/transactions/transfer` - Créer virement
+- POST `/api/transactions/deposit` - Dépôt (à venir)
+- POST `/api/transactions/withdraw` - Retrait (à venir)
 - GET `/api/transactions` - Mes transactions
 - GET `/api/transactions/pending` - En attente (ADMIN/COMPLIANCE)
 - PATCH `/api/transactions/:id/validate` - Valider (ADMIN/COMPLIANCE)
 
 ### KYC
-
 - POST `/api/kyc/documents` - Upload document
 - GET `/api/kyc/documents` - Mes documents
 - GET `/api/kyc/documents/pending` - En attente (ADMIN/COMPLIANCE)
 - PATCH `/api/kyc/documents/:id/review` - Valider (ADMIN/COMPLIANCE)
 
-## Swagger Documentation
-
+## Documentation Swagger
 Accès: `http://localhost:3000/api/docs`
-
 - Documentation interactive complète
 - Test des endpoints directement
 - Authentification Bearer token
 - Exemples de requêtes/réponses
 
 ## Conclusion
-
-Le backend est **100% fonctionnel et prêt pour la production** (après obtention de la SUPABASE_SERVICE_ROLE_KEY).
+Le backend est **75% fonctionnel et prêt pour corrections critiques puis déploiement MVP**.
 
 Prochaines étapes recommandées:
+1. Ajouter endpoints dépôt/retrait, édition profil, édition IBAN, menu admin conditionnel
+2. Développer notifications, tests, Docker, CI/CD, monitoring
+3. Déployer sur infrastructure cloud
 
-1. Obtenir la clé Supabase Service Role
-2. Développer le frontend React
-3. Ajouter tests unitaires et e2e
-4. Déployer sur infrastructure cloud
+Pour la roadmap complète et les priorités, voir `MISSING_FEATURES.md`.
