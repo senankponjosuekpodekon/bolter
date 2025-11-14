@@ -21,6 +21,7 @@ banking-platform/
 ## ✅ Ce qui est implémenté
 
 ### Backend (apps/server/)
+
 - ✅ NestJS + TypeScript + Supabase
 - ✅ Auth (JWT + Google OAuth)
 - ✅ Users, Accounts, Transactions, KYC modules
@@ -31,6 +32,7 @@ banking-platform/
 - ✅ Swagger docs: http://localhost:3000/api/docs
 
 ### Frontend Client (apps/client/)
+
 - ✅ React + TypeScript + Vite + Tailwind
 - ✅ Login / Register
 - ✅ Dashboard (soldes + transactions)
@@ -42,6 +44,7 @@ banking-platform/
 - ✅ TanStack Query + Zustand
 
 ### Admin Panel (apps/admin/)
+
 - ✅ React-Admin + TypeScript
 - ✅ Authentication (Admin/Compliance only)
 - ✅ **Validation transactions** (Approve/Reject) ⭐
@@ -62,6 +65,7 @@ npm run dev
 ```
 
 **URLs**:
+
 - Server: http://localhost:3000
 - Client: http://localhost:5173
 - Admin: http://localhost:5174
@@ -69,19 +73,23 @@ npm run dev
 ## 🔐 Workflows Principaux
 
 ### Transaction avec Validation
+
 1. Client crée virement/dépôt/retrait → PENDING
 2. Admin valide → APPROVED (soldes mis à jour) ou REJECTED
 
 ### KYC avec Review
+
 1. Client upload docs → PENDING
 2. Compliance review → APPROVED/REJECTED
 3. Statut KYC utilisateur mis à jour auto
 
 ### Profil Utilisateur
+
 1. Affichage et édition profil, préférences
 2. Historique activité
 
 ### Admin
+
 1. Gestion utilisateurs, comptes, IBAN
 2. Validation transactions/dépôts/retraits
 3. Audit log
@@ -99,6 +107,7 @@ npm run build            # Build all
 ## 🔧 Configuration
 
 Créer `apps/server/.env`:
+
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
@@ -110,6 +119,7 @@ PORT=3000
 ## 📋 Fonctionnalités Manquantes & Priorités
 
 Voir `MISSING_FEATURES.md` pour la roadmap complète.
+
 - Dépôts/retraits
 - Vérification solde
 - Édition profil utilisateur
@@ -120,11 +130,13 @@ Voir `MISSING_FEATURES.md` pour la roadmap complète.
 ## 📋 Détails complets
 
 Voir documentation complète dans:
+
 - `README.md` - Vue d'ensemble, modules, installation
 - `IMPLEMENTATION.md` - Détails backend, migrations
 - `MISSING_FEATURES.md` - Roadmap, priorités
 
 ## Statut Global
+
 - Backend : 95% (manque dépôts/retraits, solde check)
 - Frontend Client : 80% (manque édition profil, dépôts/retraits)
 - Admin Panel : 75% (manque dashboard, édition IBAN)

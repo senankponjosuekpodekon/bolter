@@ -33,4 +33,4 @@ import configuration from '../apps/server/src/config/configuration';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

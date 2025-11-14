@@ -9,7 +9,7 @@ const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*
 
 @Injectable()
 export class UsersService {
-  constructor(private supabase: SupabaseService, private readonly activityLogService: ActivityLogService) {}
+  constructor(private supabase: SupabaseService, private readonly activityLogService: ActivityLogService) { }
 
   async create(data: CreateUserDto): Promise<any> {
     const { password, email, firstName, lastName, role } = data;

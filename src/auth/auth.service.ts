@@ -21,7 +21,7 @@ export class AuthService {
     private readonly logger: Logger,
     private readonly tokenBlacklistService: TokenBlacklistService,
     private readonly activityLogService: ActivityLogService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);

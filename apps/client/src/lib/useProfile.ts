@@ -3,19 +3,19 @@ import { getProfile, updateProfile, getProfileActivity, updatePreferences } from
 import { useEffect } from 'react'
 
 export function useProfile() {
-  const { user, setUser, preferences, setPreferences } = useAuthStore()
+    const { user, setUser, preferences, setPreferences } = useAuthStore()
 
-  useEffect(() => {
-    getProfile().then(setUser)
-    getProfileActivity().then(() => {})
-    updatePreferences(preferences || {}).then(setPreferences)
-  }, [])
+    useEffect(() => {
+        getProfile().then(setUser)
+        getProfileActivity().then(() => { })
+        updatePreferences(preferences || {}).then(setPreferences)
+    }, [])
 
-  return {
-    user,
-    preferences,
-    updateProfile,
-    updatePreferences,
-    getProfileActivity,
-  }
+    return {
+        user,
+        preferences,
+        updateProfile,
+        updatePreferences,
+        getProfileActivity,
+    }
 }

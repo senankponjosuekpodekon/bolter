@@ -1,7 +1,7 @@
-import { useProfile } from '../lib/useProfile'
+import { useProfile } from "../lib/useProfile";
 
 export function ProfilePage() {
-  const { user, preferences } = useProfile()
+  const { user, preferences } = useProfile();
 
   return (
     <div>
@@ -10,10 +10,13 @@ export function ProfilePage() {
       <div>Prénom: {user?.firstName}</div>
       <div>Nom: {user?.lastName}</div>
       <div>Langue: {preferences?.language}</div>
-      <div>Notifications: {preferences?.notificationsEnabled ? 'Activées' : 'Désactivées'}</div>
+      <div>
+        Notifications:{" "}
+        {preferences?.notificationsEnabled ? "Activées" : "Désactivées"}
+      </div>
       {/* Formulaires et boutons pour updateProfile et updatePreferences */}
       <h3>Historique d'activité</h3>
       {/* Affichage de l'historique via getProfileActivity() */}
     </div>
-  )
+  );
 }

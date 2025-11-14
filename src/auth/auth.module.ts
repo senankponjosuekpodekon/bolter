@@ -38,4 +38,4 @@ import { TokenBlacklistService } from './token-blacklist.service';
   ],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

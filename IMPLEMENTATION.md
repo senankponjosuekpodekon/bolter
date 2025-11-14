@@ -32,6 +32,7 @@ src/
 #### Modules implémentés
 
 **1. Auth Module** (JWT + OAuth Google + Sécurité avancée)
+
 - ✅ Register, login, refresh, logout
 - ✅ Google OAuth, local, JWT strategies
 - ✅ Guards: JwtAuthGuard, LocalAuthGuard, GoogleAuthGuard
@@ -44,6 +45,7 @@ src/
 - ✅ 2FA (TOTP, QR code, backup codes, endpoints à venir)
 
 **2. Users Module**
+
 - ✅ CRUD complet
 - ✅ Création automatique de compte bancaire à l'inscription
 - ✅ Rôles: CLIENT, ADMIN, COMPLIANCE
@@ -54,6 +56,7 @@ src/
 - ✅ Activité utilisateur (historique)
 
 **3. Accounts Module**
+
 - ✅ Consultation de mes comptes
 - ✅ Détails d'un compte
 - ✅ Consultation du solde
@@ -62,6 +65,7 @@ src/
 - ✅ Édition IBAN (admin)
 
 **4. Transactions Module** (virement, dépôt, retrait, validation admin)
+
 - ✅ Création de virements, dépôts, retraits
 - ✅ Historique transactions utilisateur
 - ✅ Liste transactions en attente (ADMIN/COMPLIANCE)
@@ -73,6 +77,7 @@ src/
 - ✅ Vérification solde avant transaction
 
 **5. KYC Module** (documents et workflow)
+
 - ✅ Upload documents (ID_CARD, PASSPORT, SELFIE, PROOF_ADDRESS)
 - ✅ Liste mes documents
 - ✅ Liste documents en attente (ADMIN/COMPLIANCE)
@@ -82,10 +87,12 @@ src/
 - ✅ États: PENDING → SUBMITTED → APPROVED/REJECTED
 
 **6. Common Module**
+
 - ✅ RolesGuard, @Roles decorator, @Public decorator
 - ✅ HttpExceptionFilter, LoggingInterceptor, Logger service (Winston)
 
 #### Sécurité
+
 - Passwords hashés avec bcrypt (10 rounds)
 - JWT tokens avec expiration (3600s)
 - Refresh tokens (604800s = 7 jours)
@@ -96,20 +103,24 @@ src/
 - Audit logs détaillés (IP, user agent)
 
 #### Base de données Supabase
+
 - Tables : users, accounts, transactions, kyc_documents, audit_logs, password_history, user_sessions, token_blacklist, activity_log
 - RLS activé, indexes, enums, triggers updated_at
 
 #### Documentation
+
 - README.md, README_MONOREPO.md, IMPLEMENTATION.md, MISSING_FEATURES.md
 - Swagger intégré sur `/api/docs` (endpoints, tags, exemples)
 
 #### Build et tests
+
 - Compilation TypeScript sans erreurs
 - Tests unitaires/e2e à venir
 
 ## Ce qui manque (développements futurs)
 
 Voir `MISSING_FEATURES.md` pour la roadmap complète.
+
 - Dépôts/retraits (backend, frontend, admin)
 - Vérification solde
 - Édition profil utilisateur
@@ -194,6 +205,7 @@ DELETE /api/users/:id
 ## API Endpoints
 
 ### Auth
+
 - POST `/api/auth/register` - Inscription
 - POST `/api/auth/login` - Connexion
 - POST `/api/auth/refresh` - Refresh token
@@ -203,6 +215,7 @@ DELETE /api/users/:id
 - POST `/api/auth/2fa/enable|verify|disable` - 2FA (à venir)
 
 ### Users
+
 - GET `/api/users` - Liste (ADMIN)
 - GET `/api/users/profile` - Mon profil
 - GET `/api/users/:id` - Détails (ADMIN)
@@ -211,12 +224,14 @@ DELETE /api/users/:id
 - DELETE `/api/users/:id` - Supprimer (ADMIN)
 
 ### Accounts
+
 - GET `/api/accounts` - Mes comptes
 - GET `/api/accounts/:id` - Détails compte
 - GET `/api/accounts/:id/balance` - Solde
 - PATCH `/api/accounts/:id` - Édition IBAN (admin)
 
 ### Transactions
+
 - POST `/api/transactions/transfer` - Créer virement
 - POST `/api/transactions/deposit` - Dépôt (à venir)
 - POST `/api/transactions/withdraw` - Retrait (à venir)
@@ -225,22 +240,27 @@ DELETE /api/users/:id
 - PATCH `/api/transactions/:id/validate` - Valider (ADMIN/COMPLIANCE)
 
 ### KYC
+
 - POST `/api/kyc/documents` - Upload document
 - GET `/api/kyc/documents` - Mes documents
 - GET `/api/kyc/documents/pending` - En attente (ADMIN/COMPLIANCE)
 - PATCH `/api/kyc/documents/:id/review` - Valider (ADMIN/COMPLIANCE)
 
 ## Documentation Swagger
+
 Accès: `http://localhost:3000/api/docs`
+
 - Documentation interactive complète
 - Test des endpoints directement
 - Authentification Bearer token
 - Exemples de requêtes/réponses
 
 ## Conclusion
+
 Le backend est **75% fonctionnel et prêt pour corrections critiques puis déploiement MVP**.
 
 Prochaines étapes recommandées:
+
 1. Ajouter endpoints dépôt/retrait, édition profil, édition IBAN, menu admin conditionnel
 2. Développer notifications, tests, Docker, CI/CD, monitoring
 3. Déployer sur infrastructure cloud

@@ -60,7 +60,6 @@ banking-platform/
   - Modification firstName, lastName, phone, address
   - Vue des statuts (role, account status, KYC status)
 
-
 - ✅ **Menu Administration conditionnel** - Visible uniquement pour ADMIN/COMPLIANCE ⭐
 
 - **Users** - CRUD utilisateurs, gestion rôles et statuts
@@ -70,7 +69,6 @@ banking-platform/
 - ✅ Gestion utilisateurs avec modification rôles
 - ✅ **Consultation Audit Logs** depuis l'admin pour tracer toutes les actions
 - ✅ Auth réservée aux rôles ADMIN et COMPLIANCE
-
   - Endpoints sécurisés (ROLE = ADMIN/COMPLIANCE) pour listing, édition profil, changement rôle/statut, activation/désactivation.
   - Services appliquent validations (immutabilité email, rôles autorisés) et publient les entrées `audit_logs` (`resource_type = "user"`, `action` = role_change|status_update|profile_update).
   - DTO retournent métadonnées (`validated_by`, `updated_at`) afin d’alimenter l’UI React-Admin.
@@ -86,18 +84,21 @@ banking-platform/
 ## 🚀 Quick Start
 
 ```bash
+
 ```
 
 - Admin panel: http://localhost:5174
-**Démarrage individuel**:
+  **Démarrage individuel**:
 
-npm run dev:admin     # Admin only
+npm run dev:admin # Admin only
 
 ## 🔐 Workflows Principaux
-   → Transaction status: PENDING
+
+→ Transaction status: PENDING
 
 2. ADMIN consulte transactions pending (Admin app)
    → Approve: Status APPROVED + Soldes mis à jour
+
 ```
 
 
