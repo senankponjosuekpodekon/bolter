@@ -8,7 +8,7 @@ export function useProfile() {
     useEffect(() => {
         getProfile().then(setUser)
         getProfileActivity().then(() => { })
-        updatePreferences(preferences || {}).then(setPreferences)
+        updatePreferences(preferences as Record<string, unknown> || {}).then(setPreferences)
     }, [])
 
     return {

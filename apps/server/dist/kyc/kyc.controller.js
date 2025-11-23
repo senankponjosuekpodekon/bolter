@@ -26,16 +26,16 @@ let KycController = class KycController {
         this.kycService = kycService;
     }
     uploadDocument(req, uploadDto) {
-        return this.kycService.uploadDocument(req.user.id, uploadDto);
+        return this.kycService.uploadDocument(req.user?.id ?? 'unknown', uploadDto);
     }
     getUserDocuments(req) {
-        return this.kycService.findByUserId(req.user.id);
+        return this.kycService.findByUserId(req.user?.id ?? 'unknown');
     }
     getPendingDocuments() {
         return this.kycService.findPendingDocuments();
     }
     reviewDocument(req, id, reviewDto) {
-        return this.kycService.reviewDocument(req.user.id, id, reviewDto);
+        return this.kycService.reviewDocument(req.user?.id ?? 'unknown', id, reviewDto);
     }
 };
 exports.KycController = KycController;

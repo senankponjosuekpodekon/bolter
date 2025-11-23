@@ -6,6 +6,25 @@ export declare class JwtStrategy extends JwtStrategy_base {
     private configService;
     private usersService;
     constructor(configService: ConfigService, usersService: UsersService);
-    validate(payload: any): Promise<any>;
+    validate(payload: {
+        sub: string;
+        email: string;
+        role: string;
+    }): Promise<{
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        phone?: string | null;
+        address?: string | null;
+        role: string;
+        status?: string;
+        kyc_status?: string;
+        hasPassword: boolean;
+        createdAt?: string;
+        updatedAt?: string;
+        password?: string;
+        refreshToken?: string;
+    }>;
 }
 export {};

@@ -28,19 +28,19 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         if (dto.amount <= 0) {
             throw new common_1.BadRequestException('Amount must be greater than zero');
         }
-        const fromAccount = await this.accountsService.findById(dto.fromAccountId);
+        const fromAccount = await this.accountsService.findById(dto.fromAccountId.toString());
         if (fromAccount.user_id !== userId) {
             this.logger.warn(`User ${userId} attempted transfer from account ${dto.fromAccountId} owned by ${fromAccount.user_id}`);
             throw new common_1.ForbiddenException('You can only transfer from your own accounts');
         }
         if (dto.toAccountId) {
-            const toAccount = await this.accountsService.findById(dto.toAccountId);
+            const toAccount = await this.accountsService.findById(dto.toAccountId.toString());
             if (toAccount.user_id !== userId) {
                 this.logger.warn(`User ${userId} attempted transfer to internal account ${dto.toAccountId} owned by ${toAccount.user_id}`);
                 throw new common_1.ForbiddenException('You can only transfer to your own internal accounts');
             }
         }
-        if (parseFloat(fromAccount.balance) < dto.amount) {
+        if (Number(fromAccount.balance) < dto.amount) {
             throw new common_1.BadRequestException('Insufficient balance');
         }
         const { data, error } = await this.supabase
@@ -81,7 +81,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         if (dto.amount <= 0) {
             throw new common_1.BadRequestException('Amount must be greater than zero');
         }
-        const account = await this.accountsService.findById(dto.accountId);
+        const account = await this.accountsService.findById(dto.accountId.toString());
         if (account.user_id !== userId) {
             this.logger.warn(`User ${userId} attempted deposit to account ${dto.accountId} owned by ${account.user_id}`);
             throw new common_1.ForbiddenException('You can only deposit to your own accounts');
@@ -123,12 +123,12 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         if (dto.amount <= 0) {
             throw new common_1.BadRequestException('Amount must be greater than zero');
         }
-        const account = await this.accountsService.findById(dto.accountId);
+        const account = await this.accountsService.findById(dto.accountId.toString());
         if (account.user_id !== userId) {
             this.logger.warn(`User ${userId} attempted withdraw from account ${dto.accountId} owned by ${account.user_id}`);
             throw new common_1.ForbiddenException('You can only withdraw from your own accounts');
         }
-        if (parseFloat(account.balance) < dto.amount) {
+        if (Number(account.balance) < dto.amount) {
             throw new common_1.BadRequestException('Insufficient balance');
         }
         const description = dto.description || `Withdrawal to ${dto.bankDetails.iban}`;
@@ -331,31 +331,31 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         if (transaction.status !== 'PENDING') {
             throw new common_1.BadRequestException('Transaction has already been processed');
         }
-        const amount = parseFloat(transaction.amount);
+        const amount = Number(transaction.amount);
         const newStatus = dto.approved ? 'APPROVED' : 'REJECTED';
         let fromAccount = null;
         let toAccount = null;
         if (dto.approved) {
             if ((transaction.type === 'TRANSFER' || transaction.type === 'WITHDRAWAL') && transaction.from_account_id) {
-                fromAccount = await this.accountsService.findById(transaction.from_account_id);
-                const currentBalance = parseFloat(fromAccount.balance);
+                fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
+                const currentBalance = Number(fromAccount.balance);
                 if (currentBalance < amount) {
                     throw new common_1.BadRequestException('Insufficient balance');
                 }
                 await this.updateAccountBalance(transaction.from_account_id, currentBalance - amount);
             }
             if ((transaction.type === 'TRANSFER' || transaction.type === 'DEPOSIT') && transaction.to_account_id) {
-                toAccount = await this.accountsService.findById(transaction.to_account_id);
-                const currentBalance = parseFloat(toAccount.balance);
+                toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
+                const currentBalance = Number(toAccount.balance);
                 await this.updateAccountBalance(transaction.to_account_id, currentBalance + amount);
             }
         }
         if (!dto.approved) {
             if (!fromAccount && transaction.from_account_id) {
-                fromAccount = await this.accountsService.findById(transaction.from_account_id);
+                fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
             }
             if (!toAccount && transaction.to_account_id) {
-                toAccount = await this.accountsService.findById(transaction.to_account_id);
+                toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
             }
         }
         const { data, error } = await client
@@ -410,9 +410,9 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             throw new common_1.BadRequestException('Cannot transfer to the same account');
         }
         const client = this.supabase.getAdminClient();
-        const fromAccount = await this.accountsService.findById(dto.fromAccountId);
-        const toAccount = dto.toAccountId ? await this.accountsService.findById(dto.toAccountId) : null;
-        if (autoApprove && parseFloat(fromAccount.balance) < dto.amount) {
+        const fromAccount = await this.accountsService.findById(dto.fromAccountId.toString());
+        const toAccount = dto.toAccountId ? await this.accountsService.findById(dto.toAccountId.toString()) : null;
+        if (autoApprove && Number(fromAccount.balance) < dto.amount) {
             throw new common_1.BadRequestException('Insufficient balance');
         }
         const status = autoApprove ? 'APPROVED' : 'PENDING';
@@ -437,10 +437,10 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             throw new common_1.BadRequestException(`Failed to create transfer: ${error.message}`);
         }
         if (autoApprove) {
-            const fromBalance = parseFloat(fromAccount.balance) - dto.amount;
+            const fromBalance = Number(fromAccount.balance) - dto.amount;
             await this.updateAccountBalance(fromAccount.id, fromBalance);
             if (toAccount) {
-                const toBalance = parseFloat(toAccount.balance) + dto.amount;
+                const toBalance = Number(toAccount.balance) + dto.amount;
                 await this.updateAccountBalance(toAccount.id, toBalance);
             }
         }
@@ -509,7 +509,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             throw new common_1.BadRequestException('paymentMethod is required for deposits');
         }
         const client = this.supabase.getAdminClient();
-        const account = await this.accountsService.findById(dto.toAccountId);
+        const account = await this.accountsService.findById(dto.toAccountId.toString());
         const status = autoApprove ? 'APPROVED' : 'PENDING';
         const description = this.buildDepositDescription(dto.paymentMethod, dto.reference, dto.description);
         const { data, error } = await client
@@ -531,7 +531,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             throw new common_1.BadRequestException(`Failed to create deposit: ${error.message}`);
         }
         if (autoApprove) {
-            const newBalance = parseFloat(account.balance) + dto.amount;
+            const newBalance = Number(account.balance) + dto.amount;
             await this.updateAccountBalance(account.id, newBalance);
         }
         await this.logTransactionAction(account.user_id, adminId, 'TRANSACTION_CREATED', data.id, {
@@ -578,8 +578,8 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             throw new common_1.BadRequestException('bankDetails are required for withdrawals');
         }
         const client = this.supabase.getAdminClient();
-        const account = await this.accountsService.findById(dto.fromAccountId);
-        if (autoApprove && parseFloat(account.balance) < dto.amount) {
+        const account = await this.accountsService.findById(dto.fromAccountId.toString());
+        if (autoApprove && Number(account.balance) < dto.amount) {
             throw new common_1.BadRequestException('Insufficient balance');
         }
         const status = autoApprove ? 'APPROVED' : 'PENDING';
@@ -604,7 +604,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             throw new common_1.BadRequestException(`Failed to create withdrawal: ${error.message}`);
         }
         if (autoApprove) {
-            const newBalance = parseFloat(account.balance) - dto.amount;
+            const newBalance = Number(account.balance) - dto.amount;
             if (newBalance < 0) {
                 throw new common_1.BadRequestException('Insufficient balance');
             }

@@ -29,9 +29,9 @@ let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
         }
         return super.canActivate(context);
     }
-    handleRequest(err, user, info) {
+    handleRequest(err, user, _info, _context, _status) {
         if (err || !user) {
-            throw err || new common_1.UnauthorizedException('Authentication required');
+            throw err ?? new common_1.UnauthorizedException('Authentication required');
         }
         return user;
     }

@@ -6,6 +6,12 @@ export declare class GoogleStrategy extends GoogleStrategy_base {
     private configService;
     private authService;
     constructor(configService: ConfigService, authService: AuthService);
-    validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any>;
+    validate(accessToken: string, refreshToken: string, profile: {
+        emails?: Array<{
+            value: string;
+        }>;
+        id: string;
+        displayName?: string;
+    }, done: VerifyCallback): Promise<void>;
 }
 export {};

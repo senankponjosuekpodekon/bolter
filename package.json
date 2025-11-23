@@ -16,12 +16,14 @@
     "build:client": "npm run build --workspace=client",
     "build:admin": "npm run build --workspace=admin",
     "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces"
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspace=client && npm run lint --workspace=server && npm run lint --workspace=admin"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "eslint-plugin-react": "^7.37.5",
     "nodemailer": "^7.0.10",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -30,6 +32,9 @@
   "overrides": {
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-is": "18.3.1"
+    "react-is": "18.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
+    "typescript": "^5.9.3"
   }
 }

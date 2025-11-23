@@ -11,11 +11,16 @@ interface User {
   address?: string
   status?: string
   kyc_status?: string
+  preferences?: Preferences
 }
 
 interface Preferences {
   language?: string
   notificationsEnabled?: boolean
+  theme?: 'light' | 'dark' | 'auto'
+  widgets?: string[]
+  alertThreshold?: number
+  emailAlerts?: boolean
 }
 
 interface AuthState {
@@ -27,11 +32,12 @@ interface AuthState {
   setUser: (user: User) => void
   setPreferences: (preferences: Preferences) => void
   logout: () => void
+  updatePreferences: (prefs: Partial<Preferences>) => void
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       accessToken: null,
       isAuthenticated: false,
@@ -40,6 +46,14 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user }),
       setPreferences: (preferences) => set({ preferences }),
       logout: () => set({ user: null, accessToken: null, isAuthenticated: false, preferences: null }),
+      updatePreferences: (prefs) => {
+        const user = get().user
+        const preferences = { ...user?.preferences, ...prefs }
+        set({
+          user: user ? { ...user, preferences } : null,
+          preferences,
+        })
+      },
     }),
     {
       name: 'auth-storage',

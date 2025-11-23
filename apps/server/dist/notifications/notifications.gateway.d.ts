@@ -11,8 +11,8 @@ export declare class NotificationsGateway implements OnGatewayConnection, OnGate
     constructor(jwtService: JwtService, configService: ConfigService, logger: Logger);
     handleConnection(client: Socket): Promise<void>;
     handleDisconnect(client: Socket): void;
-    emitToUser(userId: string, payload: Record<string, any>): void;
-    emitToRole(role: string, payload: Record<string, any>): void;
-    broadcast(payload: Record<string, any>): void;
+    emitToUser(userId: string, payload: Record<string, unknown>): void;
+    emitToRole(role: string, payload: Record<string, unknown>): void;
+    broadcast(payload: Record<string, unknown>): void;
     private extractToken;
 }

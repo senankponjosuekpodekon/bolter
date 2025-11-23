@@ -59,16 +59,18 @@ export default function Layout() {
                 >
                   Profile
                 </Link>
-                {(user?.role === "ADMIN" || user?.role === "COMPLIANCE") && (
-                  <a
-                    href="http://localhost:5174"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="border-transparent text-red-600 hover:border-red-300 hover:text-red-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
-                    Administration ↗
-                  </a>
-                )}
+                <Link
+                  to="/securite/2fa"
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                >
+                  Sécurité 2FA
+                </Link>
+                <Link
+                  to="/securite/historique"
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                >
+                  Historique Sécurité
+                </Link>
               </div>
             </div>
             <div className="flex items-center gap-4">

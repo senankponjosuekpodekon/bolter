@@ -2,11 +2,25 @@
 
 ## [1.1.0] - 2025-10-23 - Corrections Critiques Complétées
 
+## [1.1.1] - 2025-11-23 - Tooling and Linting upgrades
+
+### 🔧 Tooling
+
+- Upgrade TypeScript to 5.9.3 across workspaces (apps/client, apps/server, apps/admin)
+- Upgrade @typescript-eslint packages to ^8.47.0 and align ESLint versions across workspaces
+- Reinstalled dependencies and made lint-fixes required by the new toolchain
+
+### 🧹 Lint & Type fixes
+
+- Fixed multiple TypeScript and ESLint issues surfaced after upgrading the tooling (guards, data providers, UI type collisions, catch variables)
+- Confirmed repo linter completes successfully after updates; small doc patches applied for developer guidance
+
 ### 🎉 Nouvelles Fonctionnalités Majeures
 
 #### Backend (apps/server/)
 
 **✅ Support DEPOSIT et WITHDRAWAL**
+
 - Ajout endpoint `POST /api/transactions/deposit`
   - Support méthodes: BANK_TRANSFER, CARD, CASH, CHECK
   - Référence de paiement optionnelle
@@ -17,18 +31,21 @@
 - DTOs créés: `CreateDepositDto`, `CreateWithdrawDto`
 
 **✅ Vérification Solde Automatique**
+
 - Validation solde suffisant avant création TRANSFER
 - Validation solde suffisant avant création WITHDRAWAL
 - Message d'erreur clair: "Insufficient balance"
 - Affichage solde disponible dans les formulaires frontend
 
 **✅ Édition IBAN par Admin**
+
 - Endpoint `PATCH /api/accounts/:id` (ADMIN uniquement)
 - Validation format IBAN français
 - Audit log automatique avec admin_id
 - DTO créé: `UpdateAccountDto`
 
 **✅ Amélioration Validation Transactions**
+
 - Support validation DEPOSIT: +montant sur to_account
 - Support validation TRANSFER: -montant from, +montant to
 - Support validation WITHDRAWAL: -montant sur from_account
@@ -37,6 +54,7 @@
 #### Frontend Client (apps/client/)
 
 **✅ Interface Transactions Complète**
+
 - **Onglets Transfer/Deposit/Withdraw** dans `/transactions`
 - Formulaire Dépôt complet:
   - Sélection compte
@@ -56,6 +74,7 @@
 - Couleurs distinctes: Vert (deposit), Rouge (withdraw), Bleu (transfer)
 
 **✅ Profil Éditable**
+
 - Bouton "Edit Profile"
 - Formulaire édition:
   - firstName (éditable)
@@ -71,12 +90,14 @@
 - Gestion erreurs avec messages
 
 **✅ Menu Admin Conditionnel**
+
 - Lien "Administration ↗" visible uniquement pour ADMIN/COMPLIANCE
 - Badge rôle affiché dans navbar
 - Ouverture admin panel dans nouvel onglet
 - Ajout lien Profile dans menu principal
 
 **✅ AuthStore Amélioré**
+
 - Ajout propriétés User: phone, address, status, kyc_status
 - Ajout méthode `setUser()` pour mise à jour profil
 - Typage TypeScript complet
@@ -84,6 +105,7 @@
 #### Admin Panel (apps/admin/)
 
 **✅ Resource Accounts Complète**
+
 - Liste comptes avec IBAN, type, balance, status
 - **Édition IBAN** avec formulaire
 - Validation format IBAN français
@@ -121,22 +143,26 @@
 ### 📊 Métriques
 
 **Backend**:
+
 - +3 nouveaux endpoints
 - +3 nouveaux DTOs
 - +1 méthode AccountsService.update()
 - Validation transactions étendue à 3 types
 
 **Frontend Client**:
+
 - +2 nouveaux formulaires (deposit/withdraw)
 - +1 formulaire édition profil
 - +1 menu conditionnel
 - +4 propriétés User
 
 **Admin Panel**:
+
 - +1 resource complète (AccountList + AccountEdit)
 - Support édition IBAN
 
 **Build**:
+
 - ✅ Compilation réussie pour les 3 applications
 - ✅ 0 erreur TypeScript
 - ✅ 0 erreur ESLint
@@ -144,6 +170,7 @@
 ### 📝 Fichiers Modifiés
 
 #### Backend
+
 ```
 apps/server/src/
 ├── accounts/
@@ -159,6 +186,7 @@ apps/server/src/
 ```
 
 #### Frontend Client
+
 ```
 apps/client/src/
 ├── pages/
@@ -171,6 +199,7 @@ apps/client/src/
 ```
 
 #### Admin Panel
+
 ```
 apps/admin/src/
 ├── resources/
@@ -181,11 +210,13 @@ apps/admin/src/
 ### 🔄 Migration Notes
 
 **Pas de migration base de données requise** - La structure était déjà compatible:
+
 - Table `transactions` supporte déjà les types DEPOSIT/WITHDRAWAL
 - Table `accounts` permet déjà l'édition account_number
 - Table `audit_logs` capture déjà les modifications
 
 **Déploiement**:
+
 1. `npm install` (pas de nouvelles dépendances)
 2. `npm run build` (vérifier compilation)
 3. Redémarrer les 3 applications
@@ -202,6 +233,7 @@ apps/admin/src/
 **Après corrections**: **85% complet** ✅
 
 **Problèmes critiques résolus** (5/5):
+
 1. ✅ Dépôts et retraits ajoutés
 2. ✅ Vérification solde implémentée
 3. ✅ Profil éditable
@@ -209,6 +241,7 @@ apps/admin/src/
 5. ✅ Édition IBAN admin
 
 **Prochaines priorités** (Phase 2):
+
 - Tests unitaires backend (0% → 80%)
 - Notifications email
 - Dashboard analytics admin
@@ -221,6 +254,7 @@ apps/admin/src/
 ### ✅ Features Initiales
 
 #### Backend
+
 - Authentication JWT + Google OAuth
 - Users management avec rôles
 - Accounts avec IBAN auto-générés
@@ -230,6 +264,7 @@ apps/admin/src/
 - Swagger documentation
 
 #### Frontend Client
+
 - Login / Register
 - Dashboard
 - Accounts list
@@ -237,11 +272,13 @@ apps/admin/src/
 - KYC upload
 
 #### Admin Panel
+
 - Users management
 - Pending Transactions validation
 - Pending KYC review
 
 ### ⚠️ Limitations Connues (corrigées en v1.1.0)
+
 - Pas de support DEPOSIT/WITHDRAWAL
 - Pas de vérification solde
 - Profil non éditable

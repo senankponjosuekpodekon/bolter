@@ -1,3 +1,21 @@
+// Clean, single interface and class implementation
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+  address?: string | null;
+  role: string;
+  status?: string;
+  kyc_status?: string;
+  hasPassword: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  password?: string;
+  refreshToken?: string;
+}
+
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import * as bcrypt from 'bcrypt';
@@ -6,6 +24,22 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { generateFrenchIban } from '../common/utils/account-number.util';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
+
+type RawUserRow = {
+  id: string;
+  email: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  role?: string;
+  status?: string;
+  kyc_status?: string;
+  password_hash?: string | null;
+  refresh_token?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
 
 @Injectable()
 export class UsersService {
@@ -17,11 +51,10 @@ export class UsersService {
     private readonly notificationsService: NotificationsService,
   ) { }
 
-  async create(data: CreateUserDto, options?: { performedBy?: string | null; metadata?: Record<string, any> }): Promise<any> {
+  async create(data: CreateUserDto, options?: { performedBy?: string | null; metadata?: { changes?: Record<string, unknown>;[k: string]: unknown } }): Promise<User> {
     const { password, email, firstName, lastName, role, phone, address, status, kyc_status } = data;
     const hashedPassword = password ? await this.hashPassword(password) : null;
-
-    const insertPayload: Record<string, any> = {
+    const insertPayload: Record<string, unknown> = {
       email,
       password_hash: hashedPassword,
       first_name: firstName || null,
@@ -30,19 +63,15 @@ export class UsersService {
       phone: phone || null,
       address: address || null,
     };
-
     if (status) insertPayload.status = status;
     if (kyc_status) insertPayload.kyc_status = kyc_status;
-
     const { data: user, error } = await this.supabase
       .getAdminClient()
       .from('users')
       .insert(insertPayload)
       .select()
       .single();
-
     if (error) throw new BadRequestException(`Failed to create user: ${error.message}`);
-
     const accountNumber = generateFrenchIban();
     const { data: account, error: accountError } = await this.supabase
       .getAdminClient()
@@ -55,22 +84,19 @@ export class UsersService {
       })
       .select()
       .single();
-
     if (accountError) {
       throw new BadRequestException(`Failed to create default account: ${accountError.message}`);
     }
-
     const performedBy = options?.performedBy ?? user.id;
     const action = options?.performedBy && options.performedBy !== user.id ? 'USER_CREATED' : 'USER_REGISTERED';
-    const baseMetadata: Record<string, any> = {
+    const baseMetadata: Record<string, unknown> = {
       changes: {
         email,
         role: insertPayload.role,
         status: insertPayload.status ?? null,
       },
     };
-
-    const successUserLog = await this.auditLogsService.log({
+    await this.auditLogsService.log({
       userId: user.id,
       performedBy,
       action,
@@ -78,12 +104,7 @@ export class UsersService {
       resourceId: user.id,
       metadata: options?.metadata ? { ...baseMetadata, ...options.metadata } : baseMetadata,
     });
-
-    if (!successUserLog) {
-      this.logger.warn(`Failed to persist audit log for user creation (${user.id})`);
-    }
-
-    const successAccountLog = await this.auditLogsService.log({
+    await this.auditLogsService.log({
       userId: user.id,
       performedBy,
       action: 'ACCOUNT_CREATED',
@@ -96,17 +117,11 @@ export class UsersService {
         },
       },
     });
-
-    if (!successAccountLog) {
-      this.logger.warn(`Failed to persist audit log for default account creation (${account.id})`);
-    }
-
     await this.notificationsService.notifyAccountCreated(user.id, accountNumber);
-
     return this.mapUser(user);
   }
 
-  async findAll(params?: { skip?: number; take?: number }): Promise<any[]> {
+  async findAll(params?: { skip?: number; take?: number }): Promise<User[]> {
     const { skip = 0, take = 100 } = params || {};
     const { data, error } = await this.supabase
       .getAdminClient()
@@ -114,10 +129,10 @@ export class UsersService {
       .select('*')
       .range(skip, skip + take - 1);
     if (error) throw new BadRequestException(`Failed to fetch users: ${error.message}`);
-    return data.map(u => this.mapUser(u));
+    return (data ?? []).map(u => this.mapUser(u));
   }
 
-  async findById(id: string, options: { includeSensitive?: boolean } = {}): Promise<any | null> {
+  async findById(id: string, options: { includeSensitive?: boolean } = {}): Promise<User | null> {
     const { data, error } = await this.supabase
       .getAdminClient()
       .from('users')
@@ -128,7 +143,7 @@ export class UsersService {
     return data ? this.mapUser(data, options) : null;
   }
 
-  async findByEmail(email: string): Promise<any | null> {
+  async findByEmail(email: string): Promise<User | null> {
     const { data, error } = await this.supabase
       .getAdminClient()
       .from('users')
@@ -142,15 +157,13 @@ export class UsersService {
   async update(
     id: string,
     updateData: UpdateUserDto,
-    options?: { performedBy?: string | null; metadata?: Record<string, any> },
-  ): Promise<any> {
+    options?: { performedBy?: string | null; metadata?: { changes?: Record<string, unknown>;[k: string]: unknown } },
+  ): Promise<User> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-
     const { password, ...userData } = updateData;
     const hashedPassword = password ? await this.hashPassword(password) : undefined;
-
-    const updatePayload: Record<string, any> = {};
+    const updatePayload: Record<string, unknown> = {};
     if (userData.firstName !== undefined) updatePayload.first_name = userData.firstName || null;
     if (userData.lastName !== undefined) updatePayload.last_name = userData.lastName || null;
     if (userData.phone !== undefined) updatePayload.phone = userData.phone || null;
@@ -159,11 +172,9 @@ export class UsersService {
     if (userData.kyc_status !== undefined) updatePayload.kyc_status = userData.kyc_status;
     if (userData.role !== undefined) updatePayload.role = userData.role;
     if (hashedPassword) updatePayload.password_hash = hashedPassword;
-
     if (Object.keys(updatePayload).length === 0) {
       return user;
     }
-
     const { data, error } = await this.supabase
       .getAdminClient()
       .from('users')
@@ -173,10 +184,9 @@ export class UsersService {
       .single();
     if (error) throw new BadRequestException(`Failed to update user: ${error.message}`);
     const updatedUser = this.mapUser(data);
-
     const performedBy = options?.performedBy ?? id;
     if (Object.keys(updatePayload).length) {
-      const success = await this.auditLogsService.log({
+      await this.auditLogsService.log({
         userId: id,
         performedBy,
         action: 'USER_UPDATED',
@@ -186,34 +196,23 @@ export class UsersService {
           ? { ...options.metadata, changes: { ...(options.metadata?.changes ?? {}), ...updatePayload } }
           : { changes: updatePayload },
       });
-
-      if (!success) {
-        this.logger.warn(`Failed to persist audit log for user update (${id})`);
-      }
     }
-
     return updatedUser;
   }
 
-  async remove(id: string, options?: { performedBy?: string | null }): Promise<any> {
+  async remove(id: string, options?: { performedBy?: string | null }): Promise<User> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
     const { error } = await this.supabase.getAdminClient().from('users').delete().eq('id', id);
     if (error) throw new BadRequestException(`Failed to delete user: ${error.message}`);
-
     const performedBy = options?.performedBy ?? id;
-    const success = await this.auditLogsService.log({
+    await this.auditLogsService.log({
       userId: id,
       performedBy,
       action: 'USER_DELETED',
       resourceType: 'user',
       resourceId: id,
     });
-
-    if (!success) {
-      this.logger.warn(`Failed to persist audit log for user deletion (${id})`);
-    }
-
     return user;
   }
 
@@ -230,8 +229,10 @@ export class UsersService {
     return bcrypt.hash(password, salt);
   }
 
-  private mapUser(user: any, options: { includeSensitive?: boolean } = {}): any {
-    const payload: any = {
+
+
+  private mapUser(user: RawUserRow, options: { includeSensitive?: boolean } = {}): User {
+    const payload: User = {
       id: user.id,
       email: user.email,
       firstName: user.first_name,
@@ -245,12 +246,10 @@ export class UsersService {
       createdAt: user.created_at,
       updatedAt: user.updated_at,
     };
-
     if (options.includeSensitive) {
       payload.password = user.password_hash;
       payload.refreshToken = user.refresh_token;
     }
-
     return payload;
   }
 }

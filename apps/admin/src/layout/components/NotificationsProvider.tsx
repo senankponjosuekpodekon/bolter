@@ -77,11 +77,11 @@ function buildItem(payload: NotificationPayload): NotificationItem {
   };
 }
 
-export const NotificationsProvider = ({
+export function NotificationsProvider({
   children,
 }: {
   children: React.ReactNode;
-}) => {
+}) {
   const notify = useNotify();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const hasWarnedRef = useRef(false);
@@ -112,14 +112,46 @@ export const NotificationsProvider = ({
     });
 
     socket.on("notification", (payload: NotificationPayload) => {
-      hasWarnedRef.current = false;
-      const item = buildItem(payload);
-      setNotifications((prev) => [item, ...prev].slice(0, 20));
-
-      const title = item.title || "Nouvelle notification";
-      const message = item.message || title;
-      const formatted = title === message ? title : `${title} - ${message}`;
-      notify(formatted, { type: resolveType(item) });
+      try {
+        hasWarnedRef.current = false;
+        const item = buildItem(payload);
+        // Defer state updates/notifications to avoid React setState-in-render warnings
+        queueMicrotask(() => {
+          try {
+            setNotifications((prev) => [item, ...prev].slice(0, 20));
+            const title = item.title || "Nouvelle notification";
+            const message = item.message || title;
+            const formatted =
+              title === message ? title : `${title} - ${message}`;
+            notify(formatted, { type: resolveType(item) });
+          } catch (err) {
+            // Log notification handling errors — keep outside router usage
+            // eslint-disable-next-line no-console
+            console.error("Error while processing notification", err, payload);
+            // Save a compact debug entry that admin devs can inspect
+            try {
+              const existing = JSON.parse(
+                localStorage.getItem("admin_notification_errors") || "[]"
+              );
+              existing.push({
+                time: new Date().toISOString(),
+                err: String((err as Error).message ?? err),
+                payload,
+              });
+              localStorage.setItem(
+                "admin_notification_errors",
+                JSON.stringify(existing.slice(-50))
+              );
+            } catch {
+              // ignore
+            }
+          }
+        });
+      } catch (err) {
+        // Outer-level safety for unexpected errors
+        // eslint-disable-next-line no-console
+        console.error("Notification listener crash", err, payload);
+      }
     });
 
     return () => {
@@ -158,9 +190,9 @@ export const NotificationsProvider = ({
       {children}
     </NotificationsContext.Provider>
   );
-};
+}
 
-export const useNotificationsCenter = (): NotificationsContextValue => {
+export function useNotificationsCenter(): NotificationsContextValue {
   const context = useContext(NotificationsContext);
   if (!context) {
     throw new Error(
@@ -168,6 +200,6 @@ export const useNotificationsCenter = (): NotificationsContextValue => {
     );
   }
   return context;
-};
+}
 
 export type { NotificationItem };

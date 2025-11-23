@@ -7,7 +7,7 @@ import { CreateLoanDto, LoanDocumentDto } from './dto/create-loan.dto';
 import { ApproveLoanDto } from './dto/approve-loan.dto';
 import { RejectLoanDto } from './dto/reject-loan.dto';
 import { RecordRepaymentDto } from './dto/record-repayment.dto';
-import { QueryLoansDto, LoanStatusFilter } from './dto/query-loans.dto';
+import { QueryLoansDto } from './dto/query-loans.dto';
 import {
   DEFAULT_INTEREST_RATE,
   LoanSimulationInstallment,
@@ -16,7 +16,7 @@ import {
   LoanStatus,
   MAX_INTEREST_RATE,
   MIN_INTEREST_RATE,
-  PENALTY_RATE_PER_DAY,
+
 } from './loan.constants';
 import type { PostgrestError } from '@supabase/supabase-js';
 
@@ -215,7 +215,7 @@ export class LoansService {
         result.forEach((loan) => {
           const relatedUser = userMap.get(loan.user_id);
           if (relatedUser) {
-            (loan as LoanRecord & { user?: any }).user = relatedUser;
+            (loan as LoanRecord).user = relatedUser as LoanRecord['user'];
           }
         });
       }
@@ -268,7 +268,7 @@ export class LoansService {
       next_payment_due_at: simulation.schedule[0]?.dueDate ?? null,
       approved_amount: approvedAmount,
       approval_notes: dto.approvalNotes ?? null,
-    } as Record<string, any>;
+    } as Record<string, unknown>;
 
     const { error, data } = await this.supabase
       .getAdminClient()
@@ -657,7 +657,7 @@ export class LoansService {
     return Number(value.toFixed(2));
   }
 
-  private logSupabaseError(operation: string, error: PostgrestError, metadata: Record<string, any> = {}) {
+  private logSupabaseError(operation: string, error: PostgrestError, metadata: Record<string, unknown> = {}) {
     const contextPayload = {
       operation,
       code: error.code,

@@ -27,7 +27,7 @@ let AccountsService = AccountsService_1 = class AccountsService {
         const { data, error } = await this.supabase.getAdminClient().from('accounts').select('*').eq('user_id', userId);
         if (error)
             throw new Error(`Failed to fetch accounts: ${error.message}`);
-        return data;
+        return (data ?? []);
     }
     async findById(id) {
         const { data, error } = await this.supabase.getAdminClient().from('accounts').select('*').eq('id', id).maybeSingle();
@@ -59,7 +59,7 @@ let AccountsService = AccountsService_1 = class AccountsService {
         if (error) {
             throw new common_1.BadRequestException(`Failed to fetch accounts: ${error.message}`);
         }
-        const items = data ?? [];
+        const items = (data ?? []);
         return {
             data: items,
             total: typeof count === 'number' ? count : items.length,
@@ -77,7 +77,7 @@ let AccountsService = AccountsService_1 = class AccountsService {
         if (error) {
             throw new common_1.BadRequestException(`Failed to fetch accounts: ${error.message}`);
         }
-        return data ?? [];
+        return (data ?? []);
     }
     async create(userId, dto) {
         const accountType = dto.accountType || 'SAVINGS';
@@ -117,7 +117,7 @@ let AccountsService = AccountsService_1 = class AccountsService {
     }
     async getBalance(accountId) {
         const account = await this.findById(accountId);
-        return parseFloat(account.balance);
+        return account.balance;
     }
     async update(adminId, accountId, updateDto) {
         const account = await this.findById(accountId);

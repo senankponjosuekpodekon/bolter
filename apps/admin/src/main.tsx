@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Admin, Resource } from "react-admin";
+import AdminError from "./components/AdminError";
 import { dataProvider } from "./dataProvider";
 import { authProvider } from "./authProvider";
 import { UserList, UserEdit, UserCreate } from "./resources/users";
@@ -16,10 +17,12 @@ import { adminTheme } from "./theme";
 import { AccountList, AccountEdit } from "./resources/accounts";
 import { AuditLogList } from "./resources/auditLogs";
 import { LoanList, LoanShow } from "./resources/loans";
+// Notifications are rendered inside AdminLayout (NotificationsProvider) now
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Admin
+      catchAll={AdminError}
       dataProvider={dataProvider}
       authProvider={authProvider}
       title="Banking Admin"

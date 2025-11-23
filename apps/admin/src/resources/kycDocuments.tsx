@@ -1,5 +1,17 @@
-import { List, Datagrid, TextField, DateField, Edit, SimpleForm, useRecordContext, useNotify, useRedirect, Button } from 'react-admin'
-import { useState } from 'react'
+import {
+  List,
+  Datagrid,
+  TextField,
+  DateField,
+  Edit,
+  SimpleForm,
+  useRecordContext,
+  useNotify,
+  useRedirect,
+  Button,
+} from "react-admin";
+import { AdminKYCDocument } from "../types/kycDocument";
+import { useState } from "react";
 
 export const KYCDocumentList = () => (
   <List>
@@ -12,42 +24,47 @@ export const KYCDocumentList = () => (
       <DateField source="created_at" showTime />
     </Datagrid>
   </List>
-)
+);
 
 export const KYCDocumentReview = () => {
-  const record = useRecordContext()
-  const notify = useNotify()
-  const redirect = useRedirect()
-  const [approved, setApproved] = useState(true)
-  const [rejectionReason, setRejectionReason] = useState('')
+  const record = useRecordContext<AdminKYCDocument>();
+  const notify = useNotify();
+  const redirect = useRedirect();
+  const [approved, setApproved] = useState(true);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const handleReview = async () => {
     if (!record) {
-      notify('Record not found', { type: 'warning' })
-      return
+      notify("Record not found", { type: "warning" });
+      return;
     }
 
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem("token");
       const response = await fetch(`/api/kyc/documents/${record.id}/review`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ approved, rejectionReason })
-      })
+        body: JSON.stringify({ approved, rejectionReason }),
+      });
 
       if (response.ok) {
-        notify(approved ? 'Document approved' : 'Document rejected', { type: 'success' })
-        redirect('/kyc/documents/pending')
+        notify(approved ? "Document approved" : "Document rejected", {
+          type: "success",
+        });
+        redirect("/kyc/documents/pending");
       } else {
-        notify('Error reviewing document', { type: 'error' })
+        notify("Error reviewing document", { type: "error" });
       }
     } catch (error) {
-      notify('Error reviewing document', { type: 'error' })
+      // keep the error for debugging
+      // eslint-disable-next-line no-console
+      console.error("KYC review failed", error);
+      notify("Error reviewing document", { type: "error" });
     }
-  }
+  };
 
   return (
     <Edit>
@@ -61,9 +78,15 @@ export const KYCDocumentReview = () => {
 
         <div style={{ marginTop: 20 }}>
           <h3>Document Preview</h3>
-          {record && record.mime_type?.startsWith('image/') ? (
-            <img src={record.file_path} alt="Document" style={{ maxWidth: '100%', maxHeight: 400 }} />
-          ) : false}
+          {record && record.mime_type?.startsWith("image/") ? (
+            <img
+              src={record.file_path}
+              alt="Document"
+              style={{ maxWidth: "100%", maxHeight: 400 }}
+            />
+          ) : (
+            false
+          )}
         </div>
 
         <div style={{ marginTop: 20 }}>
@@ -92,18 +115,20 @@ export const KYCDocumentReview = () => {
                 type="text"
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                style={{ width: '100%', padding: 8, marginTop: 5 }}
+                style={{ width: "100%", padding: 8, marginTop: 5 }}
               />
             </div>
-          ) : false}
+          ) : (
+            false
+          )}
 
           <Button
-            label={approved ? 'Approve Document' : 'Reject Document'}
+            label={approved ? "Approve Document" : "Reject Document"}
             onClick={handleReview}
             style={{ marginTop: 20 }}
           />
         </div>
       </SimpleForm>
     </Edit>
-  )
-}
+  );
+};

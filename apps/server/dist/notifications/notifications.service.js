@@ -262,12 +262,20 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         });
     }
     buildPayload(event, data) {
-        return {
+        const payload = {
             id: (0, crypto_1.randomUUID)(),
             event,
             createdAt: new Date().toISOString(),
             ...data,
         };
+        try {
+            const p = payload;
+            const userIdValue = p.userId ?? null;
+            this.logger.log(`notification: ${JSON.stringify({ id: payload.id, event: payload.event, createdAt: payload.createdAt, userId: userIdValue })}`, NotificationsService_1.name);
+        }
+        catch {
+        }
+        return payload;
     }
     async getUserContact(userId) {
         const { data, error } = await this.supabase

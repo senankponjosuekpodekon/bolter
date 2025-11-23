@@ -22,7 +22,14 @@ let LoggingInterceptor = class LoggingInterceptor {
         const method = req.method;
         const url = req.url;
         const now = Date.now();
-        const userId = req.user?.id || 'anonymous';
+        const rawUser = req.user;
+        let userId = 'anonymous';
+        if (rawUser && typeof rawUser === 'object') {
+            const maybeId = rawUser['id'];
+            if (typeof maybeId === 'string' && maybeId.length) {
+                userId = maybeId;
+            }
+        }
         return next.handle().pipe((0, operators_1.tap)(() => {
             const responseTime = Date.now() - now;
             this.logger.log(`${method} ${url} ${responseTime}ms - User: ${userId}`, 'HTTP');

@@ -8,6 +8,18 @@ import { AdminCreateTransactionDto } from './dto/admin-create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
+type RawAccountRow = {
+    id: string;
+    user_id?: string | null;
+    account_number?: string;
+    balance?: string | number;
+};
+type RawUserRow = {
+    id: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+};
 export declare class TransactionsService {
     private readonly supabase;
     private readonly accountsService;
@@ -22,7 +34,21 @@ export declare class TransactionsService {
     findPending(): Promise<any[]>;
     findPendingById(id: string): Promise<any>;
     findAllForAdmin(query: QueryTransactionsDto): Promise<{
-        data: any[];
+        data: {
+            fromAccount: RawAccountRow;
+            toAccount: RawAccountRow;
+            validator: RawUserRow;
+            id: string;
+            from_account_id?: string | null;
+            to_account_id?: string | null;
+            amount?: string | number | null;
+            validated_by?: string | null;
+            type?: string;
+            status?: string;
+            currency?: string | null;
+            description?: string | null;
+            created_at?: string | null;
+        }[];
         total: number;
     }>;
     createAdminTransaction(adminId: string, dto: AdminCreateTransactionDto): Promise<any>;
@@ -34,3 +60,4 @@ export declare class TransactionsService {
     private updateAccountBalance;
     private logTransactionAction;
 }
+export {};

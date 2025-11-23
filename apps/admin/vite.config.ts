@@ -41,6 +41,22 @@ export default defineConfig({
     },
   },
   build: {
+    // reduce noisy warnings and add manual chunking to avoid a single large bundle
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
+            if (id.includes('react-admin')) return 'vendor-react-admin';
+            if (id.includes('@mui') || id.includes('material-ui')) return 'vendor-mui';
+            if (id.includes('socket.io-client')) return 'vendor-socket';
+            if (id.includes('ra-data-simple-rest')) return 'vendor-data';
+            return 'vendor';
+          }
+        },
+      },
+    },
     sourcemap: true,
     commonjsOptions: {
       include: [/node_modules/, /react-is/],

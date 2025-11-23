@@ -10,6 +10,33 @@ import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
+type RawTransactionRow = {
+  id: string;
+  from_account_id?: string | null;
+  to_account_id?: string | null;
+  amount?: string | number | null;
+  validated_by?: string | null;
+  type?: string;
+  status?: string;
+  currency?: string | null;
+  description?: string | null;
+  created_at?: string | null;
+};
+
+type RawAccountRow = {
+  id: string;
+  user_id?: string | null;
+  account_number?: string;
+  balance?: string | number;
+};
+
+type RawUserRow = {
+  id: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+};
+
 @Injectable()
 export class TransactionsService {
   private readonly logger = new Logger(TransactionsService.name);
@@ -26,21 +53,21 @@ export class TransactionsService {
       throw new BadRequestException('Amount must be greater than zero');
     }
 
-    const fromAccount = await this.accountsService.findById(dto.fromAccountId);
+    const fromAccount = await this.accountsService.findById(dto.fromAccountId.toString());
     if (fromAccount.user_id !== userId) {
       this.logger.warn(`User ${userId} attempted transfer from account ${dto.fromAccountId} owned by ${fromAccount.user_id}`);
       throw new ForbiddenException('You can only transfer from your own accounts');
     }
 
     if (dto.toAccountId) {
-      const toAccount = await this.accountsService.findById(dto.toAccountId);
+      const toAccount = await this.accountsService.findById(dto.toAccountId.toString());
       if (toAccount.user_id !== userId) {
         this.logger.warn(`User ${userId} attempted transfer to internal account ${dto.toAccountId} owned by ${toAccount.user_id}`);
         throw new ForbiddenException('You can only transfer to your own internal accounts');
       }
     }
 
-    if (parseFloat(fromAccount.balance) < dto.amount) {
+    if (Number(fromAccount.balance) < dto.amount) {
       throw new BadRequestException('Insufficient balance');
     }
 
@@ -88,7 +115,7 @@ export class TransactionsService {
       throw new BadRequestException('Amount must be greater than zero');
     }
 
-    const account = await this.accountsService.findById(dto.accountId);
+    const account = await this.accountsService.findById(dto.accountId.toString());
     if (account.user_id !== userId) {
       this.logger.warn(`User ${userId} attempted deposit to account ${dto.accountId} owned by ${account.user_id}`);
       throw new ForbiddenException('You can only deposit to your own accounts');
@@ -138,13 +165,13 @@ export class TransactionsService {
       throw new BadRequestException('Amount must be greater than zero');
     }
 
-    const account = await this.accountsService.findById(dto.accountId);
+    const account = await this.accountsService.findById(dto.accountId.toString());
     if (account.user_id !== userId) {
       this.logger.warn(`User ${userId} attempted withdraw from account ${dto.accountId} owned by ${account.user_id}`);
       throw new ForbiddenException('You can only withdraw from your own accounts');
     }
 
-    if (parseFloat(account.balance) < dto.amount) {
+    if (Number(account.balance) < dto.amount) {
       throw new BadRequestException('Insufficient balance');
     }
 
@@ -305,12 +332,12 @@ export class TransactionsService {
     const accountIds = Array.from(
       new Set(
         items
-          .flatMap((tx: any) => [tx.from_account_id, tx.to_account_id])
+          .flatMap((tx: RawTransactionRow) => [tx.from_account_id, tx.to_account_id])
           .filter((value): value is string => Boolean(value)),
       ),
     );
 
-    const accountsMap = new Map<string, any>();
+    const accountsMap = new Map<string, RawAccountRow | null>();
     if (accountIds.length) {
       const { data: accounts, error: accountsError } = await client
         .from('accounts')
@@ -321,16 +348,16 @@ export class TransactionsService {
         throw new BadRequestException(`Failed to load transaction accounts: ${accountsError.message}`);
       }
 
-      accounts?.forEach((account: any) => {
+      accounts?.forEach((account: RawAccountRow) => {
         accountsMap.set(account.id, account);
       });
     }
 
     const validatorIds = Array.from(
-      new Set(items.map((tx: any) => tx.validated_by).filter((value): value is string => Boolean(value))),
+      new Set(items.map((tx: RawTransactionRow) => tx.validated_by).filter((value): value is string => Boolean(value))),
     );
 
-    const validatorsMap = new Map<string, any>();
+    const validatorsMap = new Map<string, RawUserRow | null>();
     if (validatorIds.length) {
       const { data: validators, error: validatorsError } = await client
         .from('users')
@@ -341,12 +368,12 @@ export class TransactionsService {
         throw new BadRequestException(`Failed to load validator profiles: ${validatorsError.message}`);
       }
 
-      validators?.forEach((user: any) => {
+      validators?.forEach((user: RawUserRow) => {
         validatorsMap.set(user.id, user);
       });
     }
 
-    const enriched = items.map((transaction: any) => ({
+    const enriched = items.map((transaction: RawTransactionRow) => ({
       ...transaction,
       fromAccount: transaction.from_account_id ? accountsMap.get(transaction.from_account_id) ?? null : null,
       toAccount: transaction.to_account_id ? accountsMap.get(transaction.to_account_id) ?? null : null,
@@ -395,15 +422,15 @@ export class TransactionsService {
       throw new BadRequestException('Transaction has already been processed');
     }
 
-    const amount = parseFloat(transaction.amount);
+    const amount = Number(transaction.amount);
     const newStatus = dto.approved ? 'APPROVED' : 'REJECTED';
-    let fromAccount: any = null;
-    let toAccount: any = null;
+    let fromAccount: RawAccountRow | null = null;
+    let toAccount: RawAccountRow | null = null;
 
     if (dto.approved) {
       if ((transaction.type === 'TRANSFER' || transaction.type === 'WITHDRAWAL') && transaction.from_account_id) {
-        fromAccount = await this.accountsService.findById(transaction.from_account_id);
-        const currentBalance = parseFloat(fromAccount.balance);
+        fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
+        const currentBalance = Number(fromAccount.balance);
         if (currentBalance < amount) {
           throw new BadRequestException('Insufficient balance');
         }
@@ -411,18 +438,18 @@ export class TransactionsService {
       }
 
       if ((transaction.type === 'TRANSFER' || transaction.type === 'DEPOSIT') && transaction.to_account_id) {
-        toAccount = await this.accountsService.findById(transaction.to_account_id);
-        const currentBalance = parseFloat(toAccount.balance);
+        toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
+        const currentBalance = Number(toAccount.balance);
         await this.updateAccountBalance(transaction.to_account_id, currentBalance + amount);
       }
     }
 
     if (!dto.approved) {
       if (!fromAccount && transaction.from_account_id) {
-        fromAccount = await this.accountsService.findById(transaction.from_account_id);
+        fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
       }
       if (!toAccount && transaction.to_account_id) {
-        toAccount = await this.accountsService.findById(transaction.to_account_id);
+        toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
       }
     }
 
@@ -486,10 +513,10 @@ export class TransactionsService {
     }
 
     const client = this.supabase.getAdminClient();
-    const fromAccount = await this.accountsService.findById(dto.fromAccountId);
-    const toAccount = dto.toAccountId ? await this.accountsService.findById(dto.toAccountId) : null;
+    const fromAccount = await this.accountsService.findById(dto.fromAccountId.toString());
+    const toAccount = dto.toAccountId ? await this.accountsService.findById(dto.toAccountId.toString()) : null;
 
-    if (autoApprove && parseFloat(fromAccount.balance) < dto.amount) {
+    if (autoApprove && Number(fromAccount.balance) < dto.amount) {
       throw new BadRequestException('Insufficient balance');
     }
 
@@ -518,11 +545,11 @@ export class TransactionsService {
     }
 
     if (autoApprove) {
-      const fromBalance = parseFloat(fromAccount.balance) - dto.amount;
+      const fromBalance = Number(fromAccount.balance) - dto.amount;
       await this.updateAccountBalance(fromAccount.id, fromBalance);
 
       if (toAccount) {
-        const toBalance = parseFloat(toAccount.balance) + dto.amount;
+        const toBalance = Number(toAccount.balance) + dto.amount;
         await this.updateAccountBalance(toAccount.id, toBalance);
       }
     }
@@ -599,7 +626,7 @@ export class TransactionsService {
     }
 
     const client = this.supabase.getAdminClient();
-    const account = await this.accountsService.findById(dto.toAccountId);
+    const account = await this.accountsService.findById(dto.toAccountId.toString());
 
     const status = autoApprove ? 'APPROVED' : 'PENDING';
     const description = this.buildDepositDescription(dto.paymentMethod, dto.reference, dto.description);
@@ -625,7 +652,7 @@ export class TransactionsService {
     }
 
     if (autoApprove) {
-      const newBalance = parseFloat(account.balance) + dto.amount;
+      const newBalance = Number(account.balance) + dto.amount;
       await this.updateAccountBalance(account.id, newBalance);
     }
 
@@ -678,9 +705,9 @@ export class TransactionsService {
     }
 
     const client = this.supabase.getAdminClient();
-    const account = await this.accountsService.findById(dto.fromAccountId);
+    const account = await this.accountsService.findById(dto.fromAccountId.toString());
 
-    if (autoApprove && parseFloat(account.balance) < dto.amount) {
+    if (autoApprove && Number(account.balance) < dto.amount) {
       throw new BadRequestException('Insufficient balance');
     }
 
@@ -709,7 +736,7 @@ export class TransactionsService {
     }
 
     if (autoApprove) {
-      const newBalance = parseFloat(account.balance) - dto.amount;
+      const newBalance = Number(account.balance) - dto.amount;
       if (newBalance < 0) {
         throw new BadRequestException('Insufficient balance');
       }
@@ -774,7 +801,7 @@ export class TransactionsService {
     performedBy: string,
     action: string,
     transactionId: string,
-    changes: Record<string, any>,
+    changes: Record<string, unknown>,
   ) {
     const metadata = changes && Object.keys(changes).length ? { changes } : undefined;
     const success = await this.auditLogsService.log({

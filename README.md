@@ -184,6 +184,22 @@ Toutes les tables ont RLS activé avec politiques strictes:
 - npm
 - Compte Supabase
 
+### Outils pour les développeurs
+
+- TypeScript (dev): 5.9.3 — les workspaces sont alignés sur cette version
+- ESLint + @typescript-eslint: >= 8.47.0
+
+Si vous venez de puller ces changements, rafraîchissez votre installation locale pour éviter des incompatibilités de parser/eslint :
+
+```bash
+# supprimer et réinstaller les dépendances
+rm -rf node_modules package-lock.json
+npm install
+
+# vérifier l'état du linter
+npm run lint
+```
+
 ### Configuration
 
 1. Créer un fichier `.env`:

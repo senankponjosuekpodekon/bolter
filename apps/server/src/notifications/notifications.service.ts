@@ -199,7 +199,7 @@ export class NotificationsService {
     });
   }
 
-  async notifyAdmins(message: string, data?: Record<string, any>): Promise<void> {
+  async notifyAdmins(message: string, data?: Record<string, unknown>): Promise<void> {
     const payload = this.buildPayload(NotificationEvent.ADMIN_MESSAGE, {
       title: 'Notification administrateur',
       message,
@@ -347,13 +347,25 @@ export class NotificationsService {
     });
   }
 
-  private buildPayload(event: NotificationEvent, data: Record<string, any>) {
-    return {
+  private buildPayload(event: NotificationEvent, data: Record<string, unknown>) {
+    const payload = {
       id: randomUUID(),
       event,
       createdAt: new Date().toISOString(),
       ...data,
     };
+
+    // Log notification payload for local inspection in logs/notifications.log
+    try {
+      // keep log messages small and JSON-friendly
+      const p = payload as Record<string, unknown>;
+      const userIdValue = p.userId ?? null;
+      this.logger.log(`notification: ${JSON.stringify({ id: payload.id, event: payload.event, createdAt: payload.createdAt, userId: userIdValue })}`, NotificationsService.name);
+    } catch {
+      // ignore logging errors so they don't interfere with notification delivery
+    }
+
+    return payload;
   }
 
   private async getUserContact(userId: string): Promise<UserContact | null> {

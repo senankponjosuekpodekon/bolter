@@ -65,7 +65,7 @@ export const AccountList = () => (
       <TextField source="account_number" label="IBAN" />
       <FunctionField
         label="Owner"
-        render={(record: any) => {
+        render={(record: import("../types/account").AdminAccount) => {
           const fullName =
             `${record?.user?.first_name ?? ""} ${record?.user?.last_name ?? ""}`.trim();
           const email = record?.user?.email;
@@ -86,7 +86,7 @@ export const AccountList = () => (
       />
       <FunctionField
         label="Type"
-        render={(record: any) => (
+        render={(record: import("../types/account").AdminAccount) => (
           <Chip
             size="small"
             label={(record?.account_type ?? "").toLowerCase() || "unknown"}
@@ -96,14 +96,14 @@ export const AccountList = () => (
       />
       <FunctionField
         label="Balance"
-        render={(record: any) => {
+        render={(record: import("../types/account").AdminAccount) => {
           const value = record?.balance ? Number(record.balance) : 0;
           return euroFormatter.format(value);
         }}
       />
       <FunctionField
         label="Status"
-        render={(record: any) => (
+        render={(record: import("../types/account").AdminAccount) => (
           <Chip
             size="small"
             color={
@@ -173,7 +173,7 @@ export const AccountEdit = () => (
       />
       <FunctionField
         label="Created at"
-        render={(record: any) =>
+        render={(record: import("../types/account").AdminAccount) =>
           record?.created_at
             ? new Date(record.created_at).toLocaleString()
             : "N/A"
@@ -181,7 +181,7 @@ export const AccountEdit = () => (
       />
       <FunctionField
         label="Last update"
-        render={(record: any) =>
+        render={(record: import("../types/account").AdminAccount) =>
           record?.updated_at
             ? new Date(record.updated_at).toLocaleString()
             : "N/A"

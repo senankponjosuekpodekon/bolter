@@ -25,7 +25,7 @@ let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.Passpor
         this.configService = configService;
     }
     async validate(req, payload) {
-        const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
+        const refreshToken = (req.get('Authorization') ?? '').replace('Bearer', '').trim();
         return {
             id: payload.sub,
             email: payload.email,

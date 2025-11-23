@@ -42,6 +42,11 @@ let EmailService = EmailService_1 = class EmailService {
     }
     async send(options) {
         if (!this.transporter) {
+            try {
+                this.logger.log(`email: ${JSON.stringify({ to: options.to, subject: options.subject, text: options.text ?? null })}`, EmailService_1.name);
+            }
+            catch {
+            }
             this.logger.debug(`Skipping email send to ${options.to}. Transport not configured.`, EmailService_1.name);
             return;
         }
@@ -53,11 +58,21 @@ let EmailService = EmailService_1 = class EmailService {
             text: options.text,
         };
         try {
+            try {
+                this.logger.log(`email: ${JSON.stringify({ to: message.to, subject: message.subject, text: message.text ?? null })}`, EmailService_1.name);
+            }
+            catch {
+            }
             await this.transporter.sendMail(message);
             this.logger.debug(`Email sent to ${options.to}`, EmailService_1.name);
         }
         catch (error) {
             this.logger.error(`Failed to send email to ${options.to}: ${error.message}`, undefined, EmailService_1.name);
+            try {
+                this.logger.log(`email.error: ${JSON.stringify({ to: message.to, subject: message.subject, error: error.message })}`, EmailService_1.name);
+            }
+            catch {
+            }
         }
     }
 };

@@ -5,11 +5,11 @@ import { QueryUserDto } from './dto/query-user.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    create(req: any, createUserDto: CreateUserDto): Promise<any>;
-    findAll(query: QueryUserDto): Promise<any[]>;
-    getProfile(req: any): Promise<any>;
-    findOne(id: string): Promise<any>;
-    updateProfile(req: any, updateUserDto: UpdateUserDto): Promise<any>;
-    update(req: any, id: string, updateUserDto: UpdateUserDto): Promise<any>;
-    remove(req: any, id: string): Promise<any>;
+    create(req: any, createUserDto: CreateUserDto): Promise<import("./users.service").User>;
+    findAll(query: QueryUserDto): Promise<import("./users.service").User[]>;
+    getProfile(req: any): Promise<import("./users.service").User>;
+    findOne(id: string): Promise<import("./users.service").User>;
+    updateProfile(req: any, updateUserDto: UpdateUserDto): Promise<import("./users.service").User>;
+    update(req: any, id: string, updateUserDto: UpdateUserDto): Promise<import("./users.service").User>;
+    remove(req: any, id: string): Promise<import("./users.service").User>;
 }

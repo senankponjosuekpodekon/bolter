@@ -5,7 +5,7 @@ export const getProfile = async () => {
     return res.data
 }
 
-export const updateProfile = async (data: Record<string, any>) => {
+export const updateProfile = async (data: Record<string, unknown>) => {
     const res = await api.post('/auth/profile/update', data)
     return res.data
 }
@@ -15,7 +15,7 @@ export const getProfileActivity = async () => {
     return res.data
 }
 
-export const updatePreferences = async (data: Record<string, any>) => {
+export const updatePreferences = async (data: Record<string, unknown>) => {
     const res = await api.post('/auth/profile/preferences', data)
     return res.data
 }

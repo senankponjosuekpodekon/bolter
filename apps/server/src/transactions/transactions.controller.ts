@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Req, Patch, Query, ForbiddenException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';

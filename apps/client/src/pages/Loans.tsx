@@ -1,8 +1,10 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { useAuthStore } from "../stores/authStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CreateLoanPayload,
   Loan,
+  LoanRepayment,
   LoanRepaymentPayload,
   createLoan,
   fetchLoan,
@@ -49,13 +51,15 @@ const extractErrorMessage = (error: unknown): string | null => {
   }
   if (
     typeof error === "object" &&
+    error !== null &&
     "message" in error &&
-    typeof (error as any).message === "string"
+    typeof (error as { message?: unknown }).message === "string"
   ) {
-    return (error as any).message as string;
+    return (error as { message: string }).message;
   }
-  if (typeof error === "object" && "response" in error) {
-    const response = (error as any).response;
+  if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (error as { response?: { data?: { message?: unknown } } })
+      .response;
     const message = response?.data?.message;
     if (Array.isArray(message)) {
       return message.join(", ");
@@ -152,7 +156,11 @@ export default function Loans() {
 
   const handleInputChange =
     (field: keyof LoanFormState) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (
+      event: ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
       setForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
@@ -160,13 +168,20 @@ export default function Loans() {
     setSelectedLoanId(loanId);
   };
 
+  const currentUser = useAuthStore((s) => s.user);
+
   const loansErrorMessage = isLoansError
     ? extractErrorMessage(loansError)
     : null;
-  const isBlockedByKyc = Boolean(
-    loansErrorMessage && loansErrorMessage.toLowerCase().includes("kyc")
+  // Block loan requests if the user's KYC status is not approved
+  const isBlockedByKyc = Boolean(currentUser?.kyc_status !== "APPROVED");
+  const isUnauthorized = Boolean(
+    typeof loansError === "object" &&
+      loansError !== null &&
+      "response" in loansError &&
+      (loansError as { response?: { status?: number } }).response?.status ===
+        401
   );
-  const isUnauthorized = Boolean((loansError as any)?.response?.status === 401);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -176,6 +191,15 @@ export default function Loans() {
     if (parsedAmount <= 0 || parsedDuration <= 0) {
       setFormError(
         "Please provide a valid amount and duration for the loan request."
+      );
+      return;
+    }
+
+    // The backend only accepts specific duration options (3,6,12,18,24)
+    const allowedDurations = [3, 6, 12, 18, 24];
+    if (!allowedDurations.includes(parsedDuration)) {
+      setFormError(
+        `Please choose a supported duration in months: ${allowedDurations.join(", ")}`
       );
       return;
     }
@@ -258,15 +282,18 @@ export default function Loans() {
             <label className="block text-sm font-medium text-slate-600">
               Duration (months)
             </label>
-            <input
-              type="number"
-              min="1"
-              max="120"
+            <select
               value={form.durationMonths}
               onChange={handleInputChange("durationMonths")}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
               required
-            />
+            >
+              <option value="3">3</option>
+              <option value="6">6</option>
+              <option value="12">12</option>
+              <option value="18">18</option>
+              <option value="24">24</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-600">
@@ -376,7 +403,7 @@ export default function Loans() {
             </p>
           ) : null}
           <div className="space-y-3">
-            {loans.map((loan) => (
+            {loans.map((loan: Loan) => (
               <LoanSummaryCard
                 key={loan.id}
                 loan={loan}
@@ -394,8 +421,8 @@ export default function Loans() {
               </div>
             ) : selectedLoan ? (
               <LoanDetailsPanel
-                loan={selectedLoan}
-                repayments={repayments}
+                loan={selectedLoan as Loan}
+                repayments={repayments as LoanRepayment[]}
                 onRecordRepayment={async (payload) => {
                   try {
                     await repaymentMutation.mutateAsync(payload);

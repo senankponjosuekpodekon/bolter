@@ -12,7 +12,36 @@ export declare class TransactionsController {
     createDeposit(req: any, createDepositDto: CreateDepositDto): Promise<any>;
     createWithdraw(req: any, createWithdrawDto: CreateWithdrawDto): Promise<any>;
     getTransactions(req: any, query: QueryTransactionsDto): Promise<any[]> | Promise<{
-        data: any[];
+        data: {
+            fromAccount: {
+                id: string;
+                user_id?: string | null;
+                account_number?: string;
+                balance?: string | number;
+            };
+            toAccount: {
+                id: string;
+                user_id?: string | null;
+                account_number?: string;
+                balance?: string | number;
+            };
+            validator: {
+                id: string;
+                email?: string;
+                first_name?: string;
+                last_name?: string;
+            };
+            id: string;
+            from_account_id?: string | null;
+            to_account_id?: string | null;
+            amount?: string | number | null;
+            validated_by?: string | null;
+            type?: string;
+            status?: string;
+            currency?: string | null;
+            description?: string | null;
+            created_at?: string | null;
+        }[];
         total: number;
     }>;
     getPendingTransactions(): Promise<any[]>;

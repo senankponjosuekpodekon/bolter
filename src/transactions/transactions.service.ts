@@ -1,17 +1,22 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
-import { AccountsService } from '../accounts/accounts.service';
+import { SupabaseService } from '../../apps/server/src/supabase/supabase.service';
+import { AccountsService } from '../../apps/server/src/accounts/accounts.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { ValidateTransactionDto } from './dto/validate-transaction.dto';
+import { AlertsService } from '../alerts/alerts.service';
 
 @Injectable()
 export class TransactionsService {
-  constructor(private supabase: SupabaseService, private accountsService: AccountsService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private accountsService: AccountsService,
+    private alertsService: AlertsService,
+  ) { }
 
   async createTransfer(userId: string, dto: CreateTransferDto) {
-    const fromAccount = await this.accountsService.findById(dto.fromAccountId);
+    const fromAccount = await this.accountsService.findById(dto.fromAccountId.toString());
     if (fromAccount.user_id !== userId) throw new BadRequestException('You can only transfer from your own accounts');
-    if (parseFloat(fromAccount.balance) < dto.amount) throw new BadRequestException('Insufficient balance');
+    if (Number(fromAccount.balance) < dto.amount) throw new BadRequestException('Insufficient balance');
 
     const { data, error } = await this.supabase.getAdminClient().from('transactions').insert({
       from_account_id: dto.fromAccountId, to_account_id: dto.toAccountId || null, amount: dto.amount,
@@ -19,6 +24,8 @@ export class TransactionsService {
     }).select().single();
 
     if (error) throw new BadRequestException(`Failed to create transfer: ${error.message}`);
+    // Déclenche l’alerte si besoin
+    await this.alertsService.checkAndNotify(userId, dto.amount, 'TRANSFER');
     return data;
   }
 
@@ -44,15 +51,15 @@ export class TransactionsService {
 
     const newStatus = dto.approved ? 'APPROVED' : 'REJECTED';
     if (dto.approved) {
-      const fromAccount = await this.accountsService.findById(transaction.from_account_id);
-      const currentBalance = parseFloat(fromAccount.balance);
-      if (currentBalance < parseFloat(transaction.amount)) throw new BadRequestException('Insufficient balance');
+      const fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
+      const currentBalance = Number(fromAccount.balance);
+      if (currentBalance < Number(transaction.amount)) throw new BadRequestException('Insufficient balance');
 
-      await this.supabase.getAdminClient().from('accounts').update({ balance: currentBalance - parseFloat(transaction.amount) }).eq('id', transaction.from_account_id);
+      await this.supabase.getAdminClient().from('accounts').update({ balance: currentBalance - Number(transaction.amount) }).eq('id', transaction.from_account_id);
       if (transaction.to_account_id) {
-        const toAccount = await this.accountsService.findById(transaction.to_account_id);
-        const toBalance = parseFloat(toAccount.balance);
-        await this.supabase.getAdminClient().from('accounts').update({ balance: toBalance + parseFloat(transaction.amount) }).eq('id', transaction.to_account_id);
+        const toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
+        const toBalance = toAccount.balance;
+        await this.supabase.getAdminClient().from('accounts').update({ balance: toBalance + Number(transaction.amount) }).eq('id', transaction.to_account_id);
       }
     }
 
@@ -61,6 +68,8 @@ export class TransactionsService {
     }).eq('id', transactionId).select().single();
 
     if (error) throw new BadRequestException(`Failed to validate transaction: ${error.message}`);
+    // Déclenche l’alerte si besoin (pour le client concerné)
+    await this.alertsService.checkAndNotify(transaction.from_account_user_id || transaction.user_id, transaction.amount, 'VALIDATION');
     return data;
   }
 }

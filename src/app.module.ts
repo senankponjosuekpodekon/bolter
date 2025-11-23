@@ -9,6 +9,8 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { KycModule } from './kyc/kyc.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { RateLimitInterceptor } from './common/interceptors/rate-limit.interceptor';
+import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsModule } from './notifications/notifications.module';
 import configuration from '../apps/server/src/config/configuration';
 
 @Module({
@@ -25,12 +27,14 @@ import configuration from '../apps/server/src/config/configuration';
     AccountsModule,
     TransactionsModule,
     KycModule,
+    NotificationsModule,
   ],
   providers: [
     {
       provide: 'APP_INTERCEPTOR',
       useClass: RateLimitInterceptor,
     },
+    NotificationsGateway,
   ],
 })
 export class AppModule { }

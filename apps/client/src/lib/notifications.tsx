@@ -107,9 +107,14 @@ export const NotificationsProvider = ({
 
     socket.on("notification", (payload: Partial<ClientNotification>) => {
       hasWarnedRef.current = false;
-      setNotifications((prev) => {
-        const item = buildItem(payload);
-        return [item, ...prev].slice(0, MAX_ITEMS);
+      // Ensure updates happen asynchronously to avoid setState during render in other components
+      // (e.g., when a listener is registered during another component's render). Deferring
+      // the state update prevents React's "Cannot update a component while rendering a different component" warning.
+      queueMicrotask(() => {
+        setNotifications((prev) => {
+          const item = buildItem(payload);
+          return [item, ...prev].slice(0, MAX_ITEMS);
+        });
       });
     });
 

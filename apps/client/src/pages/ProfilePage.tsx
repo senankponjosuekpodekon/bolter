@@ -15,7 +15,7 @@ export function ProfilePage() {
         {preferences?.notificationsEnabled ? "Activées" : "Désactivées"}
       </div>
       {/* Formulaires et boutons pour updateProfile et updatePreferences */}
-      <h3>Historique d'activité</h3>
+      <h3>Historique d&apos;activité</h3>
       {/* Affichage de l'historique via getProfileActivity() */}
     </div>
   );

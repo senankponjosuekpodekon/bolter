@@ -115,6 +115,8 @@ src/
 #### Build et tests
 
 - Compilation TypeScript sans erreurs
+- Toolchain updates: TypeScript 5.9.3 and @typescript-eslint >= 8.47.0 (ESLint updated)
+  - Linter and Parse compatibility across workspaces aligned; run `npm run lint` after installing deps
 - Tests unitaires/e2e à venir
 
 ## Ce qui manque (développements futurs)

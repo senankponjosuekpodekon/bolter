@@ -45,8 +45,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 const common_1 = require("@nestjs/common");
 const winston = __importStar(require("winston"));
+const fs_1 = require("fs");
 let Logger = class Logger {
     constructor() {
+        if (!(0, fs_1.existsSync)('logs')) {
+            try {
+                (0, fs_1.mkdirSync)('logs', { recursive: true });
+            }
+            catch (err) {
+                console.warn('Could not create logs directory, file logging will be skipped.', err);
+            }
+        }
         this.logger = winston.createLogger({
             level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
             format: winston.format.combine(winston.format.timestamp(), winston.format.errors({ stack: true }), winston.format.splat(), winston.format.json()),
@@ -55,15 +64,10 @@ let Logger = class Logger {
                 new winston.transports.Console({
                     format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
                 }),
-                ...(process.env.NODE_ENV === 'production'
-                    ? [
-                        new winston.transports.File({
-                            filename: 'logs/error.log',
-                            level: 'error',
-                        }),
-                        new winston.transports.File({ filename: 'logs/combined.log' }),
-                    ]
-                    : []),
+                new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+                new winston.transports.File({ filename: 'logs/combined.log' }),
+                new winston.transports.File({ filename: 'logs/notifications.log', level: 'info' }),
+                new winston.transports.File({ filename: 'logs/emails.log', level: 'info' }),
             ],
         });
     }

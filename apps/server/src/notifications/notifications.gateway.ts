@@ -53,15 +53,15 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     this.logger.debug(`Client disconnected from notifications (user: ${client.data?.userId ?? 'unknown'})`, NotificationsGateway.name);
   }
 
-  emitToUser(userId: string, payload: Record<string, any>) {
+  emitToUser(userId: string, payload: Record<string, unknown>) {
     this.server.to(`user:${userId}`).emit('notification', payload);
   }
 
-  emitToRole(role: string, payload: Record<string, any>) {
+  emitToRole(role: string, payload: Record<string, unknown>) {
     this.server.to(`role:${role}`).emit('notification', payload);
   }
 
-  broadcast(payload: Record<string, any>) {
+  broadcast(payload: Record<string, unknown>) {
     this.server.emit('notification', payload);
   }
 

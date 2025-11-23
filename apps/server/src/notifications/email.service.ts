@@ -40,6 +40,13 @@ export class EmailService {
 
   async send(options: SendEmailOptions): Promise<void> {
     if (!this.transporter) {
+      // Log the outgoing email to disk so developers can inspect it locally
+      try {
+        this.logger.log(`email: ${JSON.stringify({ to: options.to, subject: options.subject, text: options.text ?? null })}`, EmailService.name);
+      } catch {
+        // ignore logging failures
+      }
+
       this.logger.debug(`Skipping email send to ${options.to}. Transport not configured.`, EmailService.name);
       return;
     }
@@ -53,10 +60,23 @@ export class EmailService {
     };
 
     try {
+      // Log message payload to file so devs can review outgoing email content in logs/emails.log
+      try {
+        this.logger.log(`email: ${JSON.stringify({ to: message.to, subject: message.subject, text: message.text ?? null })}`, EmailService.name);
+      } catch {
+        // ignore logging failures
+      }
+
       await this.transporter.sendMail(message);
       this.logger.debug(`Email sent to ${options.to}`, EmailService.name);
     } catch (error) {
       this.logger.error(`Failed to send email to ${options.to}: ${(error as Error).message}`, undefined, EmailService.name);
+      try {
+        // record error and the attempted message in emails.log for debugging
+        this.logger.log(`email.error: ${JSON.stringify({ to: message.to, subject: message.subject, error: (error as Error).message })}`, EmailService.name);
+      } catch {
+        // ignore
+      }
     }
   }
 }

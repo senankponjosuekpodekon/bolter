@@ -24,7 +24,7 @@ let LocalStrategy = class LocalStrategy extends (0, passport_1.PassportStrategy)
             const user = await this.authService.validateUser(email, password);
             return user;
         }
-        catch (error) {
+        catch {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
     }

@@ -105,7 +105,7 @@ let UsersService = UsersService_1 = class UsersService {
                 status: insertPayload.status ?? null,
             },
         };
-        const successUserLog = await this.auditLogsService.log({
+        await this.auditLogsService.log({
             userId: user.id,
             performedBy,
             action,
@@ -113,10 +113,7 @@ let UsersService = UsersService_1 = class UsersService {
             resourceId: user.id,
             metadata: options?.metadata ? { ...baseMetadata, ...options.metadata } : baseMetadata,
         });
-        if (!successUserLog) {
-            this.logger.warn(`Failed to persist audit log for user creation (${user.id})`);
-        }
-        const successAccountLog = await this.auditLogsService.log({
+        await this.auditLogsService.log({
             userId: user.id,
             performedBy,
             action: 'ACCOUNT_CREATED',
@@ -129,9 +126,6 @@ let UsersService = UsersService_1 = class UsersService {
                 },
             },
         });
-        if (!successAccountLog) {
-            this.logger.warn(`Failed to persist audit log for default account creation (${account.id})`);
-        }
         await this.notificationsService.notifyAccountCreated(user.id, accountNumber);
         return this.mapUser(user);
     }
@@ -144,7 +138,7 @@ let UsersService = UsersService_1 = class UsersService {
             .range(skip, skip + take - 1);
         if (error)
             throw new common_1.BadRequestException(`Failed to fetch users: ${error.message}`);
-        return data.map(u => this.mapUser(u));
+        return (data ?? []).map(u => this.mapUser(u));
     }
     async findById(id, options = {}) {
         const { data, error } = await this.supabase
@@ -206,7 +200,7 @@ let UsersService = UsersService_1 = class UsersService {
         const updatedUser = this.mapUser(data);
         const performedBy = options?.performedBy ?? id;
         if (Object.keys(updatePayload).length) {
-            const success = await this.auditLogsService.log({
+            await this.auditLogsService.log({
                 userId: id,
                 performedBy,
                 action: 'USER_UPDATED',
@@ -216,9 +210,6 @@ let UsersService = UsersService_1 = class UsersService {
                     ? { ...options.metadata, changes: { ...(options.metadata?.changes ?? {}), ...updatePayload } }
                     : { changes: updatePayload },
             });
-            if (!success) {
-                this.logger.warn(`Failed to persist audit log for user update (${id})`);
-            }
         }
         return updatedUser;
     }
@@ -230,16 +221,13 @@ let UsersService = UsersService_1 = class UsersService {
         if (error)
             throw new common_1.BadRequestException(`Failed to delete user: ${error.message}`);
         const performedBy = options?.performedBy ?? id;
-        const success = await this.auditLogsService.log({
+        await this.auditLogsService.log({
             userId: id,
             performedBy,
             action: 'USER_DELETED',
             resourceType: 'user',
             resourceId: id,
         });
-        if (!success) {
-            this.logger.warn(`Failed to persist audit log for user deletion (${id})`);
-        }
         return user;
     }
     async setRefreshToken(userId, refreshToken) {

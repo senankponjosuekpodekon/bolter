@@ -8,12 +8,12 @@ export declare class AuthController {
     register(registerDto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: any;
+        user: Omit<import("../users/users.service").User, "password" | "refreshToken">;
     }>;
     login(loginDto: LoginDto, req: any): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: any;
+        user: Omit<import("../users/users.service").User, "password" | "refreshToken">;
     }>;
     refresh(refreshTokenDto: RefreshTokenDto, req: any): Promise<{
         accessToken: string;
@@ -25,7 +25,7 @@ export declare class AuthController {
     googleAuthCallback(req: any): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: any;
+        user: Omit<import("../users/users.service").User, "password" | "refreshToken">;
     }>;
     getProfile(req: any): any;
 }

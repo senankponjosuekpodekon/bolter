@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -46,8 +46,11 @@ export class UsersController {
   @Patch('profile')
   @ApiOperation({ summary: 'Update current user profile' })
   updateProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    const { role: _role, status: _status, kyc_status: _kycStatus, ...allowed } = updateUserDto;
-    return this.usersService.update(req.user.id, allowed, { performedBy: req.user.id });
+    const allowed = { ...(updateUserDto ?? {}) } as Record<string, unknown>;
+    delete allowed.role;
+    delete allowed.status;
+    delete allowed.kyc_status;
+    return this.usersService.update(req.user.id, allowed as UpdateUserDto, { performedBy: req.user.id });
   }
 
   @Patch(':id')

@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException, Logger as NestL
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service';
+import { UsersService, User } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { Logger } from '../common/logger/logger.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
@@ -19,7 +19,7 @@ export class AuthService {
     private readonly auditLogsService: AuditLogsService,
   ) { }
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<Omit<User, 'password' | 'refreshToken'>> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user || !user.password) {
@@ -32,11 +32,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...result } = user;
-    return result;
+    // avoid creating unused temporary bindings ('_' / '__') that ESLint flags
+    const copy: Partial<User> = { ...user };
+    delete (copy as Partial<User>).password;
+    delete (copy as Partial<User>).refreshToken;
+    return copy as Omit<User, 'password' | 'refreshToken'>;
   }
 
-  async login(user: any) {
+  async login(user: User | Omit<User, 'password' | 'refreshToken'>) {
     const payload = { email: user.email, sub: user.id, role: user.role };
     const refreshToken = this.generateRefreshToken(payload);
 
@@ -112,8 +115,8 @@ export class AuthService {
     return response;
   }
 
-  async validateOAuthUser(profile: any): Promise<any> {
-    const { emails, id: googleId, displayName } = profile;
+  async validateOAuthUser(profile: { emails?: Array<{ value: string }>; id: string; displayName?: string }): Promise<Omit<User, 'password' | 'refreshToken'>> {
+    const { emails, displayName } = profile;
     const email = emails[0].value;
 
     let user = await this.usersService.findByEmail(email);
@@ -153,10 +156,10 @@ export class AuthService {
       this.auditLogger.warn(`Failed to persist Google login audit log for ${email}`);
     }
 
-    return this.stripSensitiveFields(user);
+    return this.stripSensitiveFields(user) as Omit<User, 'password' | 'refreshToken'>;
   }
 
-  private generateRefreshToken(payload: any): string {
+  private generateRefreshToken(payload: { email: string; sub: string; role: string }): string {
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('jwt.secret'),
       expiresIn: `${this.configService.get<number>('jwt.refreshExpiresIn')}s`,
@@ -177,9 +180,11 @@ export class AuthService {
     return { success: true };
   }
 
-  private stripSensitiveFields(user: any) {
+  private stripSensitiveFields(user: User | null) {
     if (!user) return null;
-    const { password, refreshToken, ...rest } = user;
-    return rest;
+    const copy: Partial<User> = { ...user };
+    delete (copy as Partial<User>).password;
+    delete (copy as Partial<User>).refreshToken;
+    return copy as Omit<User, 'password' | 'refreshToken'>;
   }
 }

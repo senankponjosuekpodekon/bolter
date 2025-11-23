@@ -68,8 +68,10 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const { password: _, ...result } = user;
-        return result;
+        const copy = { ...user };
+        delete copy.password;
+        delete copy.refreshToken;
+        return copy;
     }
     async login(user) {
         const payload = { email: user.email, sub: user.id, role: user.role };
@@ -132,7 +134,7 @@ let AuthService = class AuthService {
         return response;
     }
     async validateOAuthUser(profile) {
-        const { emails, id: googleId, displayName } = profile;
+        const { emails, displayName } = profile;
         const email = emails[0].value;
         let user = await this.usersService.findByEmail(email);
         if (!user) {
@@ -188,8 +190,10 @@ let AuthService = class AuthService {
     stripSensitiveFields(user) {
         if (!user)
             return null;
-        const { password, refreshToken, ...rest } = user;
-        return rest;
+        const copy = { ...user };
+        delete copy.password;
+        delete copy.refreshToken;
+        return copy;
     }
 };
 exports.AuthService = AuthService;

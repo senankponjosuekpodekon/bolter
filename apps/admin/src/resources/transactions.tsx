@@ -1,4 +1,5 @@
 import React from "react";
+import { AdminTransaction } from "../types/transaction";
 import {
   BooleanInput,
   Button,
@@ -89,7 +90,22 @@ const TransactionListActions = () => (
   </TopToolbar>
 );
 
-const renderAccount = (account: any, fallback?: string) => {
+interface LocalAccount {
+  id?: string;
+  account_number?: string;
+  user?: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    id?: string;
+  } | null;
+  user_id?: string | null;
+}
+
+const renderAccount = (
+  account: LocalAccount | null | undefined,
+  fallback?: string
+) => {
   if (!account) {
     return fallback ?? "N/A";
   }
@@ -117,7 +133,7 @@ const TransactionHistoryList: React.FC = () => (
     <Datagrid rowClick={false} bulkActionButtons={false}>
       <FunctionField
         label="Type"
-        render={(record: any) => (
+        render={(record: AdminTransaction) => (
           <Chip
             size="small"
             color={
@@ -134,13 +150,13 @@ const TransactionHistoryList: React.FC = () => (
       />
       <FunctionField
         label="Amount"
-        render={(record: any) =>
+        render={(record: AdminTransaction) =>
           euroFormatter.format(Number(record?.amount ?? 0))
         }
       />
       <FunctionField
         label="From"
-        render={(record: any) =>
+        render={(record: AdminTransaction) =>
           record?.fromAccount
             ? renderAccount(record.fromAccount)
             : record?.iban_external
@@ -150,14 +166,19 @@ const TransactionHistoryList: React.FC = () => (
       />
       <FunctionField
         label="To"
-        render={(record: any) => {
+        render={(record: AdminTransaction) => {
           if (record?.toAccount) {
             return renderAccount(record.toAccount);
           }
           if (record?.type === "WITHDRAWAL") {
             return `External (${record?.iban_external ?? "N/A"})`;
           }
-          if (record?.iban_external && record?.type !== "WITHDRAWAL") {
+          if (
+            record?.iban_external &&
+            (["TRANSFER", "DEPOSIT"] as AdminTransaction["type"][]).includes(
+              record?.type as AdminTransaction["type"]
+            )
+          ) {
             return `External (${record.iban_external})`;
           }
           return "N/A";
@@ -165,7 +186,7 @@ const TransactionHistoryList: React.FC = () => (
       />
       <FunctionField
         label="Status"
-        render={(record: any) => (
+        render={(record: AdminTransaction) => (
           <Chip
             size="small"
             color={
@@ -182,7 +203,7 @@ const TransactionHistoryList: React.FC = () => (
       />
       <FunctionField
         label="Validator"
-        render={(record: any) =>
+        render={(record: AdminTransaction) =>
           record?.validator?.email ?? record?.validated_by ?? "N/A"
         }
       />
@@ -218,7 +239,7 @@ const TransactionValidation: React.FC = () => (
 );
 
 const TransactionValidationContent: React.FC = () => {
-  const record = useRecordContext<any>();
+  const record = useRecordContext<AdminTransaction>();
   const notify = useNotify();
   const redirect = useRedirect();
   const [approved, setApproved] = useState(true);
@@ -349,6 +370,9 @@ const TransactionValidationContent: React.FC = () => {
   );
 };
 
+// Fix: use explicit Account type in useAccountChoices
+// removed duplicate Account type (use top-level Account)
+
 const useAccountChoices = () => {
   const { data, isLoading } = useGetList("accounts", {
     pagination: { page: 1, perPage: 1000 },
@@ -357,7 +381,7 @@ const useAccountChoices = () => {
 
   const choices = useMemo(
     () =>
-      (data ?? []).map((account: any) => {
+      (data ?? []).map((account: LocalAccount) => {
         const ownerName =
           `${account.user?.first_name ?? ""} ${account.user?.last_name ?? ""}`.trim();
         const label = `${account.account_number} - ${ownerName || account.user?.email || account.user_id}`;

@@ -1,7 +1,25 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+
+export interface Account {
+  id: string;
+  user_id: string;
+  account_number: string;
+  account_type: AccountType;
+  balance: number;
+  status: string;
+  created_at?: string;
+  user?: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone: string;
+  };
+}
 import { UpdateAccountDto } from './dto/update-account.dto';
-import { CreateAccountDto, AccountType } from './dto/create-account.dto';
+import { AccountType } from './dto/create-account.dto';
+import { CreateAccountDto } from './dto/create-account.dto';
 import { generateFrenchIban } from '../common/utils/account-number.util';
 import { QueryAccountsDto } from './dto/query-accounts.dto';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
@@ -17,20 +35,20 @@ export class AccountsService {
     private readonly notificationsService: NotificationsService,
   ) { }
 
-  async findByUserId(userId: string): Promise<any[]> {
+  async findByUserId(userId: string): Promise<Account[]> {
     const { data, error } = await this.supabase.getAdminClient().from('accounts').select('*').eq('user_id', userId);
     if (error) throw new Error(`Failed to fetch accounts: ${error.message}`);
-    return data;
+    return (data ?? []) as Account[];
   }
 
-  async findById(id: string): Promise<any> {
+  async findById(id: string): Promise<Account> {
     const { data, error } = await this.supabase.getAdminClient().from('accounts').select('*').eq('id', id).maybeSingle();
     if (error) throw new Error(`Failed to fetch account: ${error.message}`);
     if (!data) throw new NotFoundException(`Account with ID ${id} not found`);
-    return data;
+    return data as Account;
   }
 
-  async findAll(query: QueryAccountsDto): Promise<{ data: any[]; total: number }> {
+  async findAll(query: QueryAccountsDto): Promise<{ data: Account[]; total: number }> {
     const { skip = 0, take = 25, status, userId, search } = query;
     const client = this.supabase.getAdminClient();
     let request = client
@@ -55,7 +73,7 @@ export class AccountsService {
       throw new BadRequestException(`Failed to fetch accounts: ${error.message}`);
     }
 
-    const items = data ?? [];
+    const items = (data ?? []) as Account[];
 
     return {
       data: items,
@@ -63,7 +81,7 @@ export class AccountsService {
     };
   }
 
-  async findByIds(ids: string[]): Promise<any[]> {
+  async findByIds(ids: string[]): Promise<Account[]> {
     if (!ids.length) {
       return [];
     }
@@ -78,10 +96,10 @@ export class AccountsService {
       throw new BadRequestException(`Failed to fetch accounts: ${error.message}`);
     }
 
-    return data ?? [];
+    return (data ?? []) as Account[];
   }
 
-  async create(userId: string, dto: CreateAccountDto): Promise<any> {
+  async create(userId: string, dto: CreateAccountDto): Promise<Account> {
     const accountType: AccountType = dto.accountType || 'SAVINGS';
     const accountNumber = generateFrenchIban();
 
@@ -120,18 +138,18 @@ export class AccountsService {
 
     await this.notificationsService.notifyAccountCreated(userId, accountNumber);
 
-    return data;
+    return data as Account;
   }
 
   async getBalance(accountId: string): Promise<number> {
     const account = await this.findById(accountId);
-    return parseFloat(account.balance);
+    return account.balance;
   }
 
-  async update(adminId: string, accountId: string, updateDto: UpdateAccountDto): Promise<any> {
+  async update(adminId: string, accountId: string, updateDto: UpdateAccountDto): Promise<Account> {
     const account = await this.findById(accountId);
 
-    const updateData: Record<string, any> = {};
+    const updateData: Partial<Account> = {};
 
     if (updateDto.accountNumber !== undefined) {
       updateData.account_number = updateDto.accountNumber;
@@ -174,6 +192,6 @@ export class AccountsService {
       this.logger.warn(`Failed to persist audit log for account update (${accountId})`);
     }
 
-    return data;
+    return data as Account;
   }
 }

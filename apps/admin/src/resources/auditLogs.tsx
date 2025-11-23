@@ -9,6 +9,7 @@ import {
 import { useMemo } from "react";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
+import { AdminAuditLog } from "../types/auditLog";
 
 const auditFilters = [
   <TextInput key="action" source="action" label="Action" alwaysOn />,
@@ -48,7 +49,7 @@ const AuditLogList = () => {
       <Datagrid rowClick={false} bulkActionButtons={false}>
         <FunctionField
           label="Action"
-          render={(record: any) => (
+          render={(record: AdminAuditLog) => (
             <Chip
               size="small"
               color={
@@ -66,12 +67,12 @@ const AuditLogList = () => {
         <TextField source="resource_id" label="Entity ID" />
         <FunctionField
           label="Performed by"
-          render={(record: any) => record?.performedBy ?? "N/A"}
+          render={(record: AdminAuditLog) => record?.performedBy ?? "N/A"}
         />
         <TextField source="user_id" label="Target user" />
         <FunctionField
           label="Changes"
-          render={(record: any) => (
+          render={(record: AdminAuditLog) => (
             <Box
               component="pre"
               sx={{ m: 0, fontSize: 12, whiteSpace: "pre-wrap" }}

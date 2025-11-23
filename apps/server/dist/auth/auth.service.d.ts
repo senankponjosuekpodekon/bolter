@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../users/users.service';
+import { UsersService, User } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { Logger } from '../common/logger/logger.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
@@ -12,21 +12,27 @@ export declare class AuthService {
     private readonly auditLogsService;
     private readonly auditLogger;
     constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, logger: Logger, auditLogsService: AuditLogsService);
-    validateUser(email: string, password: string): Promise<any>;
-    login(user: any): Promise<{
+    validateUser(email: string, password: string): Promise<Omit<User, 'password' | 'refreshToken'>>;
+    login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: any;
+        user: Omit<User, "password" | "refreshToken">;
     }>;
     register(registerDto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: any;
+        user: Omit<User, "password" | "refreshToken">;
     }>;
     refreshToken(userId: string, refreshToken: string): Promise<{
         accessToken: string;
     }>;
-    validateOAuthUser(profile: any): Promise<any>;
+    validateOAuthUser(profile: {
+        emails?: Array<{
+            value: string;
+        }>;
+        id: string;
+        displayName?: string;
+    }): Promise<Omit<User, 'password' | 'refreshToken'>>;
     private generateRefreshToken;
     logout(userId: string): Promise<{
         success: boolean;

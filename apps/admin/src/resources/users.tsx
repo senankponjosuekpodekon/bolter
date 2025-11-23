@@ -54,6 +54,8 @@ const UserListActions = () => (
   </TopToolbar>
 );
 
+import { AdminUser } from "../types/user";
+
 const RoleChip = ({ role }: { role?: string }) => {
   if (!role) {
     return <Chip size="small" label="Unknown" variant="outlined" />;
@@ -64,7 +66,7 @@ const RoleChip = ({ role }: { role?: string }) => {
     <Chip
       size="small"
       label={role.toLowerCase()}
-      color={color as any}
+      color={color as "secondary" | "info" | "default"}
       sx={{ textTransform: "capitalize" }}
     />
   );
@@ -90,7 +92,7 @@ const UserForm = ({
   defaultValues,
 }: {
   isEdit?: boolean;
-  defaultValues?: Record<string, any>;
+  defaultValues?: Record<string, unknown>;
 }) => (
   <SimpleForm
     toolbar={<UserFormToolbar hasDelete={isEdit} />}
@@ -256,19 +258,21 @@ export const UserList = () => (
       <TextField source="lastName" label="Last name" />
       <FunctionField
         label="Role"
-        render={(record: any) => <RoleChip role={record?.role} />}
+        render={(record: AdminUser) => <RoleChip role={record?.role} />}
       />
       <FunctionField
         label="Status"
-        render={(record: any) => <StatusChip label={record?.status} />}
+        render={(record: AdminUser) => <StatusChip label={record?.status} />}
       />
       <FunctionField
         label="KYC"
-        render={(record: any) => <StatusChip label={record?.kyc_status} />}
+        render={(record: AdminUser) => (
+          <StatusChip label={record?.kyc_status} />
+        )}
       />
       <FunctionField
         label="Password"
-        render={(record: any) => (
+        render={(record: AdminUser) => (
           <Chip
             size="small"
             label={record?.hasPassword ? "Set" : "Temporary"}

@@ -51,7 +51,7 @@ export declare class NotificationsService {
         previousStatus: string | null;
         newStatus: string;
     }): Promise<void>;
-    notifyAdmins(message: string, data?: Record<string, any>): Promise<void>;
+    notifyAdmins(message: string, data?: Record<string, unknown>): Promise<void>;
     notifyLoanCreated(options: {
         loanId: string;
         userId: string;

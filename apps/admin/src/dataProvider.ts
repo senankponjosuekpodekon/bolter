@@ -1,22 +1,23 @@
 import { DataProvider, fetchUtils } from 'react-admin';
+import type { GetListParams, GetListResult, RaRecord, QueryFunctionContext } from 'react-admin';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-const httpClient = (url: string, options: any = {}) => {
-  const request: any = { ...options };
-  request.headers = new Headers(request.headers || { Accept: 'application/json' });
+const httpClient = (url: string, options?: RequestInit) => {
+  const request: RequestInit & { headers?: HeadersInit } = { ...options };
+  const headers = new Headers(request.headers || { Accept: 'application/json' });
 
   const token = localStorage.getItem('token');
   if (token) {
-    request.headers.set('Authorization', `Bearer ${token}`);
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const method = (request.method || 'GET').toUpperCase();
   if (method !== 'GET' && request.body && !(request.body instanceof FormData)) {
-    request.headers.set('Content-Type', 'application/json');
+    headers.set('Content-Type', 'application/json');
   }
 
-  return fetchUtils.fetchJson(url, request);
+  return fetchUtils.fetchJson(url, { ...request, headers });
 };
 
 const getCurrentUser = () => {
@@ -37,7 +38,7 @@ const isAdminUser = () => {
   return role === 'ADMIN' || role === 'COMPLIANCE';
 };
 
-const appendFilters = (searchParams: URLSearchParams, filters: Record<string, any> = {}) => {
+const appendFilters = (searchParams: URLSearchParams, filters: Record<string, unknown> = {}) => {
   Object.entries(filters).forEach(([key, value]) => {
     if (value === undefined || value === null || value === '') {
       return;
@@ -52,12 +53,17 @@ const appendFilters = (searchParams: URLSearchParams, filters: Record<string, an
   });
 };
 
-const parseListResponse = (json: any, headers?: Headers) => {
-  let data: any[] = [];
+const parseListResponse = (json: unknown, headers?: Headers) => {
+  let data: unknown[] = [];
   if (Array.isArray(json)) {
-    data = json;
-  } else if (json?.data && Array.isArray(json.data)) {
-    data = json.data;
+    data = json as unknown[];
+  } else if (typeof json === 'object' && json !== null) {
+    const maybeObj = json as Record<string, unknown>;
+    if ('data' in maybeObj && Array.isArray(maybeObj.data)) {
+      data = maybeObj.data as unknown[];
+    } else {
+      data = [json];
+    }
   } else if (json) {
     data = [json];
   }
@@ -78,8 +84,11 @@ const parseListResponse = (json: any, headers?: Headers) => {
     }
   }
 
-  if ((total === undefined || Number.isNaN(total)) && typeof json?.total === 'number') {
-    total = json.total;
+  if ((total === undefined || Number.isNaN(total)) && typeof json === 'object' && json !== null) {
+    const maybeObj = json as Record<string, unknown>;
+    if ('total' in maybeObj && typeof maybeObj.total === 'number') {
+      total = maybeObj.total as number;
+    }
   }
 
   if (total === undefined || Number.isNaN(total)) {
@@ -90,7 +99,10 @@ const parseListResponse = (json: any, headers?: Headers) => {
 };
 
 const provider: DataProvider = {
-  getList: async (resource, params) => {
+  getList: async <RecordType extends RaRecord = RaRecord>(
+    resource: string,
+    params: GetListParams & QueryFunctionContext,
+  ): Promise<GetListResult<RecordType>> => {
     const { page, perPage } = params.pagination ?? { page: 1, perPage: 25 };
     const searchParams = new URLSearchParams();
 
@@ -99,14 +111,15 @@ const provider: DataProvider = {
 
     appendFilters(searchParams, params.filter ?? {});
 
-  if (isAdminUser() && (resource === 'accounts' || resource === 'transactions' || resource === 'loans')) {
+    if (isAdminUser() && (resource === 'accounts' || resource === 'transactions' || resource === 'loans')) {
       searchParams.set('scope', 'admin');
     }
 
     const queryString = searchParams.toString();
     const url = `${API_URL}/${resource}${queryString ? `?${queryString}` : ''}`;
     const { json, headers } = await httpClient(url);
-    return parseListResponse(json, headers);
+    const { data, total } = parseListResponse(json, headers);
+    return { data: data as unknown as RecordType[], total };
   },
 
   getOne: async (resource, params) => {
@@ -154,7 +167,12 @@ const provider: DataProvider = {
 
   update: async (resource, params) => {
     if (resource === 'users') {
-      const { id, hasPassword, createdAt, updatedAt, ...allowedData } = params.data ?? {};
+      const allowedData = { ...(params.data ?? {}) } as Record<string, unknown>;
+      // Remove fields that should not be updated by the admin form
+      delete allowedData.id;
+      delete allowedData.hasPassword;
+      delete allowedData.createdAt;
+      delete allowedData.updatedAt;
       const { json } = await httpClient(`${API_URL}/users/${params.id}`, {
         method: 'PATCH',
         body: JSON.stringify(allowedData),
@@ -164,27 +182,26 @@ const provider: DataProvider = {
 
     if (resource === 'accounts') {
       const {
-        id: _id,
-        user: _user,
-        user_id: _userId,
-        created_at: _createdAt,
-        updated_at: _updatedAt,
-        ...rest
+        account_number, // Keep these variables for the payload
+        account_type,   // Keep these variables for the payload
+        status,        // Keep these variables for the payload
+        balance,       // Keep these variables for the payload
+
       } = params.data ?? {};
 
-      const payload: Record<string, any> = {};
+      const payload: Record<string, unknown> = {};
 
-      if (rest.account_number !== undefined) {
-        payload.accountNumber = rest.account_number;
+      if (account_number !== undefined) {
+        payload.accountNumber = account_number;
       }
-      if (rest.account_type !== undefined) {
-        payload.accountType = rest.account_type;
+      if (account_type !== undefined) {
+        payload.accountType = account_type;
       }
-      if (rest.status !== undefined) {
-        payload.status = rest.status;
+      if (status !== undefined) {
+        payload.status = status;
       }
-      if (rest.balance !== undefined && rest.balance !== null && rest.balance !== '') {
-        const parsedBalance = Number(rest.balance);
+      if (balance !== undefined && balance !== null && balance !== '') {
+        const parsedBalance = Number(balance);
         if (!Number.isNaN(parsedBalance)) {
           payload.balance = parsedBalance;
         }

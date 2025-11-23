@@ -32,6 +32,13 @@ type WithdrawPayload = {
 };
 
 export default function Transactions() {
+  type Account = {
+    id: string;
+    account_type: string;
+    account_number: string;
+    currency: string;
+    balance: number | string;
+  };
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [transactionType, setTransactionType] =
@@ -89,9 +96,12 @@ export default function Transactions() {
       setShowForm(false);
       resetForms();
     },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to create transfer";
+    onError: (error: unknown) => {
+      let message = "Failed to create transfer";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        // @ts-expect-error: error type from axios may have response property
+        message = error.response?.data?.message || message;
+      }
       alert(message);
     },
   });
@@ -107,9 +117,12 @@ export default function Transactions() {
       setShowForm(false);
       resetForms();
     },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to create deposit";
+    onError: (error: unknown) => {
+      let message = "Failed to create deposit";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        // @ts-expect-error: error type from axios may have response property
+        message = error.response?.data?.message || message;
+      }
       alert(message);
     },
   });
@@ -125,9 +138,12 @@ export default function Transactions() {
       setShowForm(false);
       resetForms();
     },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to create withdrawal";
+    onError: (error: unknown) => {
+      let message = "Failed to create withdrawal";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        // @ts-expect-error: error type from axios may have response property
+        message = error.response?.data?.message || message;
+      }
       alert(message);
     },
   });
@@ -250,7 +266,7 @@ export default function Transactions() {
   };
 
   const getAccountBalance = (accountId: string) => {
-    const account = accounts?.find((acc: any) => acc.id === accountId);
+    const account = accounts?.find((acc: Account) => acc.id === accountId);
     return account ? parseFloat(account.balance) : 0;
   };
 
@@ -309,10 +325,10 @@ export default function Transactions() {
                   className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Select account</option>
-                  {accounts?.map((acc: any) => (
+                  {accounts?.map((acc: Account) => (
                     <option key={acc.id} value={acc.id}>
                       {acc.account_number} - Balance: €
-                      {parseFloat(acc.balance).toFixed(2)}
+                      {parseFloat(String(acc.balance)).toFixed(2)}
                     </option>
                   ))}
                 </select>
@@ -340,7 +356,7 @@ export default function Transactions() {
                   className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Internal account or use IBAN below</option>
-                  {accounts?.map((acc: any) => (
+                  {accounts?.map((acc: Account) => (
                     <option key={acc.id} value={acc.id}>
                       {acc.account_number}
                     </option>
@@ -435,10 +451,10 @@ export default function Transactions() {
                   className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Select account</option>
-                  {accounts?.map((acc: any) => (
+                  {accounts?.map((acc: Account) => (
                     <option key={acc.id} value={acc.id}>
                       {acc.account_number} - Balance: €
-                      {parseFloat(acc.balance).toFixed(2)}
+                      {parseFloat(String(acc.balance)).toFixed(2)}
                     </option>
                   ))}
                 </select>
@@ -552,10 +568,10 @@ export default function Transactions() {
                   className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Select account</option>
-                  {accounts?.map((acc: any) => (
+                  {accounts?.map((acc: Account) => (
                     <option key={acc.id} value={acc.id}>
                       {acc.account_number} - Balance: €
-                      {parseFloat(acc.balance).toFixed(2)}
+                      {parseFloat(String(acc.balance)).toFixed(2)}
                     </option>
                   ))}
                 </select>
@@ -692,7 +708,7 @@ export default function Transactions() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {transactions?.map((tx: any) => (
+              {transactions?.map((tx: import("../types").Transaction) => (
                 <tr key={tx.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {new Date(tx.created_at).toLocaleDateString()}

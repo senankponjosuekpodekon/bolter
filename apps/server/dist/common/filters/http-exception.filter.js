@@ -25,8 +25,10 @@ let HttpExceptionFilter = class HttpExceptionFilter {
             : common_1.HttpStatus.INTERNAL_SERVER_ERROR;
         const message = exception instanceof common_1.HttpException
             ? exception.getResponse()
-            : 'Internal server error';
-        this.logger.error(`${request.method} ${request.url} - ${status}`, exception.stack, 'ExceptionFilter');
+            : exception instanceof Error
+                ? exception.message
+                : 'Internal server error';
+        this.logger.error(`${request.method} ${request.url} - ${status}`, exception instanceof Error ? exception.stack : undefined, 'ExceptionFilter');
         response.status(status).json({
             statusCode: status,
             timestamp: new Date().toISOString(),

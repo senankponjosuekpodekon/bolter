@@ -40,7 +40,10 @@ let UsersController = class UsersController {
         return this.usersService.findById(id);
     }
     updateProfile(req, updateUserDto) {
-        const { role: _role, status: _status, kyc_status: _kycStatus, ...allowed } = updateUserDto;
+        const allowed = { ...(updateUserDto ?? {}) };
+        delete allowed.role;
+        delete allowed.status;
+        delete allowed.kyc_status;
         return this.usersService.update(req.user.id, allowed, { performedBy: req.user.id });
     }
     update(req, id, updateUserDto) {

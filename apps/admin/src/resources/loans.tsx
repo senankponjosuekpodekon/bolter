@@ -33,7 +33,9 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
-const loanStatusColor = (status?: string) => {
+const loanStatusColor = (
+  status?: string
+): "success" | "warning" | "error" | "default" => {
   switch (status) {
     case "APPROVED":
     case "IN_PROGRESS":
@@ -68,7 +70,7 @@ const LoanListActions = () => (
 const LoanStatusChip = ({ status }: { status?: string }) => (
   <Chip
     size="small"
-    color={loanStatusColor(status) as any}
+    color={loanStatusColor(status)}
     label={status?.toLowerCase().replace(/_/g, " ") ?? "inconnu"}
     sx={{ textTransform: "uppercase", fontSize: 11, fontWeight: 600 }}
   />
@@ -77,7 +79,7 @@ const LoanStatusChip = ({ status }: { status?: string }) => (
 interface DecisionDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (payload: Record<string, any>) => Promise<void>;
+  onSubmit: (payload: Record<string, unknown>) => Promise<void>;
   title: string;
   submitLabel: string;
   children: React.ReactNode;
@@ -96,7 +98,7 @@ const DecisionDialog = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const payload: Record<string, any> = {};
+    const payload: Record<string, unknown> = {};
     formData.forEach((value, key) => {
       if (value !== "" && value !== null) {
         payload[key] = value;
@@ -141,8 +143,23 @@ const DecisionDialog = ({
   );
 };
 
+interface LoanRecord {
+  id: string;
+  amount?: number;
+  interest_rate?: number;
+  status?: string;
+  user?: { id?: string; email?: string };
+  user_id?: string;
+  monthly_payment?: number;
+  approved_amount?: number;
+  duration_months?: number;
+  risk_score?: number;
+  created_at?: string;
+  supporting_documents?: SupportingDocument[];
+}
+
 interface LoanDecisionButtonsProps {
-  record?: any;
+  record?: LoanRecord;
 }
 
 const LoanDecisionButtons = ({ record }: LoanDecisionButtonsProps) => {
@@ -151,7 +168,12 @@ const LoanDecisionButtons = ({ record }: LoanDecisionButtonsProps) => {
   const redirect = useRedirect();
   const [approveOpen, setApproveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [accounts, setAccounts] = useState<any[]>([]);
+  interface Account {
+    id: string;
+    account_number?: string;
+    balance?: number;
+  }
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountsError, setAccountsError] = useState<string | null>(null);
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [accountsLoading, setAccountsLoading] = useState(false);
@@ -246,7 +268,9 @@ const LoanDecisionButtons = ({ record }: LoanDecisionButtonsProps) => {
   };
 
   const handleApprove = useCallback(
-    async (payload: Record<string, any>) => {
+    async (payload: Record<string, unknown>) => {
+      if (!record) throw new Error("Loan record is undefined");
+
       const sanitizedDisbursementAccountId = cleanString(
         payload.disbursementAccountId
       );
@@ -291,7 +315,9 @@ const LoanDecisionButtons = ({ record }: LoanDecisionButtonsProps) => {
   );
 
   const handleReject = useCallback(
-    async (payload: Record<string, any>) => {
+    async (payload: Record<string, unknown>) => {
+      if (!record) throw new Error("Loan record is undefined");
+
       const response = await fetch(`${API_URL}/loans/${record.id}/reject`, {
         method: "PATCH",
         headers: {
@@ -313,21 +339,22 @@ const LoanDecisionButtons = ({ record }: LoanDecisionButtonsProps) => {
     [notify, refresh, redirect, record?.id]
   );
 
-  const disabled = record?.status && record.status !== "PENDING_REVIEW";
+  // Fix: ensure 'disabled' is always boolean
+  const disabled = !!record && record.status !== "PENDING_REVIEW";
 
   return (
     <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
       <Button
         label="Approuver"
         onClick={() => setApproveOpen(true)}
-        disabled={disabled}
+        disabled={!!disabled}
         startIcon={<CheckCircleIcon />}
       />
       <Button
         label="Rejeter"
         color="error"
         onClick={() => setRejectOpen(true)}
-        disabled={disabled}
+        disabled={!!disabled}
         startIcon={<CancelIcon />}
       />
 
@@ -340,7 +367,7 @@ const LoanDecisionButtons = ({ record }: LoanDecisionButtonsProps) => {
       >
         <Stack spacing={2}>
           <Typography variant="body2" color="text.secondary">
-            Ajuster les paramètres avant l'approbation.
+            Ajuster les paramètres avant l&apos;approbation.
           </Typography>
           <MuiTextField
             name="approvedAmount"
@@ -418,7 +445,7 @@ const LoanDecisionButtons = ({ record }: LoanDecisionButtonsProps) => {
       >
         <Stack spacing={2}>
           <Typography variant="body2" color="text.secondary">
-            Merci d'expliquer la raison du refus.
+            Merci d&apos;expliquer la raison du refus.
           </Typography>
           <MuiTextField
             required
@@ -451,19 +478,25 @@ export const LoanList = () => (
       <NumberField source="duration_months" label="Durée (mois)" />
       <FunctionField
         label="Mensualité"
-        render={(record: any) =>
-          record.monthly_payment ? euro.format(record.monthly_payment) : "-"
+        render={(record: LoanRecord) =>
+          record?.monthly_payment ? euro.format(record.monthly_payment) : "-"
         }
       />
       <FunctionField
         label="Statut"
-        render={(record: any) => <LoanStatusChip status={record.status} />}
+        render={(record: LoanRecord) => (
+          <LoanStatusChip status={record.status} />
+        )}
       />
       <NumberField source="risk_score" label="Score risque" />
       <DateField source="created_at" label="Créé le" showTime />
     </Datagrid>
   </List>
 );
+
+interface SupportingDocument {
+  url?: string;
+}
 
 export const LoanShow = () => (
   <Show
@@ -477,7 +510,9 @@ export const LoanShow = () => (
       <TextField source="id" label="Identifiant du prêt" />
       <FunctionField
         label="Statut"
-        render={(record: any) => <LoanStatusChip status={record.status} />}
+        render={(record: LoanRecord) => (
+          <LoanStatusChip status={record.status} />
+        )}
       />
       <TextField source="user.email" label="Client" />
       <NumberField
@@ -526,7 +561,9 @@ export const LoanShow = () => (
       <TextField source="notes" label="Notes" />
       <FunctionField
         label="Documents"
-        render={(record: any) => {
+        render={(
+          record: LoanRecord & { supporting_documents?: SupportingDocument[] }
+        ) => {
           if (!record?.supporting_documents?.length) {
             return (
               <Typography variant="body2">Aucun document fourni</Typography>
@@ -534,27 +571,29 @@ export const LoanShow = () => (
           }
           return (
             <Stack spacing={1}>
-              {record.supporting_documents.map((doc: any, index: number) => (
-                <Box key={index} display="flex" gap={1} alignItems="center">
-                  {doc.url ? (
-                    <MuiButton
-                      href={doc.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      size="small"
-                    >
-                      Ouvrir
-                    </MuiButton>
-                  ) : null}
-                </Box>
-              ))}
+              {record.supporting_documents.map(
+                (doc: SupportingDocument, index: number) => (
+                  <Box key={index} display="flex" gap={1} alignItems="center">
+                    {doc.url ? (
+                      <MuiButton
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        size="small"
+                      >
+                        Ouvrir
+                      </MuiButton>
+                    ) : null}
+                  </Box>
+                )
+              )}
             </Stack>
           );
         }}
       />
       <FunctionField
         label="Décision"
-        render={(record: any) => <LoanDecisionButtons record={record} />}
+        render={(record: LoanRecord) => <LoanDecisionButtons record={record} />}
       />
     </SimpleShowLayout>
   </Show>
