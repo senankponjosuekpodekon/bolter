@@ -9,19 +9,138 @@ import {
   useNotify,
   useRedirect,
   Button,
+  SelectInput,
+  TextInput,
 } from "react-admin";
 import { AdminKYCDocument } from "../types/kycDocument";
 import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  Typography,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+const kycStatusChoices = [
+  { id: "PENDING", name: "Pending" },
+  { id: "APPROVED", name: "Approved" },
+  { id: "REJECTED", name: "Rejected" },
+  { id: "UNDER_REVIEW", name: "Under Review" },
+];
+
+const documentTypeChoices = [
+  { id: "ID_CARD", name: "ID Card" },
+  { id: "PASSPORT", name: "Passport" },
+  { id: "SELFIE", name: "Selfie" },
+  { id: "PROOF_ADDRESS", name: "Proof of Address" },
+];
+
+// Enhanced filter component for KYC documents
+const AdvancedKYCFilters = () => (
+  <Card sx={{ mb: 2, backgroundColor: "#f5f5f5" }}>
+    <CardContent>
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">🔍 Advanced KYC Filters</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 2,
+            }}
+          >
+            {/* Status Filter */}
+            <SelectInput
+              source="status"
+              label="Document Status"
+              choices={kycStatusChoices}
+              alwaysOn
+            />
+
+            {/* Document Type Filter */}
+            <SelectInput
+              source="documentType"
+              label="Document Type"
+              choices={documentTypeChoices}
+              helperText="Filter by document type"
+            />
+
+            {/* Date Range */}
+            <TextInput
+              source="submittedFrom"
+              label="Submitted From"
+              type="date"
+              helperText="Start date for submission"
+              inputProps={{ type: "date" }}
+            />
+            <TextInput
+              source="submittedTo"
+              label="Submitted To"
+              type="date"
+              helperText="End date for submission"
+              inputProps={{ type: "date" }}
+            />
+
+            {/* User & ID Filters */}
+            <TextInput
+              source="userId"
+              label="User ID"
+              helperText="Filter by specific user"
+            />
+            <TextInput
+              source="reviewedBy"
+              label="Reviewed By"
+              helperText="Filter by reviewer admin ID"
+            />
+
+            {/* Overdue Filter */}
+            <SelectInput
+              source="isOverdue"
+              label="Overdue (>48h)"
+              choices={[
+                { id: "true", name: "Yes - Overdue" },
+                { id: "false", name: "No - On Time" },
+              ]}
+              helperText="Filter by review time"
+            />
+
+            {/* Quality Rating */}
+            <SelectInput
+              source="qualityRating"
+              label="Quality Rating"
+              choices={[
+                { id: "EXCELLENT", name: "Excellent" },
+                { id: "GOOD", name: "Good" },
+                { id: "FAIR", name: "Fair" },
+                { id: "POOR", name: "Poor" },
+              ]}
+              helperText="Filter by document quality"
+            />
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </CardContent>
+  </Card>
+);
 
 export const KYCDocumentList = () => (
-  <List>
+  <List
+    filters={[<AdvancedKYCFilters key="advanced" />]}
+    sort={{ field: "created_at", order: "DESC" }}
+    perPage={25}
+  >
     <Datagrid rowClick="edit">
-      <TextField source="id" />
-      <TextField source="user_id" />
-      <TextField source="document_type" />
-      <TextField source="file_path" />
-      <TextField source="status" />
-      <DateField source="created_at" showTime />
+      <TextField source="id" label="ID" />
+      <TextField source="user_id" label="User ID" />
+      <TextField source="document_type" label="Type" />
+      <TextField source="status" label="Status" />
+      <DateField source="created_at" showTime label="Submitted" />
     </Datagrid>
   </List>
 );

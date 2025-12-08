@@ -1,0 +1,39 @@
+{
+  "hooks": [
+    {
+      "id": "prettier",
+      "name": "Prettier",
+      "entry": "npx prettier --write",
+      "language": "node",
+      "types": [
+        "javascript",
+        "jsx",
+        "typescript",
+        "tsx",
+        "json",
+        "css",
+        "markdown"
+      ],
+      "stages": ["commit"],
+      "pass_filenames": true
+    },
+    {
+      "id": "eslint",
+      "name": "ESLint",
+      "entry": "npx eslint --fix",
+      "language": "node",
+      "types": ["javascript", "jsx", "typescript", "tsx"],
+      "stages": ["commit"],
+      "pass_filenames": true
+    },
+    {
+      "id": "detect-secrets",
+      "name": "Detect Secrets",
+      "entry": "npx detect-secrets scan --baseline .secrets.baseline",
+      "language": "node",
+      "types": ["text"],
+      "stages": ["commit"],
+      "pass_filenames": false
+    }
+  ]
+}

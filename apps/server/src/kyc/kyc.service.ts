@@ -32,6 +32,18 @@ export class KycService {
     return data;
   }
 
+  async getDocumentById(documentId: string) {
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('kyc_documents')
+      .select('*')
+      .eq('id', documentId)
+      .maybeSingle();
+    if (error) throw new BadRequestException(`Failed to fetch document: ${error.message}`);
+    if (!data) throw new NotFoundException('Document not found');
+    return data;
+  }
+
   async reviewDocument(adminId: string, documentId: string, dto: ReviewKycDocumentDto) {
     const { data: document, error: fetchError } = await this.supabase.getAdminClient().from('kyc_documents').select('*').eq('id', documentId).maybeSingle();
     if (fetchError || !document) throw new NotFoundException('Document not found');

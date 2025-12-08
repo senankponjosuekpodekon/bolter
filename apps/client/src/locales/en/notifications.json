@@ -1,0 +1,48 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "You don't have any notifications",
+    "markAllAsRead": "Mark all as read",
+    "settings": "Notification Settings",
+    "types": {
+      "transactionCreated": "Transaction Created",
+      "transactionApproved": "Transaction Approved",
+      "transactionRejected": "Transaction Rejected",
+      "kycDocumentReviewed": "KYC Document Reviewed",
+      "kycStatusChanged": "KYC Status Changed",
+      "accountCreated": "Account Created",
+      "loanCreated": "Loan Created",
+      "loanApproved": "Loan Approved",
+      "loanRejected": "Loan Rejected"
+    },
+    "toast": {
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning",
+      "info": "Information"
+    },
+    "messages": {
+      "transactionCreated": "Your transaction has been created and is pending review",
+      "transactionApproved": "Your transaction has been approved",
+      "transactionRejected": "Your transaction has been rejected",
+      "kycDocumentApproved": "Your KYC document has been approved",
+      "kycDocumentRejected": "Your KYC document has been rejected",
+      "kycStatusChanged": "Your KYC status has been updated",
+      "accountCreated": "Your new account has been created successfully",
+      "loanCreated": "Your loan application has been created",
+      "loanApproved": "Your loan has been approved",
+      "loanRejected": "Your loan application has been rejected"
+    },
+    "preferences": {
+      "email": "Email Notifications",
+      "inApp": "In-App Notifications",
+      "webhooks": "Webhook Notifications"
+    },
+    "actions": {
+      "undo": "Undo",
+      "retry": "Retry",
+      "dismiss": "Dismiss",
+      "viewDetails": "View Details"
+    }
+  }
+}

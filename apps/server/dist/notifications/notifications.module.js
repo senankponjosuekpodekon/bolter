@@ -29,7 +29,7 @@ exports.NotificationsModule = NotificationsModule = __decorate([
             }),
         ],
         providers: [email_service_1.EmailService, notifications_service_1.NotificationsService, notifications_gateway_1.NotificationsGateway],
-        exports: [notifications_service_1.NotificationsService],
+        exports: [notifications_service_1.NotificationsService, email_service_1.EmailService],
     })
 ], NotificationsModule);
 //# sourceMappingURL=notifications.module.js.map

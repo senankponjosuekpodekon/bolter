@@ -53,16 +53,27 @@ export const LoanSimulator: React.FC = () => {
   });
 
   useEffect(() => {
-    websocketService.onNotification((payload) => {
-      if (payload.type === "loan-status") {
-        setNotifications((prev) => [payload, ...prev]);
+    const unsubscribe = websocketService.onNotification((payload) => {
+      if (
+        payload.type === "loan-status" ||
+        payload.event === "loan.approved" ||
+        payload.event === "loan.rejected"
+      ) {
+        const notification: Notification = {
+          id: payload.id || `${Date.now()}-${Math.random()}`,
+          type: payload.type || payload.event || "info",
+          message: payload.message || payload.title || "",
+          createdAt: payload.createdAt,
+          ...payload,
+        };
+        setNotifications((prev) => [notification, ...prev]);
         refetch();
       }
     });
     return () => {
-      websocketService.disconnect();
+      unsubscribe?.();
     };
-  }, []);
+  }, [refetch]);
 
   const handleSimulate = (e: React.FormEvent) => {
     e.preventDefault();

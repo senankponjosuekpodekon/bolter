@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useTranslation } from "react-i18next";
+import { loadLocale } from "../i18n";
+import { useLocalization, useFormatting } from "../hooks";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -8,10 +11,29 @@ export default function Register() {
     password: "",
     firstName: "",
     lastName: "",
+    locale:
+      typeof navigator !== "undefined"
+        ? navigator.language || "en-US"
+        : "en-US",
+    currency: undefined as string | undefined,
+    timezone:
+      typeof Intl !== "undefined"
+        ? Intl.DateTimeFormat().resolvedOptions().timeZone
+        : "UTC",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { changeLanguage } = useLocalization();
+  const { currency: currencyFormatter } = useFormatting({
+    locale: formData.locale,
+  });
+
+  useEffect(() => {
+    loadLocale(formData.locale);
+    changeLanguage(formData.locale);
+  }, [formData.locale, changeLanguage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +41,30 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await api.post("/auth/register", formData);
+      // Ensure currency defaults based on locale if not provided
+      type RegisterPayload = {
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+        locale: string;
+        currency?: string;
+        timezone: string;
+      };
+      const payload = { ...formData } as RegisterPayload;
+      if (!payload.currency) {
+        // basic mapping by locale
+        const defaultCurrency: Record<string, string> = {
+          "en-US": "USD",
+          "fr-FR": "EUR",
+          "fr-CA": "CAD",
+          "ar-AE": "AED",
+          "pt-PT": "EUR",
+          "sw-KE": "KES",
+        };
+        payload.currency = defaultCurrency[payload.locale] || "EUR";
+      }
+      await api.post("/auth/register", payload);
       navigate("/login");
     } catch (err) {
       let message = "Registration failed";
@@ -34,10 +79,13 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div
+      style={{ minHeight: "calc(var(--vh, 1vh) * 100)" }}
+      className="flex items-center justify-center bg-gray-50 py-12 px-4"
+    >
       <div className="max-w-md w-full space-y-8">
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Create your account
+          {t("register.title")}
         </h2>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
@@ -54,8 +102,94 @@ export default function Register() {
                 setFormData({ ...formData, firstName: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="First Name"
+              placeholder={t("register.firstName")}
             />
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <label className="text-xs text-gray-500">
+                  {t("register.language_label")}
+                </label>
+                <select
+                  value={formData.locale}
+                  onChange={(e) =>
+                    setFormData({ ...formData, locale: e.target.value })
+                  }
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="en-US">🇺🇸 English (US)</option>
+                  <option value="en-GB">🇬🇧 English (UK)</option>
+                  <option value="fr-FR">🇫🇷 Français (France)</option>
+                  <option value="fr-CA">🇨🇦 Français (Canada)</option>
+                  <option value="ar-AE">🇦🇪 العربية (UAE)</option>
+                  <option value="pt-PT">🇵🇹 Português (PT)</option>
+                  <option value="sw-KE">🇰🇪 Kiswahili (KE)</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="text-xs text-gray-500">
+                  {t("register.currency_label")}
+                </label>
+                <select
+                  value={formData.currency || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, currency: e.target.value })
+                  }
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Auto</option>
+                  <option value="EUR">
+                    EUR - {currencyFormatter.format(100, "EUR")}
+                  </option>
+                  <option value="USD">
+                    USD - {currencyFormatter.format(100, "USD")}
+                  </option>
+                  <option value="GBP">
+                    GBP - {currencyFormatter.format(100, "GBP")}
+                  </option>
+                  <option value="CAD">
+                    CAD - {currencyFormatter.format(100, "CAD")}
+                  </option>
+                  <option value="AED">
+                    AED - {currencyFormatter.format(100, "AED")}
+                  </option>
+                  <option value="NGN">
+                    NGN - {currencyFormatter.format(100, "NGN")}
+                  </option>
+                  <option value="GHS">
+                    GHS - {currencyFormatter.format(100, "GHS")}
+                  </option>
+                  <option value="ZAR">
+                    ZAR - {currencyFormatter.format(100, "ZAR")}
+                  </option>
+                  <option value="XOF">
+                    XOF - {currencyFormatter.format(100, "XOF")}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500">
+                {t("register.timezone_label")}
+              </label>
+              <select
+                value={formData.timezone}
+                onChange={(e) =>
+                  setFormData({ ...formData, timezone: e.target.value })
+                }
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="Europe/Paris">Europe/Paris</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="America/Toronto">America/Toronto</option>
+                <option value="Asia/Dubai">Asia/Dubai</option>
+                <option value="Africa/Lagos">Africa/Lagos</option>
+                <option value="Africa/Nairobi">Africa/Nairobi</option>
+                <option value="Europe/London">Europe/London</option>
+                <option value="Africa/Accra">Africa/Accra</option>
+                <option value="Africa/Johannesburg">Africa/Johannesburg</option>
+              </select>
+            </div>
             <input
               type="text"
               required
@@ -64,7 +198,7 @@ export default function Register() {
                 setFormData({ ...formData, lastName: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="Last Name"
+              placeholder={t("register.lastName")}
             />
             <input
               type="email"
@@ -74,7 +208,7 @@ export default function Register() {
                 setFormData({ ...formData, email: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="Email"
+              placeholder={t("register.email")}
             />
             <input
               type="password"
@@ -84,7 +218,7 @@ export default function Register() {
                 setFormData({ ...formData, password: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="Password"
+              placeholder={t("register.password")}
             />
           </div>
           <button
@@ -92,11 +226,11 @@ export default function Register() {
             disabled={loading}
             className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? "Creating account..." : "Register"}
+            {loading ? t("register.creating") : t("register.register")}
           </button>
           <div className="text-center">
             <Link to="/login" className="text-blue-600 hover:text-blue-500">
-              Already have an account? Sign in
+              {t("register.already_have")}
             </Link>
           </div>
         </form>

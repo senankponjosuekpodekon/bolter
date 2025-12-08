@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../services/api";
+import { useFormatting } from "../hooks";
 
 export default function KYC() {
+  const { t } = useTranslation("kyc");
+  const { date: dateFormatter } = useFormatting();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
 
@@ -48,13 +52,12 @@ export default function KYC() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">KYC Documents</h1>
+      <h1 className="text-2xl font-bold text-gray-900">
+        {t("documents.title")}
+      </h1>
 
       <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
-        <p className="text-sm text-blue-700">
-          Please upload the following documents to verify your identity. All
-          documents will be reviewed by our compliance team.
-        </p>
+        <p className="text-sm text-blue-700">{t("documents.instructions")}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -66,7 +69,7 @@ export default function KYC() {
           return (
             <div key={docType} className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {docType.replace("_", " ")}
+                {t(`documents.types.${docType.toLowerCase()}`)}
               </h3>
               {existing ? (
                 <div>
@@ -79,7 +82,7 @@ export default function KYC() {
                           : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {existing.status}
+                    {t(`status.${existing.status.toLowerCase()}`)}
                   </span>
                   {existing.rejection_reason && (
                     <p className="mt-2 text-sm text-red-600">
@@ -87,8 +90,11 @@ export default function KYC() {
                     </p>
                   )}
                   <p className="mt-2 text-xs text-gray-500">
-                    Uploaded:{" "}
-                    {new Date(existing.created_at).toLocaleDateString()}
+                    {t("uploaded_date")}:{" "}
+                    {dateFormatter.format(
+                      new Date(existing.created_at),
+                      "long"
+                    )}
                   </p>
                 </div>
               ) : (
@@ -114,23 +120,23 @@ export default function KYC() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-medium text-gray-900">
-              Document History
+              {t("documents.history_title")}
             </h2>
           </div>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Type
+                  {t("documents.headers.type")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Status
+                  {t("documents.headers.status")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Uploaded
+                  {t("documents.headers.uploaded")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Reviewed
+                  {t("documents.headers.reviewed")}
                 </th>
               </tr>
             </thead>
@@ -138,7 +144,7 @@ export default function KYC() {
               {documents.map((doc: import("../types/kyc").KycDocument) => (
                 <tr key={doc.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {doc.document_type}
+                    {t(`documents.types.${doc.document_type.toLowerCase()}`)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -150,15 +156,15 @@ export default function KYC() {
                             : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {doc.status}
+                      {t(`status.${doc.status.toLowerCase()}`)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(doc.created_at).toLocaleDateString()}
+                    {dateFormatter.format(new Date(doc.created_at), "short")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {doc.reviewed_at
-                      ? new Date(doc.reviewed_at).toLocaleDateString()
+                      ? dateFormatter.format(new Date(doc.reviewed_at), "short")
                       : "-"}
                   </td>
                 </tr>

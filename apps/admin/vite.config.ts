@@ -10,7 +10,12 @@ const plugins: PluginOption[] = [
 
 export default defineConfig({
   plugins,
+  define: {
+    'process.env': JSON.stringify(process.env),
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+  },
   server: {
+    host: '0.0.0.0',
     port: 5174,
     strictPort: true,
     proxy: {

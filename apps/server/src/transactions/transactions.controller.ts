@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Req, Patch, Query, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
+import { TransactionFilterService } from './transaction-filter.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
@@ -10,13 +11,17 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { AdminCreateTransactionDto } from './dto/admin-create-transaction.dto';
+import { TransactionFilterDto } from './dto/transaction-filter.dto';
 
 @ApiTags('transactions')
 @Controller('transactions')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) { }
+  constructor(
+    private readonly transactionsService: TransactionsService,
+    private readonly transactionFilterService: TransactionFilterService,
+  ) { }
 
   @Post('transfer')
   @ApiOperation({ summary: 'Create a new transfer' })
@@ -58,6 +63,13 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Get pending transaction by ID (Admin only)' })
   getPendingTransaction(@Param('id') id: string) {
     return this.transactionsService.findPendingById(id);
+  }
+
+  @Get('filter')
+  @Roles('ADMIN', 'COMPLIANCE')
+  @ApiOperation({ summary: 'Filter transactions with advanced criteria (Admin only)' })
+  filterTransactions(@Query() query: TransactionFilterDto) {
+    return this.transactionFilterService.filter(query);
   }
 
   @Post('admin')

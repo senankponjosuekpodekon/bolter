@@ -10,14 +10,19 @@ exports.KycModule = void 0;
 const common_1 = require("@nestjs/common");
 const kyc_controller_1 = require("./kyc.controller");
 const kyc_service_1 = require("./kyc.service");
+const kyc_storage_service_1 = require("./kyc-storage.service");
+const kyc_filter_service_1 = require("./kyc-filter.service");
+const supabase_module_1 = require("../supabase/supabase.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 let KycModule = class KycModule {
 };
 exports.KycModule = KycModule;
 exports.KycModule = KycModule = __decorate([
     (0, common_1.Module)({
+        imports: [supabase_module_1.SupabaseModule, notifications_module_1.NotificationsModule],
         controllers: [kyc_controller_1.KycController],
-        providers: [kyc_service_1.KycService],
-        exports: [kyc_service_1.KycService],
+        providers: [kyc_service_1.KycService, kyc_storage_service_1.KycStorageService, kyc_filter_service_1.KycFilterService],
+        exports: [kyc_service_1.KycService, kyc_storage_service_1.KycStorageService, kyc_filter_service_1.KycFilterService],
     })
 ], KycModule);
 //# sourceMappingURL=kyc.module.js.map

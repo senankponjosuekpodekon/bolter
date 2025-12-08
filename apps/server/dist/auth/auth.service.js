@@ -47,6 +47,8 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const bcrypt = __importStar(require("bcrypt"));
+const speakeasy = __importStar(require("speakeasy"));
+const qrcode = __importStar(require("qrcode"));
 const users_service_1 = require("../users/users.service");
 const logger_service_1 = require("../common/logger/logger.service");
 const audit_logs_service_1 = require("../audit-logs/audit-logs.service");
@@ -194,6 +196,95 @@ let AuthService = class AuthService {
         delete copy.password;
         delete copy.refreshToken;
         return copy;
+    }
+    async setupTwoFactor(userId) {
+        const user = await this.usersService.findById(userId);
+        const secret = speakeasy.generateSecret({
+            name: `Bolter (${user?.email || 'user'})`,
+            issuer: 'Bolter Banking'
+        });
+        await this.usersService.setTempTwoFactorSecret(userId, secret.base32);
+        const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
+        return {
+            secret: secret.base32,
+            qrCodeUrl
+        };
+    }
+    async enableTwoFactor(userId, token) {
+        const already = await this.usersService.getTwoFactorSecret(userId);
+        if (already) {
+            throw new common_1.BadRequestException('2FA is already enabled');
+        }
+        const tempSecret = await this.usersService.getTempTwoFactorSecret(userId);
+        if (!tempSecret) {
+            throw new common_1.BadRequestException('No pending 2FA setup found. Please start setup first.');
+        }
+        const verified = speakeasy.totp.verify({
+            secret: tempSecret,
+            encoding: 'base32',
+            token,
+            window: 2,
+        });
+        if (!verified) {
+            throw new common_1.BadRequestException('Invalid 2FA token');
+        }
+        await this.usersService.setTwoFactorSecret(userId, tempSecret);
+        await this.usersService.clearTempTwoFactorSecret(userId);
+        await this.auditLogsService.log({
+            userId,
+            performedBy: userId,
+            action: '2FA_ENABLED',
+            resourceType: 'auth',
+            resourceId: userId,
+        });
+        return { success: true, message: '2FA enabled successfully' };
+    }
+    async disableTwoFactor(userId, token) {
+        const secret = await this.usersService.getTwoFactorSecret(userId);
+        if (!secret) {
+            throw new common_1.BadRequestException('2FA is not enabled');
+        }
+        const verified = speakeasy.totp.verify({
+            secret,
+            encoding: 'base32',
+            token,
+            window: 2,
+        });
+        if (!verified) {
+            throw new common_1.BadRequestException('Invalid 2FA token');
+        }
+        await this.usersService.clearTwoFactorSecret(userId);
+        await this.auditLogsService.log({
+            userId,
+            performedBy: userId,
+            action: '2FA_DISABLED',
+            resourceType: 'auth',
+            resourceId: userId,
+        });
+        return { success: true, message: '2FA disabled successfully' };
+    }
+    async verifyTwoFactor(userId, token) {
+        const secret = await this.usersService.getTwoFactorSecret(userId);
+        if (!secret) {
+            throw new common_1.BadRequestException('2FA is not enabled');
+        }
+        const verified = speakeasy.totp.verify({
+            secret,
+            encoding: 'base32',
+            token,
+            window: 2,
+        });
+        if (!verified) {
+            await this.auditLogsService.log({
+                userId,
+                performedBy: userId,
+                action: '2FA_VERIFY_FAILED',
+                resourceType: 'auth',
+                resourceId: userId,
+            });
+            return false;
+        }
+        return true;
     }
 };
 exports.AuthService = AuthService;

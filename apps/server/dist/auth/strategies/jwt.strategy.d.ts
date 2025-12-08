@@ -17,10 +17,14 @@ export declare class JwtStrategy extends JwtStrategy_base {
         lastName: string;
         phone?: string | null;
         address?: string | null;
+        locale?: string | null;
+        currency?: string | null;
+        timezone?: string | null;
         role: string;
         status?: string;
         kyc_status?: string;
         hasPassword: boolean;
+        two_factor_enabled?: boolean;
         createdAt?: string;
         updatedAt?: string;
         password?: string;

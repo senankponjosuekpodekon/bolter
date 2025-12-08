@@ -58,7 +58,7 @@ let UsersService = UsersService_1 = class UsersService {
         this.logger = new common_1.Logger(UsersService_1.name);
     }
     async create(data, options) {
-        const { password, email, firstName, lastName, role, phone, address, status, kyc_status } = data;
+        const { password, email, firstName, lastName, role, phone, address, status, kyc_status, locale, currency, timezone } = data;
         const hashedPassword = password ? await this.hashPassword(password) : null;
         const insertPayload = {
             email,
@@ -69,6 +69,12 @@ let UsersService = UsersService_1 = class UsersService {
             phone: phone || null,
             address: address || null,
         };
+        if (locale)
+            insertPayload.locale = locale;
+        if (currency)
+            insertPayload.currency = currency;
+        if (timezone)
+            insertPayload.timezone = timezone;
         if (status)
             insertPayload.status = status;
         if (kyc_status)
@@ -177,6 +183,12 @@ let UsersService = UsersService_1 = class UsersService {
             updatePayload.phone = userData.phone || null;
         if (userData.address !== undefined)
             updatePayload.address = userData.address || null;
+        if (userData.locale !== undefined)
+            updatePayload.locale = userData.locale || null;
+        if (userData.currency !== undefined)
+            updatePayload.currency = userData.currency || null;
+        if (userData.timezone !== undefined)
+            updatePayload.timezone = userData.timezone || null;
         if (userData.status !== undefined)
             updatePayload.status = userData.status;
         if (userData.kyc_status !== undefined)
@@ -236,6 +248,68 @@ let UsersService = UsersService_1 = class UsersService {
     async removeRefreshToken(userId) {
         await this.supabase.getAdminClient().from('users').update({ refresh_token: null }).eq('id', userId);
     }
+    async setTwoFactorSecret(userId, secret) {
+        try {
+            const { error } = await this.supabase.getAdminClient()
+                .from('users')
+                .update({ two_factor_secret: secret, two_factor_enabled: true })
+                .eq('id', userId);
+            if (error)
+                throw new common_1.BadRequestException(`Failed to set 2FA secret: ${error.message}`);
+        }
+        catch (err) {
+            const { error } = await this.supabase.getAdminClient()
+                .from('users')
+                .update({ two_factor_secret: secret })
+                .eq('id', userId);
+            if (error)
+                throw new common_1.BadRequestException(`Failed to set 2FA secret: ${error.message}`);
+        }
+    }
+    async getTwoFactorSecret(userId) {
+        const { data, error } = await this.supabase.getAdminClient()
+            .from('users')
+            .select('two_factor_secret')
+            .eq('id', userId)
+            .maybeSingle();
+        if (error)
+            throw new common_1.BadRequestException(`Failed to get 2FA secret: ${error.message}`);
+        return data?.two_factor_secret || null;
+    }
+    async setTempTwoFactorSecret(userId, secret) {
+        const { error } = await this.supabase.getAdminClient()
+            .from('users')
+            .update({ temp_two_factor_secret: secret })
+            .eq('id', userId);
+        if (error)
+            throw new common_1.BadRequestException(`Failed to set temp 2FA secret: ${error.message}`);
+    }
+    async getTempTwoFactorSecret(userId) {
+        const { data, error } = await this.supabase.getAdminClient()
+            .from('users')
+            .select('temp_two_factor_secret')
+            .eq('id', userId)
+            .maybeSingle();
+        if (error)
+            throw new common_1.BadRequestException(`Failed to get temp 2FA secret: ${error.message}`);
+        return data?.temp_two_factor_secret || null;
+    }
+    async clearTwoFactorSecret(userId) {
+        const { error } = await this.supabase.getAdminClient()
+            .from('users')
+            .update({ two_factor_secret: null, two_factor_enabled: false })
+            .eq('id', userId);
+        if (error)
+            throw new common_1.BadRequestException(`Failed to clear 2FA secret: ${error.message}`);
+    }
+    async clearTempTwoFactorSecret(userId) {
+        const { error } = await this.supabase.getAdminClient()
+            .from('users')
+            .update({ temp_two_factor_secret: null })
+            .eq('id', userId);
+        if (error)
+            throw new common_1.BadRequestException(`Failed to clear temp 2FA secret: ${error.message}`);
+    }
     async hashPassword(password) {
         const salt = await bcrypt.genSalt(10);
         return bcrypt.hash(password, salt);
@@ -246,12 +320,16 @@ let UsersService = UsersService_1 = class UsersService {
             email: user.email,
             firstName: user.first_name,
             lastName: user.last_name,
+            locale: user.locale,
+            currency: user.currency,
+            timezone: user.timezone,
             phone: user.phone,
             address: user.address,
             role: user.role,
             status: user.status,
             kyc_status: user.kyc_status,
             hasPassword: Boolean(user.password_hash),
+            two_factor_enabled: Boolean(user.two_factor_enabled),
             createdAt: user.created_at,
             updatedAt: user.updated_at,
         };

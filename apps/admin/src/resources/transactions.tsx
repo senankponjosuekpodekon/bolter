@@ -29,6 +29,14 @@ import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
+import {
+  Card,
+  CardContent,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const euroFormatter = new Intl.NumberFormat("fr-FR", {
   style: "currency",
@@ -56,33 +64,105 @@ const paymentMethodChoices = [
   { id: "CHECK", name: "Check" },
 ];
 
-const historyFilters = [
-  <SelectInput
-    key="type"
-    source="type"
-    label="Type"
-    choices={transactionTypeChoices}
-    alwaysOn
-  />,
-  <SelectInput
-    key="status"
-    source="status"
-    label="Status"
-    choices={transactionStatusChoices}
-  />,
-  <TextInput key="account" source="accountId" label="Account ID" />,
-  <TextInput key="user" source="userId" label="User ID" />,
-  <TextInput key="search" source="search" label="Search" />,
-  <SelectInput
-    key="autoApproved"
-    source="autoApproved"
-    label="Auto approved"
-    choices={[
-      { id: "true", name: "Yes" },
-      { id: "false", name: "No" },
-    ]}
-  />,
+const riskLevelChoices = [
+  { id: "LOW", name: "Low Risk" },
+  { id: "MEDIUM", name: "Medium Risk" },
+  { id: "HIGH", name: "High Risk" },
 ];
+
+// Enhanced filter component with advanced options
+const AdvancedTransactionFilters = () => (
+  <Card sx={{ mb: 2, backgroundColor: "#f5f5f5" }}>
+    <CardContent>
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">🔍 Advanced Filters</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 2,
+            }}
+          >
+            {/* Basic Filters */}
+            <SelectInput
+              source="type"
+              label="Transaction Type"
+              choices={transactionTypeChoices}
+              alwaysOn
+            />
+            <SelectInput
+              source="status"
+              label="Status"
+              choices={transactionStatusChoices}
+            />
+
+            {/* Amount Range */}
+            <NumberInput
+              source="minAmount"
+              label="Minimum Amount (€)"
+              helperText="Filter by minimum amount"
+            />
+            <NumberInput
+              source="maxAmount"
+              label="Maximum Amount (€)"
+              helperText="Filter by maximum amount"
+            />
+
+            {/* Date Range */}
+            <TextInput
+              source="dateFrom"
+              label="From Date"
+              type="date"
+              helperText="Start date for transaction"
+              inputProps={{ type: "date" }}
+            />
+            <TextInput
+              source="dateTo"
+              label="To Date"
+              type="date"
+              helperText="End date for transaction"
+              inputProps={{ type: "date" }}
+            />
+
+            {/* Risk Level */}
+            <SelectInput
+              source="riskLevel"
+              label="Risk Level"
+              choices={riskLevelChoices}
+              helperText="Filter by risk assessment"
+            />
+
+            {/* Additional Filters */}
+            <TextInput
+              source="userId"
+              label="User ID"
+              helperText="Filter by specific user"
+            />
+            <TextInput
+              source="accountId"
+              label="Account ID"
+              helperText="Filter by specific account"
+            />
+            <SelectInput
+              source="autoApproved"
+              label="Auto Approved"
+              choices={[
+                { id: "true", name: "Yes" },
+                { id: "false", name: "No" },
+              ]}
+              helperText="Filter by auto-approval status"
+            />
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </CardContent>
+  </Card>
+);
+
+const historyFilters = [<AdvancedTransactionFilters key="advanced" />];
 
 const TransactionListActions = () => (
   <TopToolbar>

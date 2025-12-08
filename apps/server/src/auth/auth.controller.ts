@@ -7,6 +7,7 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -21,7 +22,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -85,5 +86,52 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getProfile(@Req() req) {
     return req.user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('2fa/setup')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Setup 2FA' })
+  @ApiResponse({ status: 200, description: '2FA setup data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async setupTwoFactor(@Req() req) {
+    return this.authService.setupTwoFactor(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/enable')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Enable 2FA' })
+  @ApiResponse({ status: 200, description: '2FA enabled successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid token or 2FA already enabled' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async enableTwoFactor(@Req() req, @Body() body: { token: string }) {
+    return this.authService.enableTwoFactor(req.user.id, body.token);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/disable')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Disable 2FA' })
+  @ApiResponse({ status: 200, description: '2FA disabled successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid token or 2FA not enabled' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async disableTwoFactor(@Req() req, @Body() body: { token: string }) {
+    return this.authService.disableTwoFactor(req.user.id, body.token);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/verify')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify 2FA token' })
+  @ApiResponse({ status: 200, description: 'Token verified' })
+  @ApiResponse({ status: 400, description: 'Invalid token' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async verifyTwoFactor(@Req() req, @Body() body: { token: string }) {
+    const isValid = await this.authService.verifyTwoFactor(req.user.id, body.token);
+    if (!isValid) {
+      throw new BadRequestException('Invalid 2FA token');
+    }
+    return { valid: true };
   }
 }

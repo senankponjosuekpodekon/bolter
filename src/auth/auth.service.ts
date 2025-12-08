@@ -24,7 +24,8 @@ export class AuthService {
   ) { }
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.usersService.findByEmail(email);
+    // request the user including secrets for authentication
+    const user = await this.usersService.findByEmail(email, true);
 
     if (!user || !user.password) {
       throw new UnauthorizedException('Invalid credentials');
@@ -36,7 +37,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...result } = user;
+    // return a sanitized user object (no secrets)
+    const { password: _, refreshToken: __, twoFactorSecret: ___, ...result } = user;
     return result;
   }
 
@@ -124,10 +126,14 @@ export class AuthService {
   }
 
   async setupTwoFactor(userId: string) {
+    const user = await this.usersService.findById(userId);
     const secret = speakeasy.generateSecret({
-      name: `Bolter (${this.usersService.findById(userId).then(u => u?.email)})`,
+      name: `Bolter (${user?.email || 'user'})`,
       issuer: 'Bolter Banking'
     });
+
+    // persist a temporary secret so enableTwoFactor can verify against the same value
+    await this.usersService.setTempTwoFactorSecret(userId, secret.base32);
 
     const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
 
@@ -138,15 +144,18 @@ export class AuthService {
   }
 
   async enableTwoFactor(userId: string, token: string) {
-    const secret = await this.usersService.getTwoFactorSecret(userId);
-    if (secret) {
+    const already = await this.usersService.getTwoFactorSecret(userId);
+    if (already) {
       throw new BadRequestException('2FA is already enabled');
     }
 
-    const tempSecret = await this.setupTwoFactor(userId);
+    const tempSecret = await this.usersService.getTempTwoFactorSecret(userId);
+    if (!tempSecret) {
+      throw new BadRequestException('No pending 2FA setup found. Please start setup first.');
+    }
 
     const verified = speakeasy.totp.verify({
-      secret: tempSecret.secret,
+      secret: tempSecret,
       encoding: 'base32',
       token,
       window: 2
@@ -156,7 +165,8 @@ export class AuthService {
       throw new BadRequestException('Invalid 2FA token');
     }
 
-    await this.usersService.enableTwoFactor(userId, tempSecret.secret);
+    await this.usersService.enableTwoFactor(userId, tempSecret);
+    await this.usersService.clearTempTwoFactorSecret(userId);
     await this.activityLogService.log(userId, '2FA_ENABLE');
 
     this.logger.log(`2FA enabled for user: ${userId}`, 'AuthService');
@@ -189,18 +199,29 @@ export class AuthService {
     return { success: true };
   }
 
-  async verifyTwoFactor(userId: string, token: string): Promise<boolean> {
+  async verifyTwoFactor(userId: string, token: string, logFailure = true): Promise<boolean> {
     const secret = await this.usersService.getTwoFactorSecret(userId);
     if (!secret) {
       return true; // If 2FA not enabled, consider verified
     }
 
-    return speakeasy.totp.verify({
+    const isValid = speakeasy.totp.verify({
       secret,
       encoding: 'base32',
       token,
       window: 2
     });
+
+    // Log failed 2FA verification attempts for security audit
+    if (!isValid && logFailure) {
+      await this.activityLogService.log(
+        userId,
+        '2FA_VERIFY_FAILED' as any,
+        `Invalid TOTP code provided`
+      );
+    }
+
+    return isValid;
   }
 
   async loginWithTwoFactor(user: any, twoFactorToken?: string) {

@@ -1,0 +1,48 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "Vous n'avez pas de notifications",
+    "markAllAsRead": "Marquer tout comme lu",
+    "settings": "Paramètres de notification",
+    "types": {
+      "transactionCreated": "Transaction créée",
+      "transactionApproved": "Transaction approuvée",
+      "transactionRejected": "Transaction rejetée",
+      "kycDocumentReviewed": "Document KYC examiné",
+      "kycStatusChanged": "Statut KYC modifié",
+      "accountCreated": "Compte créé",
+      "loanCreated": "Prêt créé",
+      "loanApproved": "Prêt approuvé",
+      "loanRejected": "Prêt rejeté"
+    },
+    "toast": {
+      "success": "Succès",
+      "error": "Erreur",
+      "warning": "Avertissement",
+      "info": "Information"
+    },
+    "messages": {
+      "transactionCreated": "Votre transaction a été créée et est en attente de révision",
+      "transactionApproved": "Votre transaction a été approuvée",
+      "transactionRejected": "Votre transaction a été rejetée",
+      "kycDocumentApproved": "Votre document KYC a été approuvé",
+      "kycDocumentRejected": "Votre document KYC a été rejeté",
+      "kycStatusChanged": "Votre statut KYC a été mis à jour",
+      "accountCreated": "Votre nouveau compte a été créé avec succès",
+      "loanCreated": "Votre demande de prêt a été créée",
+      "loanApproved": "Votre prêt a été approuvé",
+      "loanRejected": "Votre demande de prêt a été rejetée"
+    },
+    "preferences": {
+      "email": "Notifications par email",
+      "inApp": "Notifications dans l'application",
+      "webhooks": "Notifications par webhook"
+    },
+    "actions": {
+      "undo": "Annuler",
+      "retry": "Réessayer",
+      "dismiss": "Fermer",
+      "viewDetails": "Voir les détails"
+    }
+  }
+}

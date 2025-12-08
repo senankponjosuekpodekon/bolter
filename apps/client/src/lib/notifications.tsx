@@ -37,27 +37,13 @@ const NotificationsContext = createContext<
 const DEFAULT_NAMESPACE = "/notifications";
 const MAX_ITEMS = 30;
 
+import { deriveServerRoot } from "./url";
+
 const resolveBaseUrl = (): string => {
   const preferred =
     import.meta.env.VITE_NOTIFICATIONS_URL || import.meta.env.VITE_API_URL;
-  const fallback = window.location.origin;
-  if (!preferred) {
-    return fallback;
-  }
-
-  try {
-    const url = new URL(preferred, window.location.origin);
-    const trimmedPath = url.pathname
-      .replace(/\/?api\/?$/, "")
-      .replace(/\/$/, "");
-    return `${url.origin}${trimmedPath ? trimmedPath : ""}`;
-  } catch (error) {
-    console.warn(
-      "Notifications: unable to parse API URL, using window origin",
-      error
-    );
-    return fallback;
-  }
+  // deriveServerRoot will return a best-effort origin/root without the trailing /api
+  return deriveServerRoot(preferred);
 };
 
 const buildItem = (

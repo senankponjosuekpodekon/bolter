@@ -1,0 +1,91 @@
+{
+  "title": "Know Your Customer (KYC)",
+  "subtitle": "Verify your identity to unlock full account features",
+  "status": {
+    "title": "Verification Status",
+    "pending": "Pending Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "resubmit": "Resubmission Required"
+  },
+  "steps": {
+    "step1": "Personal Information",
+    "step2": "Document Verification",
+    "step3": "Address Verification",
+    "step4": "Review & Submit"
+  },
+  "personal_info": {
+    "title": "Personal Information",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "date_of_birth": "Date of Birth",
+    "nationality": "Nationality",
+    "occupation": "Occupation",
+    "sector": "Employment Sector",
+    "annual_income": "Annual Income Range",
+    "next": "Next"
+  },
+  "document_verification": {
+    "title": "Document Verification",
+    "description": "Please provide a valid government-issued ID",
+    "document_type": "Document Type",
+    "id_options": {
+      "passport": "Passport",
+      "national_id": "National ID",
+      "drivers_license": "Driver's License"
+    },
+    "document_number": "Document Number",
+    "expiry_date": "Expiry Date",
+    "upload_front": "Upload Front Side",
+    "upload_back": "Upload Back Side",
+    "take_selfie": "Take a Selfie",
+    "selfie_description": "Take a clear photo of your face for verification",
+    "upload_selfie": "Upload Selfie",
+    "file_size_warning": "File size must not exceed 5MB",
+    "supported_formats": "Supported formats: JPG, PNG, PDF"
+  },
+  "address_verification": {
+    "title": "Address Verification",
+    "description": "Provide proof of your current residential address",
+    "address": "Residential Address",
+    "city": "City",
+    "state_province": "State/Province",
+    "postal_code": "Postal Code",
+    "country": "Country",
+    "document_type": "Address Proof Type",
+    "proof_options": {
+      "utility_bill": "Utility Bill",
+      "bank_statement": "Bank Statement",
+      "lease_agreement": "Lease Agreement",
+      "government_letter": "Government Letter"
+    },
+    "upload_proof": "Upload Document"
+  },
+  "review": {
+    "title": "Review Your Information",
+    "verify_accuracy": "Please verify that all information is accurate and complete",
+    "personal_info_section": "Personal Information",
+    "document_section": "Identity Document",
+    "address_section": "Address Verification",
+    "i_confirm": "I confirm that all information is accurate",
+    "submit_kyc": "Submit Verification",
+    "submitting": "Submitting..."
+  },
+  "messages": {
+    "success": "KYC verification submitted successfully",
+    "pending_review": "Your verification is under review. This usually takes 24-48 hours",
+    "approved_title": "Verification Approved",
+    "approved_message": "Congratulations! Your identity has been verified. You now have access to all features",
+    "rejected_title": "Verification Rejected",
+    "rejected_reason": "Reason: {{reason}}",
+    "rejected_resubmit": "Please resubmit your documents for verification",
+    "error_submission": "Error submitting verification. Please try again",
+    "error_upload": "Error uploading file. Please try again"
+  },
+  "timeline": {
+    "submitted": "Documents Submitted",
+    "under_review": "Under Review",
+    "approved_date": "Approved on {{date}}",
+    "rejected_date": "Rejected on {{date}}"
+  }
+}

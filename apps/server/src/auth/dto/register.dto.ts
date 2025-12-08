@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 
 export class RegisterDto {
@@ -20,4 +20,19 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   lastName?: string;
+
+  @ApiPropertyOptional({ example: 'en-US', description: 'Preferred locale (IETF language tag)' })
+  @IsOptional()
+  @IsString()
+  locale?: string;
+
+  @ApiPropertyOptional({ example: 'EUR', description: 'Preferred currency (ISO 4217)' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiPropertyOptional({ example: 'Europe/Paris', description: 'Preferred timezone (IANA timezone string)' })
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }

@@ -5,10 +5,14 @@ export interface User {
     lastName: string;
     phone?: string | null;
     address?: string | null;
+    locale?: string | null;
+    currency?: string | null;
+    timezone?: string | null;
     role: string;
     status?: string;
     kyc_status?: string;
     hasPassword: boolean;
+    two_factor_enabled?: boolean;
     createdAt?: string;
     updatedAt?: string;
     password?: string;
@@ -52,6 +56,12 @@ export declare class UsersService {
     }): Promise<User>;
     setRefreshToken(userId: string, refreshToken: string): Promise<void>;
     removeRefreshToken(userId: string): Promise<void>;
+    setTwoFactorSecret(userId: string, secret: string): Promise<void>;
+    getTwoFactorSecret(userId: string): Promise<string | null>;
+    setTempTwoFactorSecret(userId: string, secret: string): Promise<void>;
+    getTempTwoFactorSecret(userId: string): Promise<string | null>;
+    clearTwoFactorSecret(userId: string): Promise<void>;
+    clearTempTwoFactorSecret(userId: string): Promise<void>;
     private hashPassword;
     private mapUser;
 }

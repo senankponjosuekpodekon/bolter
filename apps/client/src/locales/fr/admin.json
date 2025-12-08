@@ -1,0 +1,324 @@
+{
+  "title": "Tableau de Bord Admin",
+  "subtitle": "Gérez les utilisateurs, les transactions et les paramètres système",
+  "navigation": {
+    "dashboard": "Tableau de Bord",
+    "users": "Gestion des Utilisateurs",
+    "transactions": "Transactions",
+    "kyc": "Vérifications KYC",
+    "reports": "Rapports",
+    "settings": "Paramètres",
+    "logs": "Journaux d'Activité"
+  },
+  "dashboard": {
+    "title": "Aperçu du Tableau de Bord",
+    "subtitle": "Métriques et analyses en temps réel",
+    "periods": {
+      "7d": "7 Jours",
+      "30d": "30 Jours",
+      "90d": "90 Jours"
+    },
+    "metrics": {
+      "totalUsers": "Total des Utilisateurs",
+      "activeUsers": "Utilisateurs Actifs",
+      "totalTransactions": "Total des Transactions",
+      "totalVolume": "Volume des Transactions",
+      "avgTransaction": "Transaction Moyenne",
+      "todaysVolume": "Volume du Jour",
+      "pendingKyc": "KYC en Attente",
+      "kycApprovalRate": "Taux d'Approbation KYC"
+    },
+    "stats": {
+      "total_users": "Nombre Total d'Utilisateurs",
+      "active_users": "Utilisateurs Actifs",
+      "pending_kyc": "KYC en Attente",
+      "total_transactions": "Nombre Total de Transactions",
+      "total_volume": "Volume des Transactions",
+      "system_status": "Statut du Système"
+    },
+    "charts": {
+      "transactionVolume": "Volume des Transactions",
+      "transactionTimeline": "Chronologie des Transactions (7 jours)",
+      "kycDistribution": "Distribution du Statut KYC",
+      "currencyDistribution": "Distribution des Devises",
+      "transactionsAndRevenue": "Transactions et Revenus",
+      "user_growth": "Croissance des Utilisateurs",
+      "kyc_status": "Distribution du Statut KYC",
+      "transaction_status": "Statut des Transactions",
+      "transactionCount": "Nombre de Transactions",
+      "revenue": "Revenus"
+    },
+    "tables": {
+      "topCurrencies": "Devises Principales",
+      "kycStatistics": "Statistiques KYC",
+      "currency": "Devise",
+      "count": "Nombre",
+      "volume": "Volume"
+    },
+    "kyc": {
+      "pending": "En Attente",
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "approvalRate": "Taux d'Approbation"
+    },
+    "recent_activity": "Activité Récente",
+    "system_alerts": "Alertes Système"
+  },
+  "users": {
+    "title": "Gestion des Utilisateurs",
+    "search_placeholder": "Rechercher par email, nom ou ID utilisateur",
+    "add_user": "Ajouter un Utilisateur",
+    "columns": {
+      "id": "ID Utilisateur",
+      "name": "Nom Complet",
+      "email": "Email",
+      "phone": "Téléphone",
+      "status": "Statut",
+      "kyc_status": "Statut KYC",
+      "created": "Date d'Inscription",
+      "last_login": "Dernière Connexion",
+      "actions": "Actions"
+    },
+    "filters": {
+      "status": "Statut du Compte",
+      "kyc": "Statut KYC",
+      "created_from": "Créé à partir de",
+      "created_to": "Créé jusqu'à",
+      "locale": "Langue",
+      "currency": "Devise"
+    },
+    "status_options": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "suspended": "Suspendu",
+      "pending": "En Attente"
+    },
+    "view_user": "Voir les Détails de l'Utilisateur",
+    "edit_user": "Éditer l'Utilisateur",
+    "suspend_user": "Suspendre l'Utilisateur",
+    "unsuspend_user": "Réactiver l'Utilisateur",
+    "delete_user": "Supprimer l'Utilisateur",
+    "reset_password": "Réinitialiser le Mot de Passe",
+    "force_2fa": "Exiger l'A2F",
+    "view_activity": "Voir le Journal d'Activité"
+  },
+  "transactions": {
+    "title": "Gestion des Transactions",
+    "search_placeholder": "Rechercher par référence, utilisateur ou compte",
+    "columns": {
+      "id": "ID de la Transaction",
+      "user": "Utilisateur",
+      "type": "Type",
+      "amount": "Montant",
+      "currency": "Devise",
+      "status": "Statut",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "filters": {
+      "type": "Type de Transaction",
+      "status": "Statut",
+      "currency": "Devise",
+      "date_from": "Date de Début",
+      "date_to": "Date de Fin",
+      "amount_min": "Montant Minimum",
+      "amount_max": "Montant Maximum"
+    },
+    "view_details": "Voir les Détails",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "cancel": "Annuler",
+    "refund": "Remboursement",
+    "export": "Exporter le Rapport"
+  },
+  "kyc": {
+    "title": "Vérifications KYC",
+    "subtitle": "Examinez et gérez les documents KYC des utilisateurs",
+    "search_placeholder": "Rechercher par nom d'utilisateur ou email",
+    "queue": {
+      "title": "File d'Attente de Vérification",
+      "pending": "En Attente de Révision",
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "resubmission": "Rechargement Requis"
+    },
+    "columns": {
+      "user": "Utilisateur",
+      "email": "Email",
+      "status": "Statut",
+      "submitted": "Date de Soumission",
+      "reviewed": "Date de Révision",
+      "reviewer": "Révisé par",
+      "actions": "Actions"
+    },
+    "review": "Examiner le Document",
+    "approve": "Approuver le KYC",
+    "reject": "Rejeter le KYC",
+    "request_resubmission": "Demander un Rechargement",
+    "reject_reason": "Raison du Rejet",
+    "rejection_reasons": {
+      "invalid_document": "Document Invalide",
+      "expired": "Document Expiré",
+      "unclear": "Document Peu Clair",
+      "name_mismatch": "Nom Non Correspondant",
+      "other": "Autre"
+    },
+    "document_viewer": "Visionneuse de Document",
+    "front": "Face Avant",
+    "back": "Verso",
+    "selfie": "Selfie",
+    "view_all_documents": "Voir Tous les Documents"
+  },
+  "reports": {
+    "title": "Rapports",
+    "generate": "Générer un Rapport",
+    "report_types": {
+      "user_report": "Rapport Utilisateur",
+      "transaction_report": "Rapport de Transaction",
+      "kyc_report": "Rapport KYC",
+      "revenue_report": "Rapport de Revenus",
+      "system_report": "Rapport Système"
+    },
+    "filters": {
+      "period": "Période",
+      "format": "Format",
+      "include_data": "Inclure les Données"
+    },
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "download": "Télécharger le Rapport",
+    "recent_reports": "Rapports Récents",
+    "schedule_report": "Programmer un Rapport"
+  },
+  "settings": {
+    "title": "Paramètres Système",
+    "general": {
+      "title": "Paramètres Généraux",
+      "app_name": "Nom de l'Application",
+      "support_email": "Email du Support",
+      "timezone": "Fuseau Horaire",
+      "date_format": "Format de Date"
+    },
+    "security": {
+      "title": "Paramètres de Sécurité",
+      "require_2fa": "Exiger l'A2F pour les Administrateurs",
+      "session_timeout": "Délai d'Expiration de Session (minutes)",
+      "password_policy": "Politique de Mot de Passe",
+      "ip_whitelist": "Liste Blanche d'IP"
+    },
+    "transaction_limits": {
+      "title": "Limites de Transaction",
+      "daily_limit": "Limite Quotidienne par Utilisateur",
+      "transaction_limit": "Limite par Transaction",
+      "monthly_limit": "Limite Mensuelle"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "email_alerts": "Alertes Email",
+      "alert_threshold": "Seuil d'Alerte",
+      "notify_large_transactions": "Notifier sur les Grandes Transactions"
+    },
+    "save_settings": "Enregistrer les Paramètres"
+  },
+  "logs": {
+    "title": "Journaux d'Activité",
+    "search_placeholder": "Rechercher par utilisateur, action ou IP",
+    "columns": {
+      "timestamp": "Horodatage",
+      "user": "Utilisateur",
+      "action": "Action",
+      "resource": "Ressource",
+      "status": "Statut",
+      "ip": "Adresse IP",
+      "details": "Détails"
+    },
+    "filters": {
+      "action": "Type d'Action",
+      "user": "Utilisateur",
+      "date_from": "Date de Début",
+      "date_to": "Date de Fin",
+      "status": "Statut"
+    },
+    "actions": {
+      "login": "Connexion",
+      "logout": "Déconnexion",
+      "create": "Créer",
+      "update": "Mettre à Jour",
+      "delete": "Supprimer",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "suspend": "Suspendre"
+    }
+  },
+  "filters": {
+    "title": "Filtres Avancés",
+    "search": "Recherche",
+    "searchPlaceholder": "Entrez un terme de recherche",
+    "dateFrom": "Date de Début",
+    "dateTo": "Date de Fin",
+    "amountMin": "Montant Minimum",
+    "amountMax": "Montant Maximum",
+    "type": "Type de Transaction",
+    "status": "Statut",
+    "currency": "Devise",
+    "kycStatus": "Statut KYC",
+    "documentType": "Type de Document",
+    "applyFilters": "Appliquer les Filtres",
+    "clearFilters": "Effacer les Filtres",
+    "activeFilters": "Filtres Actifs",
+    "noResults": "Aucun résultat trouvé"
+  },
+  "bulkActions": {
+    "title": "Actions en Masse",
+    "selected": "article(s) sélectionné(s)",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "flag": "Signaler",
+    "delete": "Supprimer",
+    "confirmTitle": "Confirmer l'Action en Masse",
+    "confirmMessage": "Vous êtes sur le point d'effectuer une action en masse sur {count} article(s). Cette action ne peut pas être annulée.",
+    "reasonPlaceholder": "Entrez la raison de cette action...",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
+  },
+  "bulkResults": {
+    "title": "Opération en Masse Terminée",
+    "successRate": "Taux de Réussite: {rate}%",
+    "successful": "Réussi",
+    "failed": "Échoué",
+    "details": "Détails de l'Opération",
+    "close": "Fermer"
+  },
+  "audit": {
+    "title": "Journaux d'Audit",
+    "subtitle": "Afficher et exporter les journaux d'activité système et la piste d'audit",
+    "filters": "Filtrer les Journaux",
+    "noLogs": "Aucun journal d'audit trouvé",
+    "showing": "Affichage de {count} journal(aux) d'audit",
+    "exportCSV": "Exporter CSV",
+    "exportJSON": "Exporter JSON",
+    "exportPDF": "Exporter PDF",
+    "date": "Date",
+    "action": "Action",
+    "resourceType": "Type de Ressource",
+    "resourceId": "ID de Ressource",
+    "userId": "ID Utilisateur",
+    "details": "Détails",
+    "changes": "Modifications",
+    "ipAddress": "Adresse IP",
+    "userAgent": "Agent Utilisateur"
+  },
+  "messages": {
+    "confirm_action": "Êtes-vous sûr de vouloir effectuer cette action ?",
+    "success_action": "Action complétée avec succès",
+    "error_action": "Erreur lors de l'exécution de l'action. Veuillez réessayer",
+    "user_suspended": "L'utilisateur a été suspendu",
+    "user_activated": "L'utilisateur a été activé",
+    "kyc_approved": "Le KYC a été approuvé",
+    "kyc_rejected": "Le KYC a été rejeté",
+    "password_reset": "Email de réinitialisation de mot de passe envoyé à l'utilisateur"
+  }
+}

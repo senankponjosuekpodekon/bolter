@@ -1,7 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import api from "../services/api";
+import { useFormatting } from "../hooks";
 
 export default function ActivityHistory() {
+  const { t } = useTranslation("common");
+  const { date: dateFormatter } = useFormatting();
   type ActivityLog = {
     id: string;
     timestamp: string;
@@ -16,25 +20,25 @@ export default function ActivityHistory() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">
-        Historique des connexions et actions
-      </h1>
-      {isLoading && <div>Chargement...</div>}
-      {error && <div className="text-red-600">Erreur lors du chargement</div>}
+      <h1 className="text-2xl font-bold mb-4">{t("activityHistory.title")}</h1>
+      {isLoading && <div>{t("common.loading")}</div>}
+      {error && (
+        <div className="text-red-600">{t("activityHistory.loadError")}</div>
+      )}
       <table className="w-full text-sm border">
         <thead>
           <tr className="bg-gray-100">
-            <th className="p-2">Date</th>
-            <th className="p-2">Action</th>
-            <th className="p-2">IP</th>
-            <th className="p-2">Device</th>
+            <th className="p-2">{t("activityHistory.headers.date")}</th>
+            <th className="p-2">{t("activityHistory.headers.action")}</th>
+            <th className="p-2">{t("activityHistory.headers.ip")}</th>
+            <th className="p-2">{t("activityHistory.headers.device")}</th>
           </tr>
         </thead>
         <tbody>
           {data?.map((log: ActivityLog) => (
             <tr key={log.id} className="border-t">
               <td className="p-2">
-                {new Date(log.timestamp).toLocaleString()}
+                {dateFormatter.format(new Date(log.timestamp), "long")}
               </td>
               <td className="p-2">{log.action}</td>
               <td className="p-2">{log.ip}</td>
@@ -44,10 +48,7 @@ export default function ActivityHistory() {
         </tbody>
       </table>
       <div className="mt-8 text-gray-700 text-xs">
-        <p>
-          Les actions sensibles (connexion, modification, virements, activation
-          2FA) sont journalisées pour la sécurité et la conformité.
-        </p>
+        <p>{t("activityHistory.disclaimer")}</p>
       </div>
     </div>
   );

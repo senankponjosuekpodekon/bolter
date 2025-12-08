@@ -5,10 +5,14 @@ interface User {
   id: string
   email: string
   role: string
+  locale?: string
+  currency?: string
+  timezone?: string
   firstName?: string
   lastName?: string
   phone?: string
   address?: string
+
   status?: string
   kyc_status?: string
   preferences?: Preferences

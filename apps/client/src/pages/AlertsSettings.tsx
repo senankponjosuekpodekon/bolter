@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../stores/authStore";
 import api from "../services/api";
 
 export default function AlertsSettings() {
+  const { t } = useTranslation("common");
   const { user, updatePreferences } = useAuthStore();
   const [threshold, setThreshold] = useState(
     user?.preferences?.alertThreshold || 100
@@ -24,11 +26,11 @@ export default function AlertsSettings() {
         alertThreshold: threshold,
         emailAlerts: emailEnabled,
       });
-      setSuccess("Préférences d’alerte enregistrées !");
+      setSuccess(t("alerts.success_saved"));
       setError("");
     } catch (err) {
       setSuccess("");
-      let message = "Erreur lors de la sauvegarde";
+      let message = t("alerts.error_saving");
       if (typeof err === "object" && err !== null && "response" in err) {
         // @ts-expect-error: err type from axios may have response property
         message = err.response?.data?.message || message;
@@ -39,11 +41,11 @@ export default function AlertsSettings() {
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">Paramètres d’alertes</h1>
+      <h1 className="text-2xl font-bold mb-4">{t("alerts.settings_title")}</h1>
       <form onSubmit={handleSave} className="space-y-4">
         <div>
           <label className="block text-sm font-medium">
-            Seuil d’alerte (montant minimum)
+            {t("alerts.threshold_label")}
           </label>
           <input
             type="number"
@@ -62,7 +64,7 @@ export default function AlertsSettings() {
             className="mr-2"
           />
           <label htmlFor="emailAlerts" className="text-sm">
-            Recevoir les alertes par email
+            {t("alerts.email_enabled_label")}
           </label>
         </div>
         {success && <div className="text-green-600 text-sm">{success}</div>}
@@ -71,22 +73,17 @@ export default function AlertsSettings() {
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded"
         >
-          Enregistrer
+          {t("alerts.save_button")}
         </button>
       </form>
       <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-2">Comment ça marche ?</h2>
+        <h2 className="text-lg font-semibold mb-2">
+          {t("alerts.how_it_works_title")}
+        </h2>
         <ul className="list-disc pl-6 text-sm text-gray-700">
-          <li>
-            Recevez une alerte si un virement ou une dépense dépasse le seuil
-            défini.
-          </li>
-          <li>
-            Les alertes sont envoyées par email et affichées dans l’application.
-          </li>
-          <li>
-            Les admins peuvent configurer des alertes pour les comptes clients.
-          </li>
+          <li>{t("alerts.how_it_works_1")}</li>
+          <li>{t("alerts.how_it_works_2")}</li>
+          <li>{t("alerts.how_it_works_3")}</li>
         </ul>
       </div>
     </div>

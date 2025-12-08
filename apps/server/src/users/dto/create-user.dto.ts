@@ -55,4 +55,19 @@ export class CreateUserDto {
   @IsOptional()
   @IsIn(KYC_STATUSES, { message: 'KYC status must be a valid value' })
   kyc_status?: UserKycStatus;
+
+  @ApiPropertyOptional({ example: 'en-US', description: 'User preferred locale (IETF language tag)' })
+  @IsOptional()
+  @IsString()
+  locale?: string;
+
+  @ApiPropertyOptional({ example: 'EUR', description: 'User preferred currency (ISO 4217)' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiPropertyOptional({ example: 'Europe/Paris', description: 'User timezone (IANA timezone string)' })
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }

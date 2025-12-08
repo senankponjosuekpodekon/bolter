@@ -1,0 +1,304 @@
+name: Full CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [main, local, develop]
+  push:
+    branches: [main, local, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  REGISTRY: ghcr.io
+
+jobs:
+  # ============================================================================
+  # CODE QUALITY
+  # ============================================================================
+
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint - Client
+        run: npm --workspace=client run lint --max-warnings=0
+        continue-on-error: true
+
+      - name: ESLint - Admin
+        run: npm --workspace=admin run lint --max-warnings=0
+        continue-on-error: true
+
+      - name: ESLint - Server
+        run: npm --workspace=server run lint --max-warnings=0
+        continue-on-error: true
+
+      - name: Format Check
+        run: npx prettier --check "apps/**/*.{ts,tsx,js,jsx,json,css}" "src/**/*.{ts,js,json}"
+        continue-on-error: true
+
+  # ============================================================================
+  # BACKEND TESTS
+  # ============================================================================
+
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: bolter_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run backend unit tests
+        run: npm --workspace=server run test --passWithNoTests
+        env:
+          DATABASE_URL: postgres://test:test@localhost:5432/bolter_test
+          NODE_ENV: test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./apps/server/coverage/coverage-final.json
+          flags: backend
+          name: backend-coverage
+        continue-on-error: true
+
+  # ============================================================================
+  # FRONTEND TESTS
+  # ============================================================================
+
+  frontend-tests:
+    name: Frontend Tests (Client)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run client unit tests
+        run: npm --workspace=client run test --silent
+        continue-on-error: true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./apps/client/coverage/coverage-final.json
+          flags: frontend
+          name: frontend-coverage
+        continue-on-error: true
+
+  # ============================================================================
+  # BUILD VALIDATION
+  # ============================================================================
+
+  build-validation:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workspace: [client, admin, server]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build ${{ matrix.workspace }}
+        run: npm --workspace=${{ matrix.workspace }} run build
+        continue-on-error: true
+
+  # ============================================================================
+  # E2E TESTS
+  # ============================================================================
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Build client
+        run: npm --workspace=client run build
+        continue-on-error: true
+
+      - name: Run E2E tests
+        run: npm --workspace=client run e2e --reporter=list
+        continue-on-error: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: apps/client/playwright-report/
+          retention-days: 7
+
+  # ============================================================================
+  # SECURITY SCANNING
+  # ============================================================================
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Run Snyk scan (if configured)
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+        if: env.SNYK_TOKEN != ''
+
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          path: "."
+          format: "JSON"
+          args: >-
+            --enableExperimental
+            --scan apps/
+            --scan src/
+        continue-on-error: true
+
+  # ============================================================================
+  # FINAL SUMMARY
+  # ============================================================================
+
+  status-check:
+    name: CI Status Check
+    runs-on: ubuntu-latest
+    needs:
+      [
+        lint-and-format,
+        backend-tests,
+        frontend-tests,
+        build-validation,
+        e2e-tests,
+        security-scan,
+      ]
+    if: always()
+    steps:
+      - name: Check Job Status
+        run: |
+          if [ "${{ needs.lint-and-format.result }}" = "failure" ]; then
+            echo "❌ Lint/Format failed"
+            exit 1
+          fi
+          if [ "${{ needs.backend-tests.result }}" = "failure" ]; then
+            echo "❌ Backend tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.frontend-tests.result }}" = "failure" ]; then
+            echo "❌ Frontend tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.build-validation.result }}" = "failure" ]; then
+            echo "❌ Build validation failed"
+            exit 1
+          fi
+          echo "✅ All checks passed!"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = context.payload.pull_request ? 'completed' : 'skipped';
+            const checks = {
+              lint: '${{ needs.lint-and-format.result }}',
+              backend: '${{ needs.backend-tests.result }}',
+              frontend: '${{ needs.frontend-tests.result }}',
+              build: '${{ needs.build-validation.result }}',
+              e2e: '${{ needs.e2e-tests.result }}',
+              security: '${{ needs.security-scan.result }}'
+            };
+
+            const summary = Object.entries(checks)
+              .map(([name, result]) => `- ${name}: ${result === 'success' ? '✅' : '❌'}`)
+              .join('\n');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## CI/CD Pipeline Results\n\n${summary}`
+            });

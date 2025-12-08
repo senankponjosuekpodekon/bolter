@@ -1,0 +1,158 @@
+{
+  "title": "Transactions",
+  "subtitle": "View and manage all your transactions",
+  "new_transaction": "New Transaction",
+  "transaction_types": {
+    "transfer": "Transfer",
+    "deposit": "Deposit",
+    "withdrawal": "Withdrawal",
+    "payment": "Payment",
+    "refund": "Refund",
+    "fee": "Fee"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "processing": "Processing"
+  },
+  "create_transfer": {
+    "title": "Create Transfer",
+    "from_account": "From Account",
+    "to_account": "To Account",
+    "recipient_type": "Recipient Type",
+    "recipient_options": {
+      "internal": "Internal Account",
+      "external": "External Account"
+    },
+    "recipient_name": "Recipient Name",
+    "recipient_account": "Recipient Account Number",
+    "recipient_bank": "Recipient Bank",
+    "amount": "Amount",
+    "currency": "Currency",
+    "description": "Description (optional)",
+    "reference": "Reference Number (optional)",
+    "schedule": "Schedule Transfer",
+    "schedule_options": {
+      "immediate": "Immediate",
+      "scheduled": "Scheduled for Later"
+    },
+    "date": "Transfer Date",
+    "time": "Transfer Time",
+    "recurring": "Recurring Transfer",
+    "frequency_options": {
+      "once": "One Time",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "create": "Create Transfer",
+    "creating": "Creating Transfer..."
+  },
+  "create_deposit": {
+    "title": "Create Deposit",
+    "amount": "Deposit Amount",
+    "currency": "Currency",
+    "source": "Deposit Source",
+    "source_options": {
+      "bank_transfer": "Bank Transfer",
+      "card": "Credit/Debit Card",
+      "mobile_money": "Mobile Money",
+      "check": "Check"
+    },
+    "instructions": "Deposit Instructions",
+    "reference": "Reference Number",
+    "bank_details": "Bank Details",
+    "account_number": "Account Number to Use",
+    "routing_number": "Routing Number",
+    "swift_code": "SWIFT Code",
+    "create": "Start Deposit",
+    "creating": "Processing..."
+  },
+  "create_withdrawal": {
+    "title": "Create Withdrawal",
+    "amount": "Withdrawal Amount",
+    "currency": "Currency",
+    "destination": "Destination Account",
+    "account_number": "Account Number",
+    "bank_name": "Bank Name",
+    "account_holder": "Account Holder Name",
+    "method": "Withdrawal Method",
+    "method_options": {
+      "bank_transfer": "Bank Transfer",
+      "mobile_money": "Mobile Money",
+      "atm_card": "ATM Card"
+    },
+    "notes": "Additional Notes",
+    "create": "Request Withdrawal",
+    "creating": "Processing..."
+  },
+  "history": {
+    "title": "Transaction History",
+    "filter": "Filter Transactions",
+    "filter_type": "Transaction Type",
+    "filter_status": "Status",
+    "filter_date_from": "From Date",
+    "filter_date_to": "To Date",
+    "filter_amount_min": "Minimum Amount",
+    "filter_amount_max": "Maximum Amount",
+    "filter_currency": "Currency",
+    "search_placeholder": "Search by description or reference",
+    "columns": {
+      "date": "Date",
+      "time": "Time",
+      "type": "Type",
+      "description": "Description",
+      "from": "From",
+      "to": "To",
+      "amount": "Amount",
+      "status": "Status",
+      "reference": "Reference"
+    },
+    "no_transactions": "No transactions found",
+    "loading": "Loading transactions...",
+    "export": "Export History"
+  },
+  "details": {
+    "title": "Transaction Details",
+    "general": "General Information",
+    "date": "Date & Time",
+    "type": "Transaction Type",
+    "status": "Status",
+    "reference": "Reference Number",
+    "description": "Description",
+    "amounts": "Amount Details",
+    "original_amount": "Original Amount",
+    "converted_amount": "Converted Amount",
+    "exchange_rate": "Exchange Rate",
+    "fee": "Fee",
+    "net_amount": "Net Amount",
+    "parties": "Transaction Parties",
+    "from_account": "From Account",
+    "from_bank": "From Bank",
+    "to_account": "To Account",
+    "to_bank": "To Bank",
+    "recipient_name": "Recipient Name",
+    "timeline": "Transaction Timeline",
+    "created": "Created",
+    "approved": "Approved",
+    "completed": "Completed",
+    "failed_reason": "Failure Reason",
+    "actions": "Actions",
+    "cancel": "Cancel Transaction",
+    "retry": "Retry Transaction",
+    "back": "Back to History"
+  },
+  "messages": {
+    "success_transfer": "Transfer created successfully",
+    "success_deposit": "Deposit request submitted",
+    "success_withdrawal": "Withdrawal request submitted",
+    "confirm_transaction": "Are you sure you want to proceed with this transaction?",
+    "cancel_confirm": "Are you sure you want to cancel this transaction?",
+    "cancelled": "Transaction has been cancelled",
+    "no_accounts": "You need at least one account to create transactions",
+    "kyc_required": "You need to complete KYC verification to create transactions"
+  }
+}

@@ -16,6 +16,7 @@ exports.TransactionsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const transactions_service_1 = require("./transactions.service");
+const transaction_filter_service_1 = require("./transaction-filter.service");
 const create_transfer_dto_1 = require("./dto/create-transfer.dto");
 const create_deposit_dto_1 = require("./dto/create-deposit.dto");
 const create_withdraw_dto_1 = require("./dto/create-withdraw.dto");
@@ -25,9 +26,11 @@ const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const query_transactions_dto_1 = require("./dto/query-transactions.dto");
 const admin_create_transaction_dto_1 = require("./dto/admin-create-transaction.dto");
+const transaction_filter_dto_1 = require("./dto/transaction-filter.dto");
 let TransactionsController = class TransactionsController {
-    constructor(transactionsService) {
+    constructor(transactionsService, transactionFilterService) {
         this.transactionsService = transactionsService;
+        this.transactionFilterService = transactionFilterService;
     }
     createTransfer(req, createTransferDto) {
         return this.transactionsService.createTransfer(req.user.id, createTransferDto);
@@ -50,6 +53,9 @@ let TransactionsController = class TransactionsController {
     }
     getPendingTransaction(id) {
         return this.transactionsService.findPendingById(id);
+    }
+    filterTransactions(query) {
+        return this.transactionFilterService.filter(query);
     }
     createAdminTransaction(req, dto) {
         return this.transactionsService.createAdminTransaction(req.user.id, dto);
@@ -118,6 +124,15 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "getPendingTransaction", null);
 __decorate([
+    (0, common_1.Get)('filter'),
+    (0, roles_decorator_1.Roles)('ADMIN', 'COMPLIANCE'),
+    (0, swagger_1.ApiOperation)({ summary: 'Filter transactions with advanced criteria (Admin only)' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [transaction_filter_dto_1.TransactionFilterDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "filterTransactions", null);
+__decorate([
     (0, common_1.Post)('admin'),
     (0, roles_decorator_1.Roles)('ADMIN', 'COMPLIANCE'),
     (0, swagger_1.ApiOperation)({ summary: 'Create a transaction on behalf of clients (Admin only)' }),
@@ -143,6 +158,7 @@ exports.TransactionsController = TransactionsController = __decorate([
     (0, common_1.Controller)('transactions'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    __metadata("design:paramtypes", [transactions_service_1.TransactionsService])
+    __metadata("design:paramtypes", [transactions_service_1.TransactionsService,
+        transaction_filter_service_1.TransactionFilterService])
 ], TransactionsController);
 //# sourceMappingURL=transactions.controller.js.map

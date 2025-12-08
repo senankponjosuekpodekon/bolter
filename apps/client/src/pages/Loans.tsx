@@ -1,4 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { loadLocale } from "../i18n";
 import { useAuthStore } from "../stores/authStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -15,7 +17,7 @@ import {
 import { LoanSummaryCard } from "../components/loans/LoanSummaryCard";
 import { LoanDetailsPanel } from "../components/loans/LoanDetailsPanel";
 import { simulateAmortizedLoan } from "../lib/loanCalculator.ts";
-import { formatCurrency } from "../lib/format.ts";
+import { useFormatting } from "../hooks";
 
 const DEFAULT_INTEREST_RATE = 0.07;
 
@@ -78,6 +80,8 @@ export default function Loans() {
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
 
+  const { t } = useTranslation();
+
   const {
     data: loans = [],
     isLoading: isLoadingLoans,
@@ -90,8 +94,15 @@ export default function Loans() {
   });
 
   useEffect(() => {
-    if (!selectedLoanId && loans.length > 0) {
-      setSelectedLoanId(loans[0].id);
+    try {
+      const localeToLoad =
+        currentUser?.locale ??
+        (typeof navigator !== "undefined"
+          ? navigator.language || "en-US"
+          : "en-US");
+      loadLocale(localeToLoad);
+    } catch {
+      // ignore parsing errors for the hash — no op
     }
   }, [loans, selectedLoanId]);
 
@@ -114,17 +125,13 @@ export default function Loans() {
     onSuccess: (loan) => {
       setForm(initialForm);
       setFormError(null);
-      setFormSuccess(
-        "Loan request submitted for review. We will notify you once processed."
-      );
+      setFormSuccess(t("loans.request_submitted"));
       queryClient.invalidateQueries({ queryKey: ["loans"] });
       setSelectedLoanId(loan.id);
     },
     onError: (error) => {
       const normalized = extractErrorMessage(error);
-      setFormError(
-        normalized ?? "Unable to submit loan request. Please try again later."
-      );
+      setFormError(normalized ?? t("loans.unable_submit"));
       setFormSuccess(null);
     },
   });
@@ -169,6 +176,9 @@ export default function Loans() {
   };
 
   const currentUser = useAuthStore((s) => s.user);
+  const { currency: currencyFormatter } = useFormatting({
+    locale: currentUser?.locale ?? "en-US",
+  });
 
   const loansErrorMessage = isLoansError
     ? extractErrorMessage(loansError)
@@ -189,9 +199,7 @@ export default function Loans() {
     setFormSuccess(null);
 
     if (parsedAmount <= 0 || parsedDuration <= 0) {
-      setFormError(
-        "Please provide a valid amount and duration for the loan request."
-      );
+      setFormError(t("loans.form_error_invalid"));
       return;
     }
 
@@ -199,7 +207,9 @@ export default function Loans() {
     const allowedDurations = [3, 6, 12, 18, 24];
     if (!allowedDurations.includes(parsedDuration)) {
       setFormError(
-        `Please choose a supported duration in months: ${allowedDurations.join(", ")}`
+        t("loans.form_error_duration", {
+          durations: allowedDurations.join(", "),
+        })
       );
       return;
     }
@@ -216,18 +226,17 @@ export default function Loans() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Loan center</h1>
-          <p className="text-sm text-slate-500">
-            Track existing loans and submit new requests once your KYC is
-            approved.
-          </p>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {t("loans.title")}
+          </h1>
+          <p className="text-sm text-slate-500">{t("loans.subtitle")}</p>
         </div>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
           {isFetchingLoans
-            ? "Refreshing…"
-            : `${loans.length} loan${loans.length === 1 ? "" : "s"}`}
+            ? t("loans.refreshing")
+            : `${loans.length} ${t("loans.title").toLowerCase()}`}
         </span>
       </div>
 
@@ -239,25 +248,26 @@ export default function Loans() {
               : "border-rose-200 bg-rose-50 text-rose-700"
           }`}
         >
-          {loansErrorMessage ?? "Unable to load your loans at the moment."}
+          {loansErrorMessage ?? t("loans.unable_load")}
           {isUnauthorized ? (
             <span className="ml-1 font-semibold">
-              Please log in again to access the loan center.
+              {t("loans.please_login")}
             </span>
           ) : null}
           {isBlockedByKyc ? (
             <span className="ml-1 font-semibold">
-              Complete your KYC verification to unlock loan requests.
+              {t("loans.complete_kyc")}
             </span>
           ) : null}
         </div>
       ) : null}
 
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Request a loan</h2>
+        <h2 className="text-lg font-semibold text-slate-900">
+          {t("loans.request_title")}
+        </h2>
         <p className="mt-1 text-sm text-slate-500">
-          Provide basic information to request a new loan. Our team will review
-          your application and send a notification with the decision.
+          {t("loans.request_description")}
         </p>
 
         <form
@@ -266,7 +276,7 @@ export default function Loans() {
         >
           <div>
             <label className="block text-sm font-medium text-slate-600">
-              Amount
+              {t("loans.amount")}
             </label>
             <input
               type="number"
@@ -280,7 +290,7 @@ export default function Loans() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-600">
-              Duration (months)
+              {t("loans.duration")}
             </label>
             <select
               value={form.durationMonths}
@@ -297,7 +307,7 @@ export default function Loans() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-600">
-              Monthly income
+              {t("loans.monthly_income")}
             </label>
             <input
               type="number"
@@ -311,52 +321,57 @@ export default function Loans() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-600">
-              Employer (optional)
+              {t("loans.employer")}
             </label>
             <input
               type="text"
               value={form.employer}
               onChange={handleInputChange("employer")}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
-              placeholder="Company name"
+              placeholder={t("loans.employer_placeholder")}
             />
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-slate-600">
-              Purpose
+              {t("loans.purpose")}
             </label>
             <input
               type="text"
               value={form.purpose}
               onChange={handleInputChange("purpose")}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
-              placeholder="Explain how the funds will be used"
+              placeholder={t("loans.purpose_placeholder")}
               required
             />
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-slate-600">
-              Additional details
+              {t("loans.additional_details")}
             </label>
             <textarea
               value={form.notes}
               onChange={handleInputChange("notes")}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
               rows={3}
-              placeholder="Share extra context to speed up the review"
+              placeholder={t("loans.notes_placeholder")}
             />
           </div>
 
           {simulation ? (
             <div className="md:col-span-2 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
-              <p className="font-medium">Estimated monthly payment</p>
+              <p className="font-medium">
+                {t("loans.estimated_monthly_payment")}
+              </p>
               <p className="mt-1 text-lg font-semibold">
-                {formatCurrency(simulation.monthlyPayment)}
+                {currencyFormatter.format(
+                  simulation.monthlyPayment,
+                  currentUser?.currency ?? "EUR"
+                )}
               </p>
               <p className="mt-2 text-xs text-blue-600">
-                Based on an indicative interest rate of{" "}
-                {(DEFAULT_INTEREST_RATE * 100).toFixed(2)}%. Final terms may
-                vary after manual review.
+                {t("loans.based_on_rate", {
+                  rate: (DEFAULT_INTEREST_RATE * 100).toFixed(2),
+                })}
               </p>
             </div>
           ) : null}
@@ -391,16 +406,14 @@ export default function Loans() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="space-y-4 lg:col-span-2">
-          <h2 className="text-lg font-semibold text-slate-900">
-            My loan requests
+          <h2 className="text-lg font-semibold text-slate-900 p-4">
+            {t("loans.my_requests")}
           </h2>
           {isLoadingLoans && loans.length === 0 ? (
-            <p className="text-sm text-slate-500">Loading your loans…</p>
+            <p className="text-sm text-slate-500">{t("loans.loading")}</p>
           ) : null}
           {loans.length === 0 && !isLoadingLoans ? (
-            <p className="text-sm text-slate-500">
-              No loan requests yet. Submit the form above to get started.
-            </p>
+            <p className="text-sm text-slate-500">{t("loans.no_loans")}</p>
           ) : null}
           <div className="space-y-3">
             {loans.map((loan: Loan) => (
@@ -417,7 +430,7 @@ export default function Loans() {
           {selectedLoanId && !isLoansError ? (
             isLoadingLoan || isLoadingRepayments ? (
               <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
-                Loading loan details…
+                {t("loans.loading_details")}
               </div>
             ) : selectedLoan ? (
               <LoanDetailsPanel
@@ -435,18 +448,17 @@ export default function Loans() {
               />
             ) : (
               <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-rose-600">
-                Unable to load loan details.
+                {t("loans.unable_load_details")}
               </div>
             )
           ) : (
             <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500">
-              Select a loan from the list to view detailed information and
-              repayment history.
+              {t("loans.select_loan_prompt")}
             </div>
           )}
           {isLoansError && !selectedLoanId ? (
             <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-              We could not load loan details because the request failed.
+              {t("loans.failed_load_details")}
             </div>
           ) : null}
         </div>

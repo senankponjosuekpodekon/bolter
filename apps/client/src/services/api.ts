@@ -1,29 +1,9 @@
 import axios from 'axios'
 import { useAuthStore } from '../stores/authStore'
 
-const resolveBaseUrl = () => {
-  const raw = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
-  if (!raw) {
-    return '/api'
-  }
+import { normalizeApiBase } from '../lib/url'
 
-  try {
-    const url = new URL(raw)
-    const pathname = url.pathname.replace(/\/$/, '')
-    if (!pathname || pathname === '') {
-      url.pathname = '/api'
-    } else if (!/\/api(\/|$)/.test(pathname)) {
-      url.pathname = `${pathname}/api`
-    }
-    return url.toString().replace(/\/$/, '')
-  } catch {
-    const sanitized = raw.replace(/\/$/, '')
-    if (sanitized.endsWith('/api') || sanitized.includes('/api/')) {
-      return sanitized
-    }
-    return `${sanitized}/api`
-  }
-}
+const resolveBaseUrl = () => normalizeApiBase(import.meta.env.VITE_API_URL as string | undefined)
 
 const api = axios.create({
   baseURL: resolveBaseUrl(),

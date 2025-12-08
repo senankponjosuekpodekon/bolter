@@ -54,10 +54,10 @@ export class UsersService {
     return data ? this.mapUser(data) : null;
   }
 
-  async findByEmail(email: string): Promise<any | null> {
+  async findByEmail(email: string, includeSecrets = false): Promise<any | null> {
     const { data, error } = await this.supabase.getAdminClient().from('users').select('*').eq('email', email).maybeSingle();
     if (error) throw new BadRequestException(`Failed to fetch user: ${error.message}`);
-    return data ? this.mapUser(data) : null;
+    return data ? this.mapUser(data, { includeSecrets }) : null;
   }
 
   async update(id: string, updateData: UpdateUserDto | any): Promise<any> {
@@ -125,6 +125,26 @@ export class UsersService {
     return data?.two_factor_secret || null;
   }
 
+  // Temporary 2FA secret persistence helpers used during setup -> enable flow
+  async setTempTwoFactorSecret(userId: string, secret: string): Promise<void> {
+    await this.supabase.getAdminClient().from('users').update({ two_factor_temp_secret: secret }).eq('id', userId);
+  }
+
+  async getTempTwoFactorSecret(userId: string): Promise<string | null> {
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('users')
+      .select('two_factor_temp_secret')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw new BadRequestException(`Failed to get temp 2FA secret: ${error.message}`);
+    return data?.two_factor_temp_secret || null;
+  }
+
+  async clearTempTwoFactorSecret(userId: string): Promise<void> {
+    await this.supabase.getAdminClient().from('users').update({ two_factor_temp_secret: null }).eq('id', userId);
+  }
+
   async isTwoFactorEnabled(userId: string): Promise<boolean> {
     const { data, error } = await this.supabase.getAdminClient()
       .from('users')
@@ -151,12 +171,28 @@ export class UsersService {
     return `${countryCode}${checkDigits}${bankCode}${branchCode}${accountNumber}${key}`;
   }
 
-  private mapUser(user: any): any {
-    return {
-      id: user.id, email: user.email, password: user.password_hash, firstName: user.first_name,
-      lastName: user.last_name, role: user.role, status: user.status, kycStatus: user.kyc_status,
-      refreshToken: user.refresh_token, twoFactorEnabled: user.two_factor_enabled,
-      twoFactorSecret: user.two_factor_secret, createdAt: user.created_at, updatedAt: user.updated_at,
-    };
+  private mapUser(user: any, opts?: { includeSecrets?: boolean }): any {
+    const includeSecrets = opts?.includeSecrets === true;
+    const safe = {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+      status: user.status,
+      kycStatus: user.kyc_status,
+      twoFactorEnabled: user.two_factor_enabled,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+    } as any;
+
+    if (includeSecrets) {
+      // include internal-only fields when explicitly requested by trusted callers
+      safe.password = user.password_hash;
+      safe.refreshToken = user.refresh_token;
+      safe.twoFactorSecret = user.two_factor_secret;
+    }
+
+    return safe;
   }
 }

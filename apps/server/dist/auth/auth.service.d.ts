@@ -38,4 +38,17 @@ export declare class AuthService {
         success: boolean;
     }>;
     private stripSensitiveFields;
+    setupTwoFactor(userId: string): Promise<{
+        secret: string;
+        qrCodeUrl: any;
+    }>;
+    enableTwoFactor(userId: string, token: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    disableTwoFactor(userId: string, token: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    verifyTwoFactor(userId: string, token: string): Promise<boolean>;
 }

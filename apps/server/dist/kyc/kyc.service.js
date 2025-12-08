@@ -39,6 +39,19 @@ let KycService = class KycService {
             throw new common_1.BadRequestException(`Failed to fetch pending documents: ${error.message}`);
         return data;
     }
+    async getDocumentById(documentId) {
+        const { data, error } = await this.supabase
+            .getAdminClient()
+            .from('kyc_documents')
+            .select('*')
+            .eq('id', documentId)
+            .maybeSingle();
+        if (error)
+            throw new common_1.BadRequestException(`Failed to fetch document: ${error.message}`);
+        if (!data)
+            throw new common_1.NotFoundException('Document not found');
+        return data;
+    }
     async reviewDocument(adminId, documentId, dto) {
         const { data: document, error: fetchError } = await this.supabase.getAdminClient().from('kyc_documents').select('*').eq('id', documentId).maybeSingle();
         if (fetchError || !document)

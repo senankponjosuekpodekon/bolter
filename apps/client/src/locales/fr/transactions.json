@@ -1,0 +1,158 @@
+{
+  "title": "Transactions",
+  "subtitle": "Visualisez et gérez toutes vos transactions",
+  "new_transaction": "Nouvelle Transaction",
+  "transaction_types": {
+    "transfer": "Virement",
+    "deposit": "Dépôt",
+    "withdrawal": "Retrait",
+    "payment": "Paiement",
+    "refund": "Remboursement",
+    "fee": "Frais"
+  },
+  "status": {
+    "pending": "En Attente",
+    "approved": "Approuvé",
+    "completed": "Terminé",
+    "failed": "Échoué",
+    "cancelled": "Annulé",
+    "processing": "En Cours de Traitement"
+  },
+  "create_transfer": {
+    "title": "Créer un Virement",
+    "from_account": "Depuis le Compte",
+    "to_account": "Vers le Compte",
+    "recipient_type": "Type de Destinataire",
+    "recipient_options": {
+      "internal": "Compte Interne",
+      "external": "Compte Externe"
+    },
+    "recipient_name": "Nom du Destinataire",
+    "recipient_account": "Numéro de Compte du Destinataire",
+    "recipient_bank": "Banque du Destinataire",
+    "amount": "Montant",
+    "currency": "Devise",
+    "description": "Description (optionnel)",
+    "reference": "Numéro de Référence (optionnel)",
+    "schedule": "Programmer le Virement",
+    "schedule_options": {
+      "immediate": "Immédiat",
+      "scheduled": "Programmé pour Plus Tard"
+    },
+    "date": "Date du Virement",
+    "time": "Heure du Virement",
+    "recurring": "Virement Récurrent",
+    "frequency_options": {
+      "once": "Une Seule Fois",
+      "daily": "Quotidien",
+      "weekly": "Hebdomadaire",
+      "monthly": "Mensuel"
+    },
+    "create": "Créer le Virement",
+    "creating": "Création du Virement..."
+  },
+  "create_deposit": {
+    "title": "Créer un Dépôt",
+    "amount": "Montant du Dépôt",
+    "currency": "Devise",
+    "source": "Source du Dépôt",
+    "source_options": {
+      "bank_transfer": "Virement Bancaire",
+      "card": "Carte de Crédit/Débit",
+      "mobile_money": "Mobile Money",
+      "check": "Chèque"
+    },
+    "instructions": "Instructions de Dépôt",
+    "reference": "Numéro de Référence",
+    "bank_details": "Détails Bancaires",
+    "account_number": "Numéro de Compte à Utiliser",
+    "routing_number": "Numéro d'Acheminement",
+    "swift_code": "Code SWIFT",
+    "create": "Commencer le Dépôt",
+    "creating": "Traitement en cours..."
+  },
+  "create_withdrawal": {
+    "title": "Créer un Retrait",
+    "amount": "Montant du Retrait",
+    "currency": "Devise",
+    "destination": "Compte de Destination",
+    "account_number": "Numéro de Compte",
+    "bank_name": "Nom de la Banque",
+    "account_holder": "Nom du Titulaire du Compte",
+    "method": "Méthode de Retrait",
+    "method_options": {
+      "bank_transfer": "Virement Bancaire",
+      "mobile_money": "Mobile Money",
+      "atm_card": "Carte ATM"
+    },
+    "notes": "Notes Supplémentaires",
+    "create": "Demander le Retrait",
+    "creating": "Traitement en cours..."
+  },
+  "history": {
+    "title": "Historique des Transactions",
+    "filter": "Filtrer les Transactions",
+    "filter_type": "Type de Transaction",
+    "filter_status": "Statut",
+    "filter_date_from": "Date de Début",
+    "filter_date_to": "Date de Fin",
+    "filter_amount_min": "Montant Minimum",
+    "filter_amount_max": "Montant Maximum",
+    "filter_currency": "Devise",
+    "search_placeholder": "Rechercher par description ou référence",
+    "columns": {
+      "date": "Date",
+      "time": "Heure",
+      "type": "Type",
+      "description": "Description",
+      "from": "De",
+      "to": "Vers",
+      "amount": "Montant",
+      "status": "Statut",
+      "reference": "Référence"
+    },
+    "no_transactions": "Aucune transaction trouvée",
+    "loading": "Chargement des transactions...",
+    "export": "Exporter l'Historique"
+  },
+  "details": {
+    "title": "Détails de la Transaction",
+    "general": "Informations Générales",
+    "date": "Date et Heure",
+    "type": "Type de Transaction",
+    "status": "Statut",
+    "reference": "Numéro de Référence",
+    "description": "Description",
+    "amounts": "Détails du Montant",
+    "original_amount": "Montant Original",
+    "converted_amount": "Montant Converti",
+    "exchange_rate": "Taux de Change",
+    "fee": "Frais",
+    "net_amount": "Montant Net",
+    "parties": "Parties Impliquées",
+    "from_account": "Depuis le Compte",
+    "from_bank": "Depuis la Banque",
+    "to_account": "Vers le Compte",
+    "to_bank": "Vers la Banque",
+    "recipient_name": "Nom du Destinataire",
+    "timeline": "Chronologie de la Transaction",
+    "created": "Créé",
+    "approved": "Approuvé",
+    "completed": "Terminé",
+    "failed_reason": "Raison de l'Échec",
+    "actions": "Actions",
+    "cancel": "Annuler la Transaction",
+    "retry": "Réessayer la Transaction",
+    "back": "Retour à l'Historique"
+  },
+  "messages": {
+    "success_transfer": "Virement créé avec succès",
+    "success_deposit": "Demande de dépôt soumise",
+    "success_withdrawal": "Demande de retrait soumise",
+    "confirm_transaction": "Êtes-vous sûr de vouloir procéder à cette transaction ?",
+    "cancel_confirm": "Êtes-vous sûr de vouloir annuler cette transaction ?",
+    "cancelled": "La transaction a été annulée",
+    "no_accounts": "Vous devez avoir au moins un compte pour créer des transactions",
+    "kyc_required": "Vous devez compléter la vérification KYC pour créer des transactions"
+  }
+}

@@ -11,6 +11,10 @@ import { LoggerModule } from './common/logger/logger.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { LoansModule } from './loans/loans.module';
+import { ExchangeModule } from './exchange/exchange.module';
+import { AdminModule } from './admin/admin.module';
+import { LocalizationModule } from './localization/localization.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -29,7 +33,11 @@ import configuration from './config/configuration';
     KycModule,
     AuditLogsModule,
     NotificationsModule,
+    WebhooksModule,
     LoansModule,
+    ExchangeModule,
+    AdminModule,
+    LocalizationModule,
   ],
 })
 export class AppModule { }

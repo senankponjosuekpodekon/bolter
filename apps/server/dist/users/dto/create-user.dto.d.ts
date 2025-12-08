@@ -14,5 +14,8 @@ export declare class CreateUserDto {
     role?: UserRole;
     status?: UserStatus;
     kyc_status?: UserKycStatus;
+    locale?: string;
+    currency?: string;
+    timezone?: string;
 }
 export {};

@@ -247,6 +247,94 @@ npm run build
 npm run start:prod
 ```
 
+## 🧪 Local LAN development & Mobile testing
+
+Pour tester l'application depuis un téléphone sur le même réseau local (Wi‑Fi), voici les options et commandes recommandées. Ces notes couvrent les récents changements : le backend peut démarrer en HTTPS si `USE_HTTPS=true`, sinon il bascule en HTTP (mode dev). Le serveur vérifie la présence des certificats dans `apps/server/cert` et affiche un avertissement si les fichiers manquent.
+
+Choix rapide:
+
+- Développement simple (recommandé) : utiliser HTTP pour le backend et lancer le frontend sur la machine; accéder au front depuis le téléphone via `http://<IP_MACHINE>:5173`.
+- HTTPS local : générer un certificat mkcert couvrant l'IP et activer `USE_HTTPS=true` (plus d'étapes).
+- Tunnel public : utiliser `ngrok` si tu veux une URL HTTPS publique sans gérer de certificats locaux.
+
+1. Démarrage rapide (HTTP, le plus simple)
+
+```bash
+# Backend en HTTP (dev)
+export USE_HTTPS=false
+npm run --prefix apps/server dev
+
+# Frontend (client)
+export VITE_API_URL=http://192.168.1.199:3000   # optionnel : utile si tu builds le front ou veux pointer explicitement l'API
+npm run --prefix apps/client dev
+
+# Admin (si besoin)
+npm run --prefix apps/admin dev
+```
+
+Ensuite sur ton téléphone (même Wi‑Fi) : (modi de viturl dans .env et main.ts serveur file)
+
+- Front client : `http://192.168.1.199:5173`
+- Admin : `http://192.168.1.199:5174`
+- Swagger backend : `http://192.168.1.199:3000/api/docs`
+
+Remarques :
+
+- La configuration de développement de `apps/client` utilise une proxy Vite (`/api -> http://localhost:3000`) ; si tu ouvres le front depuis le téléphone sur le dev‑server Vite, les appels `/api` sont proxifiés par Vite vers le backend (pas de CORS côté téléphone).
+- Si tu builds le front et sers les fichiers statiques, définis `VITE_API_URL=http://192.168.1.199:3000` pour que les requêtes API pointent vers la machine.
+
+2. Activer HTTPS local (mkcert) — utile si tu veux HTTPS depuis le téléphone
+
+Pré requis : `mkcert` installé. Exemples de commandes :
+
+```bash
+cd apps/server/cert
+mkcert -install
+# Génère une paire cert+key couvrant localhost et l'IP
+mkcert localhost 192.168.1.199
+
+# Cela crée des fichiers comme: localhost+1.pem et localhost+1-key.pem
+```
+
+Puis lancer le backend en HTTPS :
+
+```bash
+export USE_HTTPS=true
+npm run --prefix apps/server dev
+```
+
+Le serveur lit les certificats depuis `apps/server/cert` et utilisera les fichiers présents. Si `USE_HTTPS=true` mais que les fichiers sont absents, le serveur bascule automatiquement en HTTP et écrit un avertissement au démarrage.
+
+3. Utiliser un tunnel HTTPS public (ngrok)
+
+```bash
+# expose le port 3000 via ngrok (HTTPS public)
+ngrok http 3000
+```
+
+ngrok fournit une URL HTTPS publique que tu peux ouvrir depuis ton téléphone sans toucher aux certificats locaux. Utile pour partage rapide, attention à l'exposition publique des API.
+
+4. Firewall / réseau
+
+Assure-toi que les ports sont ouverts et que ton téléphone et ton ordinateur sont sur le même réseau Wi‑Fi :
+
+```bash
+ss -tln | egrep '5173|5174|3000' || true
+sudo ufw allow 5173/tcp
+sudo ufw allow 5174/tcp
+sudo ufw allow 3000/tcp
+sudo ufw status
+```
+
+5. Notes sur les récentes modifications du backend
+
+- Le backend supporte la variable d'environnement `USE_HTTPS` : si `true` il tente de démarrer en HTTPS en lisant les certificats depuis `apps/server/cert` (ex. `192.168.1.199.pem` et `192.168.1.199-key.pem`).
+- Si les certificats ne sont pas trouvés, le serveur écrit un avertissement et démarre en HTTP (pratique en dev).
+- En mode HTTP le serveur désactive certaines en‑têtes strictes (`Cross-Origin-Opener-Policy`, `Origin-Agent-Cluster`) afin d'éviter les warnings de navigateur et les tentatives de chargement forcé d'actifs en HTTPS (utile pour Swagger UI en dev mobile).
+- Swagger UI est servi via une URL relative afin que les assets suivent le même protocole que la page (évite `ERR_SSL_PROTOCOL_ERROR` quand tu accèdes via HTTP).
+
+Si tu veux que j'ajoute un script `dev:lan` pour démarrer client+server en une seule commande, ou que j'automatise la génération mkcert et le placement des fichiers, dis‑le et je le ferai.
+
 ## API Documentation
 
 Documentation Swagger disponible sur: `http://localhost:3000/api/docs`
@@ -389,13 +477,37 @@ PATCH /api/transactions/:id/validate
 - TRANSFER: -montant sur from_account, +montant sur to_account
 - WITHDRAWAL: -montant sur from_account
 
-## Sécurité
+## 🔐 Sécurité
+
+### Authentification & Autorisation
 
 - Passwords hashés avec bcrypt
 - JWT tokens avec expiration
 - Row Level Security (RLS) sur toutes les tables
 - Validation des données avec class-validator
 - Guards NestJS (JwtAuthGuard + RolesGuard)
+
+### Two-Factor Authentication (2FA)
+
+- TOTP (Time-based One-Time Password) avec speakeasy
+- Génération dynamique de secrets avec codes QR
+- Persistence de secrets temporaires pour le flux setup → enable
+- Support de tous les authenticateurs standards (Google Authenticator, Microsoft Authenticator, Authy, etc.)
+- Documentation complète: `docs/2FA-IMPLEMENTATION.md` et `docs/2FA-FRONTEND-GUIDE.md`
+
+**Endpoints 2FA**:
+
+- `POST /auth/2fa/setup` - Initier la configuration 2FA
+- `POST /auth/2fa/enable` - Activer 2FA après vérification du code
+- `POST /auth/2fa/disable` - Désactiver 2FA avec vérification du code
+- `POST /auth/login` - Login adapté pour supporter 2FA
+
+**Flux 2FA**:
+
+1. User lance Setup 2FA → reçoit secret + QR code
+2. User scanne QR avec authenticateur et obtient un code
+3. User confirme Enable 2FA avec le code
+4. Pour les logins suivants, user doit fournir le code après email/password
 
 ## 📊 État du Projet
 
@@ -448,13 +560,15 @@ PATCH /api/transactions/:id/validate
 
 **Backend**:
 
-- [ ] Tests unitaires et e2e
+- [x] 2FA authentification (TOTP) ✅
+- [ ] Tests unitaires et e2e (en cours - unit tests pour 2FA, e2e tests pour setup→enable→login)
 - [ ] Notifications email (transactions validées, KYC reviewed)
 - [ ] WebSocket pour notifications temps réel
-- [ ] 2FA authentification (TOTP)
 - [ ] Support multi-devises (EUR, USD, GBP)
 - [ ] Export PDF relevés de compte
 - [ ] Scheduled transactions (virements programmés)
+- [ ] Codes de secours (backup codes) pour 2FA
+- [ ] 2FA par SMS ou email comme alternative
 
 **Frontend**:
 

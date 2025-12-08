@@ -11,15 +11,17 @@ const common_1 = require("@nestjs/common");
 const transactions_controller_1 = require("./transactions.controller");
 const transactions_service_1 = require("./transactions.service");
 const accounts_module_1 = require("../accounts/accounts.module");
+const transaction_filter_service_1 = require("./transaction-filter.service");
+const supabase_module_1 = require("../supabase/supabase.module");
 let TransactionsModule = class TransactionsModule {
 };
 exports.TransactionsModule = TransactionsModule;
 exports.TransactionsModule = TransactionsModule = __decorate([
     (0, common_1.Module)({
-        imports: [accounts_module_1.AccountsModule],
+        imports: [accounts_module_1.AccountsModule, supabase_module_1.SupabaseModule],
         controllers: [transactions_controller_1.TransactionsController],
-        providers: [transactions_service_1.TransactionsService],
-        exports: [transactions_service_1.TransactionsService],
+        providers: [transactions_service_1.TransactionsService, transaction_filter_service_1.TransactionFilterService],
+        exports: [transactions_service_1.TransactionsService, transaction_filter_service_1.TransactionFilterService],
     })
 ], TransactionsModule);
 //# sourceMappingURL=transactions.module.js.map

@@ -73,4 +73,22 @@ __decorate([
     (0, class_validator_1.IsIn)(KYC_STATUSES, { message: 'KYC status must be a valid value' }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "kyc_status", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'en-US', description: 'User preferred locale (IETF language tag)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "locale", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'EUR', description: 'User preferred currency (ISO 4217)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "currency", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Europe/Paris', description: 'User timezone (IANA timezone string)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "timezone", void 0);
 //# sourceMappingURL=create-user.dto.js.map

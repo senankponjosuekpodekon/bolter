@@ -31,7 +31,7 @@
 - ✅ Validation DTOs
 - ✅ Swagger documentation
 
-### 💻 Frontend Client (apps/client/) - 80% COMPLET
+### 💻 Frontend Client (apps/client/) - 90% COMPLET
 
 **Pages créées**:
 - ✅ Login / Register
@@ -40,12 +40,18 @@
 - ✅ Transactions (historique + formulaire virement)
 - ✅ KYC (upload documents)
 - ✅ Profile (affichage profil)
+- ✅ Profile (affichage profil)
+- ✅ Profile cleanup: duplicate/corrupt fragments fixed (Profile.tsx) — tabs on top, personalization moved to bottom
 
 **Tech Stack**:
 - ✅ React 18 + TypeScript + Vite
 - ✅ TanStack Query + Zustand
 - ✅ Tailwind CSS
 - ✅ React Router
+- ✅ React Router
+- ✅ Sprint 6 performance & mobile fixes: dynamic --vh helper in `main.tsx`, `Layout` now uses `calc(var(--vh, 1vh) * 100)` and adds safe-area bottom padding; replaced `min-h-screen` in critical auth pages
+- ✅ Route-level lazy-loading + lightweight skeletons for heavy pages (Dashboard, Loans, Profile, LoanSimulator)
+- ✅ Route prefetching on nav-hover to warm lazy chunks
 
 ### 👨‍💼 Admin Panel (apps/admin/) - 75% COMPLET
 

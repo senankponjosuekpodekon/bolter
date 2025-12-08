@@ -1,12 +1,13 @@
 import { createTheme } from '@mui/material/styles'
+import { ADMIN_TOKENS } from './themeTokens'
 
 export const adminTheme = createTheme({
   palette: {
     primary: {
-      main: '#1E3A8A',
+      main: ADMIN_TOKENS.colors.primary,
     },
     secondary: {
-      main: '#0EA5E9',
+      main: ADMIN_TOKENS.colors.primaryLight || '#0EA5E9',
     },
     background: {
       default: '#F4F6FB',
@@ -24,7 +25,7 @@ export const adminTheme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 10,
+          borderRadius: ADMIN_TOKENS.layout.borderRadius,
           fontWeight: 600,
         },
       },
@@ -32,7 +33,7 @@ export const adminTheme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
+          borderRadius: ADMIN_TOKENS.layout.cardRadius,
           border: '1px solid rgba(15, 23, 42, 0.08)',
           boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
         },

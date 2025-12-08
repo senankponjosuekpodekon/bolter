@@ -17,7 +17,19 @@
     "build:admin": "npm run build --workspace=admin",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
-    "lint": "npm run lint --workspace=client && npm run lint --workspace=server && npm run lint --workspace=admin"
+    "test:staged": "jest --bail --findRelatedTests",
+    "test:coverage": "npm run test --workspaces -- --coverage",
+    "test:watch": "npm run test --workspaces -- --watch",
+    "lint": "npm run lint --workspace=client && npm run lint --workspace=server && npm run lint --workspace=admin",
+    "lint:fix": "npm run lint --workspaces -- --fix",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,js,jsx,json,css}\" \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,js,jsx,json,css}\" \"src/**/*.{ts,js,json}\"",
+    "e2e": "npm run e2e --workspace=client",
+    "e2e:ui": "npm run e2e:ui --workspace=client",
+    "security:audit": "npm audit --production",
+    "security:audit:fix": "npm audit fix",
+    "prepare": "husky install",
+    "ci:all": "npm run lint && npm run test:coverage && npm run build && npm run e2e"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

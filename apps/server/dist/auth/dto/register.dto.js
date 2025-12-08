@@ -38,4 +38,22 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "lastName", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'en-US', description: 'Preferred locale (IETF language tag)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "locale", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'EUR', description: 'Preferred currency (ISO 4217)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "currency", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Europe/Paris', description: 'Preferred timezone (IANA timezone string)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "timezone", void 0);
 //# sourceMappingURL=register.dto.js.map

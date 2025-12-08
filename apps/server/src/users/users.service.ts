@@ -6,10 +6,14 @@ export interface User {
   lastName: string;
   phone?: string | null;
   address?: string | null;
+  locale?: string | null;
+  currency?: string | null;
+  timezone?: string | null;
   role: string;
   status?: string;
   kyc_status?: string;
   hasPassword: boolean;
+  two_factor_enabled?: boolean;
   createdAt?: string;
   updatedAt?: string;
   password?: string;
@@ -32,11 +36,15 @@ type RawUserRow = {
   last_name?: string | null;
   phone?: string | null;
   address?: string | null;
+  locale?: string | null;
+  currency?: string | null;
+  timezone?: string | null;
   role?: string;
   status?: string;
   kyc_status?: string;
   password_hash?: string | null;
   refresh_token?: string | null;
+  two_factor_enabled?: boolean;
   created_at?: string | null;
   updated_at?: string | null;
 };
@@ -52,7 +60,7 @@ export class UsersService {
   ) { }
 
   async create(data: CreateUserDto, options?: { performedBy?: string | null; metadata?: { changes?: Record<string, unknown>;[k: string]: unknown } }): Promise<User> {
-    const { password, email, firstName, lastName, role, phone, address, status, kyc_status } = data;
+    const { password, email, firstName, lastName, role, phone, address, status, kyc_status, locale, currency, timezone } = data;
     const hashedPassword = password ? await this.hashPassword(password) : null;
     const insertPayload: Record<string, unknown> = {
       email,
@@ -63,6 +71,9 @@ export class UsersService {
       phone: phone || null,
       address: address || null,
     };
+    if (locale) insertPayload.locale = locale;
+    if (currency) insertPayload.currency = currency;
+    if (timezone) insertPayload.timezone = timezone;
     if (status) insertPayload.status = status;
     if (kyc_status) insertPayload.kyc_status = kyc_status;
     const { data: user, error } = await this.supabase
@@ -168,6 +179,9 @@ export class UsersService {
     if (userData.lastName !== undefined) updatePayload.last_name = userData.lastName || null;
     if (userData.phone !== undefined) updatePayload.phone = userData.phone || null;
     if (userData.address !== undefined) updatePayload.address = userData.address || null;
+    if (userData.locale !== undefined) updatePayload.locale = userData.locale || null;
+    if (userData.currency !== undefined) updatePayload.currency = userData.currency || null;
+    if (userData.timezone !== undefined) updatePayload.timezone = userData.timezone || null;
     if (userData.status !== undefined) updatePayload.status = userData.status;
     if (userData.kyc_status !== undefined) updatePayload.kyc_status = userData.kyc_status;
     if (userData.role !== undefined) updatePayload.role = userData.role;
@@ -224,6 +238,67 @@ export class UsersService {
     await this.supabase.getAdminClient().from('users').update({ refresh_token: null }).eq('id', userId);
   }
 
+  async setTwoFactorSecret(userId: string, secret: string): Promise<void> {
+    try {
+      const { error } = await this.supabase.getAdminClient()
+        .from('users')
+        .update({ two_factor_secret: secret, two_factor_enabled: true })
+        .eq('id', userId);
+      if (error) throw new BadRequestException(`Failed to set 2FA secret: ${error.message}`);
+    } catch (err) {
+      // If columns don't exist, try with simpler update
+      const { error } = await this.supabase.getAdminClient()
+        .from('users')
+        .update({ two_factor_secret: secret })
+        .eq('id', userId);
+      if (error) throw new BadRequestException(`Failed to set 2FA secret: ${error.message}`);
+    }
+  }
+
+  async getTwoFactorSecret(userId: string): Promise<string | null> {
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('users')
+      .select('two_factor_secret')
+      .eq('id', userId)
+      .maybeSingle();
+    if (error) throw new BadRequestException(`Failed to get 2FA secret: ${error.message}`);
+    return data?.two_factor_secret || null;
+  }
+
+  async setTempTwoFactorSecret(userId: string, secret: string): Promise<void> {
+    const { error } = await this.supabase.getAdminClient()
+      .from('users')
+      .update({ temp_two_factor_secret: secret })
+      .eq('id', userId);
+    if (error) throw new BadRequestException(`Failed to set temp 2FA secret: ${error.message}`);
+  }
+
+  async getTempTwoFactorSecret(userId: string): Promise<string | null> {
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('users')
+      .select('temp_two_factor_secret')
+      .eq('id', userId)
+      .maybeSingle();
+    if (error) throw new BadRequestException(`Failed to get temp 2FA secret: ${error.message}`);
+    return data?.temp_two_factor_secret || null;
+  }
+
+  async clearTwoFactorSecret(userId: string): Promise<void> {
+    const { error } = await this.supabase.getAdminClient()
+      .from('users')
+      .update({ two_factor_secret: null, two_factor_enabled: false })
+      .eq('id', userId);
+    if (error) throw new BadRequestException(`Failed to clear 2FA secret: ${error.message}`);
+  }
+
+  async clearTempTwoFactorSecret(userId: string): Promise<void> {
+    const { error } = await this.supabase.getAdminClient()
+      .from('users')
+      .update({ temp_two_factor_secret: null })
+      .eq('id', userId);
+    if (error) throw new BadRequestException(`Failed to clear temp 2FA secret: ${error.message}`);
+  }
+
   private async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(password, salt);
@@ -237,12 +312,16 @@ export class UsersService {
       email: user.email,
       firstName: user.first_name,
       lastName: user.last_name,
+      locale: user.locale,
+      currency: user.currency,
+      timezone: user.timezone,
       phone: user.phone,
       address: user.address,
       role: user.role,
       status: user.status,
       kyc_status: user.kyc_status,
       hasPassword: Boolean(user.password_hash),
+      two_factor_enabled: Boolean(user.two_factor_enabled),
       createdAt: user.created_at,
       updatedAt: user.updated_at,
     };

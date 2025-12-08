@@ -9,6 +9,7 @@ export declare class KycService {
     uploadDocument(userId: string, dto: UploadKycDocumentDto): Promise<any>;
     findByUserId(userId: string): Promise<any[]>;
     findPendingDocuments(): Promise<any[]>;
+    getDocumentById(documentId: string): Promise<any>;
     reviewDocument(adminId: string, documentId: string, dto: ReviewKycDocumentDto): Promise<any>;
     private updateUserKycStatus;
 }

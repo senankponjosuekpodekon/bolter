@@ -26,11 +26,6 @@ export const AdminMenu = () => (
       leftIcon={<AccountBalanceIcon />}
     />
     <Menu.Item
-      to="/transactions"
-      primaryText="Transactions"
-      leftIcon={<PaidIcon />}
-    />
-    <Menu.Item
       to="/transactions/pending"
       primaryText="Pending Transactions"
       leftIcon={<AssignmentTurnedInIcon />}

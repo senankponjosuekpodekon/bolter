@@ -23,6 +23,10 @@ const logger_module_1 = require("./common/logger/logger.module");
 const audit_logs_module_1 = require("./audit-logs/audit-logs.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const loans_module_1 = require("./loans/loans.module");
+const exchange_module_1 = require("./exchange/exchange.module");
+const admin_module_1 = require("./admin/admin.module");
+const localization_module_1 = require("./localization/localization.module");
+const webhooks_module_1 = require("./webhooks/webhooks.module");
 const configuration_1 = __importDefault(require("./config/configuration"));
 let AppModule = class AppModule {
 };
@@ -44,7 +48,11 @@ exports.AppModule = AppModule = __decorate([
             kyc_module_1.KycModule,
             audit_logs_module_1.AuditLogsModule,
             notifications_module_1.NotificationsModule,
+            webhooks_module_1.WebhooksModule,
             loans_module_1.LoansModule,
+            exchange_module_1.ExchangeModule,
+            admin_module_1.AdminModule,
+            localization_module_1.LocalizationModule,
         ],
     })
 ], AppModule);

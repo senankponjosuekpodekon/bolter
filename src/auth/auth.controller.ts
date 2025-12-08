@@ -8,12 +8,14 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { TwoFactorThrottleGuard } from './guards/two-factor-throttle.guard';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -114,11 +116,13 @@ export class AuthController {
     return this.authService.setupTwoFactor(req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, TwoFactorThrottleGuard)
+  @Throttle({ default: { limit: 5, ttl: 3600000 } })
   @Post('2fa/enable')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Enable 2FA' })
   @ApiResponse({ status: 200, description: '2FA enabled successfully' })
+  @ApiResponse({ status: 429, description: 'Too many attempts. Try again later.' })
   @ApiResponse({ status: 400, description: 'Invalid token or 2FA already enabled' })
   async enableTwoFactor(@Req() req, @Body() enableTwoFactorDto: EnableTwoFactorDto) {
     return this.authService.enableTwoFactor(req.user.id, enableTwoFactorDto.token);
@@ -134,11 +138,13 @@ export class AuthController {
     return this.authService.disableTwoFactor(req.user.id, verifyTwoFactorDto.token);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, TwoFactorThrottleGuard)
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 attempts per hour (3600000ms)
   @Post('2fa/verify')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Verify 2FA token' })
   @ApiResponse({ status: 200, description: 'Token verified' })
+  @ApiResponse({ status: 429, description: 'Too many attempts. Try again later.' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   async verifyTwoFactor(@Req() req, @Body() verifyTwoFactorDto: VerifyTwoFactorDto) {
     const isValid = await this.authService.verifyTwoFactor(req.user.id, verifyTwoFactorDto.token);

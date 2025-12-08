@@ -1,6 +1,10 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { loadLocale } from "../i18n";
+import { useAuthStore } from "../stores/authStore";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../services/api";
+import { useFormatting } from "../hooks";
 
 export default function Accounts() {
   type Account = {
@@ -14,6 +18,20 @@ export default function Accounts() {
     created_at?: string;
   };
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
+  const { currency: currencyFormatter } = useFormatting({
+    locale: user?.locale ?? "en-US",
+  });
+
+  useEffect(() => {
+    const l =
+      user?.locale ??
+      (typeof navigator !== "undefined"
+        ? navigator.language || "en-US"
+        : "en-US");
+    loadLocale(l);
+  }, [user?.locale]);
   const [accountType, setAccountType] = useState<"CHECKING" | "SAVINGS">(
     "SAVINGS"
   );
@@ -51,10 +69,13 @@ export default function Accounts() {
       setErrorMessage("");
       if (data?.account_number) {
         setSuccessMessage(
-          `New ${data.account_type} account ${data.account_number} created. Pending transactions can now target it.`
+          t("accounts.success_created_with_number", {
+            type: data.account_type,
+            number: data.account_number,
+          })
         );
       } else {
-        setSuccessMessage("Account created successfully.");
+        setSuccessMessage(t("accounts.success_created"));
       }
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
@@ -93,7 +114,12 @@ export default function Accounts() {
       return response.data;
     },
     onSuccess: (data) => {
-      setCardSuccess(`Carte ${data.type} créée : ${data.card_number}`);
+      setCardSuccess(
+        t("accounts.card_created", {
+          type: data.type,
+          number: data.card_number,
+        })
+      );
       setCardError("");
       setShowCardForm(false);
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
@@ -132,27 +158,28 @@ export default function Accounts() {
     createCard.mutate({ accountId: cardAccountId, type: cardType });
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div>{t("common.loading")}</div>;
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">My Accounts</h1>
+      <h1 className="text-2xl font-bold text-gray-900">
+        {t("accounts.title")}
+      </h1>
 
       <div className="bg-white p-6 rounded-lg shadow">
         <form onSubmit={handleCreateAccount} className="space-y-4">
           <div>
             <h2 className="text-lg font-medium text-gray-900">
-              Open a New Account
+              {t("accounts.open_account_title")}
             </h2>
             <p className="text-sm text-gray-500">
-              Create additional accounts to separate budgets or savings before
-              initiating internal transfers.
+              {t("accounts.open_account_description")}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Account Type
+              {t("accounts.account_type")}
             </label>
             <select
               value={accountType}
@@ -162,14 +189,14 @@ export default function Accounts() {
               className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
               disabled={createAccount.isPending}
             >
-              <option value="SAVINGS">Savings</option>
-              <option value="CHECKING">Checking</option>
+              <option value="SAVINGS">{t("accounts.types.savings")}</option>
+              <option value="CHECKING">{t("accounts.types.checking")}</option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Currency
+              {t("accounts.currency")}
             </label>
             <select
               value={currency}
@@ -186,7 +213,7 @@ export default function Accounts() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Limit (per transaction)
+              {t("accounts.limit_label")}
             </label>
             <input
               type="number"
@@ -213,7 +240,9 @@ export default function Accounts() {
             disabled={createAccount.isPending}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
-            {createAccount.isPending ? "Creating..." : "Create Account"}
+            {createAccount.isPending
+              ? t("accounts.creating")
+              : t("accounts.create_account")}
           </button>
         </form>
       </div>
@@ -224,7 +253,7 @@ export default function Accounts() {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-lg font-medium text-gray-900">
-                  {account.account_type}
+                  {t(`accounts.types.${account.account_type.toLowerCase()}`)}
                 </h3>
                 <p className="text-sm text-gray-500">
                   {account.account_number}
@@ -237,21 +266,30 @@ export default function Accounts() {
               </span>
             </div>
             <div className="mt-4">
-              <p className="text-sm text-gray-500">Balance</p>
+              <p className="text-sm text-gray-500">
+                {t("accounts.balance_label")}
+              </p>
               <p className="text-3xl font-bold text-gray-900">
-                {parseFloat(String(account.balance)).toFixed(2)}{" "}
-                {account.currency}
+                {currencyFormatter.format(
+                  Number(account.balance),
+                  account.currency ?? "EUR"
+                )}
               </p>
             </div>
             <div className="mt-4">
               <p className="text-xs text-gray-400">
-                Limit: {account.limit} {account.currency} / transaction
+                {t("accounts.limit_text", {
+                  limit: account.limit,
+                  currency: account.currency,
+                })}
               </p>
               <p className="text-xs text-gray-400">
                 Created:{" "}
                 {account.created_at
-                  ? new Date(account.created_at).toLocaleDateString()
-                  : "N/A"}
+                  ? new Date(account.created_at).toLocaleDateString(
+                      user?.locale ?? "en-US"
+                    )
+                  : t("common.na")}
               </p>
             </div>
           </div>
@@ -259,18 +297,20 @@ export default function Accounts() {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow mt-8">
-        <h2 className="text-lg font-medium mb-2">Gérer mes cartes</h2>
+        <h2 className="text-lg font-medium mb-2">
+          {t("accounts.manage_cards")}
+        </h2>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
           onClick={() => setShowCardForm((v) => !v)}
         >
-          {showCardForm ? "Annuler" : "Créer une carte"}
+          {showCardForm ? t("accounts.card.cancel") : t("accounts.card.create")}
         </button>
         {showCardForm && (
           <form onSubmit={handleCreateCard} className="space-y-4">
             <div>
               <label className="block text-sm font-medium">
-                Compte associé
+                {t("accounts.card.account_label")}
               </label>
               <select
                 value={cardAccountId}
@@ -278,7 +318,7 @@ export default function Accounts() {
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
                 required
               >
-                <option value="">Choisir un compte</option>
+                <option value="">{t("accounts.card.choose_account")}</option>
                 {accounts?.map((acc: Account) => (
                   <option key={acc.id} value={acc.id}>
                     {acc.account_type} - {acc.account_number} ({acc.currency})
@@ -287,7 +327,9 @@ export default function Accounts() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium">Type de carte</label>
+              <label className="block text-sm font-medium">
+                {t("accounts.card.card_type_label")}
+              </label>
               <select
                 value={cardType}
                 onChange={(e) =>
@@ -295,8 +337,12 @@ export default function Accounts() {
                 }
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
               >
-                <option value="VIRTUAL">Virtuelle</option>
-                <option value="PHYSICAL">Physique</option>
+                <option value="VIRTUAL">
+                  {t("accounts.card.types.virtual")}
+                </option>
+                <option value="PHYSICAL">
+                  {t("accounts.card.types.physical")}
+                </option>
               </select>
             </div>
             {cardError && (
@@ -309,7 +355,7 @@ export default function Accounts() {
               type="submit"
               className="bg-green-600 text-white px-4 py-2 rounded"
             >
-              Créer la carte
+              {t("accounts.card.create")}
             </button>
           </form>
         )}

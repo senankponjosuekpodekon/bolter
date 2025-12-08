@@ -28,4 +28,25 @@ export declare class AuthController {
         user: Omit<import("../users/users.service").User, "password" | "refreshToken">;
     }>;
     getProfile(req: any): any;
+    setupTwoFactor(req: any): Promise<{
+        secret: string;
+        qrCodeUrl: any;
+    }>;
+    enableTwoFactor(req: any, body: {
+        token: string;
+    }): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    disableTwoFactor(req: any, body: {
+        token: string;
+    }): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    verifyTwoFactor(req: any, body: {
+        token: string;
+    }): Promise<{
+        valid: boolean;
+    }>;
 }

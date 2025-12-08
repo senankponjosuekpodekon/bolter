@@ -6,7 +6,7 @@ export const getProfile = async () => {
 }
 
 export const updateProfile = async (data: Record<string, unknown>) => {
-    const res = await api.post('/auth/profile/update', data)
+    const res = await api.patch('/users/profile', data)
     return res.data
 }
 
@@ -16,6 +16,7 @@ export const getProfileActivity = async () => {
 }
 
 export const updatePreferences = async (data: Record<string, unknown>) => {
-    const res = await api.post('/auth/profile/preferences', data)
+    // Use the same users profile PATCH endpoint for preferences to keep a single canonical update path
+    const res = await api.patch('/users/profile', data)
     return res.data
 }
