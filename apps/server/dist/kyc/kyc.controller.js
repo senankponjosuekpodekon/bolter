@@ -36,7 +36,7 @@ let KycController = class KycController {
     }
     async uploadFile(req, file, documentType) {
         const userId = req.user?.id ?? 'unknown';
-        const { path, url } = await this.kycStorageService.uploadDocument(userId, documentType, file.originalname, file.buffer, file.mimetype);
+        const { path } = await this.kycStorageService.uploadDocument(userId, documentType, file.originalname, file.buffer, file.mimetype);
         return this.kycService.uploadDocument(userId, {
             documentType,
             filePath: path,

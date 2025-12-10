@@ -93,7 +93,7 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
     color,
   }: {
     action: string;
-    icon: any;
+    icon: React.ComponentType<{ className?: string }>;
     label: string;
     color: string;
   }) => (

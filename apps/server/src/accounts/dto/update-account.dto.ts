@@ -1,7 +1,7 @@
-import { IsIn, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
+import { IsIn, IsNumber, IsOptional, IsString, Matches, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
-import { ACCOUNT_TYPES, AccountType } from './create-account.dto';
+import { ACCOUNT_TYPES, AccountType, CURRENCIES, Currency } from './create-account.dto';
 
 export const ACCOUNT_STATUSES = ['ACTIVE', 'FROZEN', 'CLOSED'] as const;
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
@@ -39,4 +39,16 @@ export class UpdateAccountDto {
   })
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Balance must be a numeric value' })
   balance?: number;
+
+  @ApiPropertyOptional({ enum: CURRENCIES, description: 'Account currency' })
+  @IsOptional()
+  @IsIn(CURRENCIES, { message: 'Currency must be EUR, USD, or GBP' })
+  currency?: Currency;
+
+  @ApiPropertyOptional({ description: 'Account spending limit', minimum: 100, maximum: 100000 })
+  @IsOptional()
+  @IsNumber()
+  @Min(100, { message: 'Limit must be at least 100' })
+  @Max(100000, { message: 'Limit cannot exceed 100000' })
+  limit?: number;
 }

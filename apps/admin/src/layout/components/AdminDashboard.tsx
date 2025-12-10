@@ -7,7 +7,6 @@ import {
   Grid,
   Box,
   LinearProgress,
-  Chip,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -90,33 +89,39 @@ const StatCard = ({
 export const AdminDashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   const { data: users = [] } = useGetList("users");
   const { data: transactions = [] } = useGetList("transactions");
   const { data: kyc = [] } = useGetList("kyc_documents");
-  const { data: auditLogs = [] } = useGetList("audit_logs");
 
   // Calculate statistics
   const stats = useMemo(() => {
     const totalUsers = users.length;
-    const activeUsers = users.filter((u: any) => u.is_active !== false).length;
-    const pendingKyc = kyc.filter((d: any) => d.status === "PENDING").length;
-    const approvedKyc = kyc.filter((d: any) => d.status === "APPROVED").length;
-    const rejectedKyc = kyc.filter((d: any) => d.status === "REJECTED").length;
+    const activeUsers = users.filter(
+      (u: { is_active?: boolean }) => u.is_active !== false
+    ).length;
+    const pendingKyc = kyc.filter(
+      (d: { status?: string }) => d.status === "PENDING"
+    ).length;
+    const approvedKyc = kyc.filter(
+      (d: { status?: string }) => d.status === "APPROVED"
+    ).length;
+    const rejectedKyc = kyc.filter(
+      (d: { status?: string }) => d.status === "REJECTED"
+    ).length;
     const kycApprovalRate =
       kyc.length > 0
         ? Math.round((approvedKyc / (approvedKyc + rejectedKyc)) * 100) || 0
         : 0;
 
     const pendingTransactions = transactions.filter(
-      (t: any) => t.status === "PENDING"
+      (t: { status?: string }) => t.status === "PENDING"
     ).length;
     const completedTransactions = transactions.filter(
-      (t: any) => t.status === "COMPLETED"
+      (t: { status?: string }) => t.status === "COMPLETED"
     ).length;
     const failedTransactions = transactions.filter(
-      (t: any) => t.status === "FAILED"
+      (t: { status?: string }) => t.status === "FAILED"
     ).length;
     const transactionSuccessRate =
       transactions.length > 0
@@ -130,22 +135,25 @@ export const AdminDashboard = () => {
     const last30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const vol24h = transactions.filter(
-      (t: any) => new Date(t.created_at) > last24h
+      (t: { created_at?: string }) => new Date(t.created_at || 0) > last24h
     ).length;
     const vol7d = transactions.filter(
-      (t: any) => new Date(t.created_at) > last7d
+      (t: { created_at?: string }) => new Date(t.created_at || 0) > last7d
     ).length;
     const vol30d = transactions.filter(
-      (t: any) => new Date(t.created_at) > last30d
+      (t: { created_at?: string }) => new Date(t.created_at || 0) > last30d
     ).length;
 
     // Estimate fraud risk (simplified)
-    const overduePendingKyc = kyc.filter((d: any) => {
-      if (d.status !== "PENDING") return false;
-      const createdAt = new Date(d.created_at);
-      const hoursOld = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
-      return hoursOld > 48;
-    }).length;
+    const overduePendingKyc = kyc.filter(
+      (d: { status?: string; created_at?: string }) => {
+        if (d.status !== "PENDING") return false;
+        const createdAt = new Date(d.created_at || 0);
+        const hoursOld =
+          (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+        return hoursOld > 48;
+      }
+    ).length;
 
     const riskScore = Math.min(
       100,

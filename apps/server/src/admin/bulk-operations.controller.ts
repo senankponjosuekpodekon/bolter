@@ -106,8 +106,7 @@ export class BulkOperationsController {
 
     @Get('stats')
     @ApiOperation({ summary: 'Get bulk operation statistics' })
-    async getStats(@Req() req: Request & { user?: { id?: string } }) {
-        const userId = req.user?.id ?? 'unknown';
-        return this.bulkOperationsService.getBulkOperationStats(userId);
+    async getStats() {
+        return this.bulkOperationsService.getBulkOperationStats();
     }
 }

@@ -55,4 +55,18 @@ __decorate([
     (0, class_validator_1.IsNumber)({ allowNaN: false, allowInfinity: false }, { message: 'Balance must be a numeric value' }),
     __metadata("design:type", Number)
 ], UpdateAccountDto.prototype, "balance", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: create_account_dto_1.CURRENCIES, description: 'Account currency' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(create_account_dto_1.CURRENCIES, { message: 'Currency must be EUR, USD, or GBP' }),
+    __metadata("design:type", String)
+], UpdateAccountDto.prototype, "currency", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Account spending limit', minimum: 100, maximum: 100000 }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(100, { message: 'Limit must be at least 100' }),
+    (0, class_validator_1.Max)(100000, { message: 'Limit cannot exceed 100000' }),
+    __metadata("design:type", Number)
+], UpdateAccountDto.prototype, "limit", void 0);
 //# sourceMappingURL=update-account.dto.js.map

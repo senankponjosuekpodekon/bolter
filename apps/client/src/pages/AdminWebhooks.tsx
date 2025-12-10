@@ -54,6 +54,7 @@ export const AdminWebhooks: React.FC = () => {
       const response = await webhookService.getUserWebhooks();
       setWebhooks(response.webhooks);
     } catch (error) {
+      console.error("Failed to load webhooks", error);
       toast.error("Failed to load webhooks");
     } finally {
       setLoading(false);
@@ -65,6 +66,7 @@ export const AdminWebhooks: React.FC = () => {
       const response = await webhookService.getWebhookDeliveries(webhookId);
       setDeliveries(response.deliveries);
     } catch (error) {
+      console.error("Failed to load deliveries", error);
       toast.error("Failed to load deliveries");
     }
   };
@@ -83,6 +85,7 @@ export const AdminWebhooks: React.FC = () => {
       setFormEvents([]);
       loadWebhooks();
     } catch (error) {
+      console.error("Failed to create webhook", error);
       toast.error("Failed to create webhook");
     }
   };
@@ -93,6 +96,7 @@ export const AdminWebhooks: React.FC = () => {
       toast.success(isActive ? "Webhook disabled" : "Webhook enabled");
       loadWebhooks();
     } catch (error) {
+      console.error("Failed to update webhook", error);
       toast.error("Failed to update webhook");
     }
   };
@@ -110,6 +114,7 @@ export const AdminWebhooks: React.FC = () => {
         setSelectedWebhook(null);
       }
     } catch (error) {
+      console.error("Failed to delete webhook", error);
       toast.error("Failed to delete webhook");
     }
   };
@@ -122,6 +127,7 @@ export const AdminWebhooks: React.FC = () => {
         loadDeliveries(selectedWebhook);
       }
     } catch (error) {
+      console.error("Failed to retry delivery", error);
       toast.error("Failed to retry delivery");
     }
   };

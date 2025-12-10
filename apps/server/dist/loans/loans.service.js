@@ -361,6 +361,55 @@ let LoansService = LoansService_1 = class LoansService {
         }
         return data ?? [];
     }
+    async getLoanStatistics(loanId, currentUser) {
+        try {
+            const loan = await this.getLoanOrThrow(loanId);
+            if (loan.user_id !== currentUser.id && !['ADMIN', 'COMPLIANCE'].includes(currentUser.role)) {
+                throw new common_1.ForbiddenException('You are not allowed to view this loan');
+            }
+            const { data: repayments, error } = await this.supabase
+                .getAdminClient()
+                .from('loan_repayments')
+                .select('amount, penalty_fee, paid_at')
+                .eq('loan_id', loanId)
+                .order('paid_at', { ascending: true });
+            if (error) {
+                this.logSupabaseError('getLoanStatistics.selectRepayments', error, { loanId });
+                throw new common_1.BadRequestException(`Unable to fetch loan statistics: ${error.message}`);
+            }
+            const totalPaid = (repayments ?? []).reduce((sum, r) => sum + r.amount, 0);
+            const totalPenalties = (repayments ?? []).reduce((sum, r) => sum + (r.penalty_fee ?? 0), 0);
+            const totalCost = loan.total_cost ?? loan.amount;
+            const outstandingBalance = loan.outstanding_balance ?? totalCost;
+            const progressPercentage = totalCost > 0 ? Math.min(100, (totalPaid / totalCost) * 100) : 0;
+            const paymentsMade = repayments?.length ?? 0;
+            const expectedPayments = loan.duration_months ?? 0;
+            const onSchedule = loan.status !== loan_constants_1.LOAN_STATUSES.LATE_PAYMENT;
+            return {
+                loanId,
+                amount: loan.amount,
+                totalCost,
+                totalPaid,
+                totalPenalties,
+                outstandingBalance,
+                progressPercentage: Math.round(progressPercentage * 100) / 100,
+                paymentsMade,
+                expectedPayments,
+                monthlyPayment: loan.monthly_payment,
+                nextPaymentDue: loan.next_payment_due_at,
+                onSchedule,
+                status: loan.status,
+                repayments: repayments ?? [],
+            };
+        }
+        catch (error) {
+            if (error instanceof common_1.ForbiddenException || error instanceof common_1.NotFoundException || error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            this.logger.error(`Failed to calculate loan statistics: ${error.message}`, error.stack);
+            throw new common_1.BadRequestException('Unable to calculate loan statistics');
+        }
+    }
     calculateSimulation(amount, durationMonths, interestRate) {
         const monthlyRate = interestRate / 12;
         const payment = monthlyRate === 0
@@ -396,8 +445,8 @@ let LoansService = LoansService_1 = class LoansService {
         };
     }
     async ensureUserEligible(userId) {
-        const { data, error } = await this.supabase
-            .getAdminClient()
+        const client = this.supabase.getAdminClient();
+        const { data, error } = await client
             .from('users')
             .select('id, kyc_status, role')
             .eq('id', userId)
@@ -411,6 +460,20 @@ let LoansService = LoansService_1 = class LoansService {
         }
         if (data.kyc_status !== 'APPROVED') {
             throw new common_1.BadRequestException('KYC verification must be approved before requesting a loan');
+        }
+        const activeStatuses = [loan_constants_1.LOAN_STATUSES.PENDING_REVIEW, loan_constants_1.LOAN_STATUSES.APPROVED, loan_constants_1.LOAN_STATUSES.IN_PROGRESS, loan_constants_1.LOAN_STATUSES.LATE_PAYMENT];
+        const { data: activeLoans, error: loansError } = await client
+            .from('loans')
+            .select('id, status', { count: 'exact', head: false })
+            .eq('user_id', userId)
+            .in('status', activeStatuses);
+        if (loansError) {
+            this.logSupabaseError('ensureUserEligible.checkActiveLoans', loansError, { userId });
+            throw new common_1.BadRequestException(`Unable to verify loan eligibility: ${loansError.message}`);
+        }
+        const activeLoanCount = activeLoans?.length ?? 0;
+        if (activeLoanCount >= 3) {
+            throw new common_1.BadRequestException(`You have reached the maximum limit of 3 active loans. Please repay or wait for approval on existing loans before requesting a new one.`);
         }
         return data;
     }

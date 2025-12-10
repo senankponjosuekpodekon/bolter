@@ -16,6 +16,16 @@ interface KycFilter {
   search?: string;
 }
 
+interface KycResult {
+  id: string;
+  user_id: string;
+  document_type: string;
+  status: string;
+  submitted_at?: string;
+  reviewed_at?: string;
+  [key: string]: unknown;
+}
+
 /**
  * AdminKycFilter page - KYC filtering with advanced search
  */
@@ -24,7 +34,7 @@ const AdminKycFilter: React.FC = () => {
   const { date } = useFormatting();
 
   const [filters, setFilters] = useState<KycFilter>({});
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<KycResult[]>([]);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -52,7 +62,7 @@ const AdminKycFilter: React.FC = () => {
       };
 
       const response = await FilterService.filterKyc(params);
-      setResults(response.results || []);
+      setResults((response.results as KycResult[]) || []);
       setTotal(response.total || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch results");
@@ -100,23 +110,23 @@ const AdminKycFilter: React.FC = () => {
     {
       key: "id",
       label: t("kyc.id", "ID"),
-      render: (value: string) => value.substring(0, 8) + "...",
+      render: (value: unknown) => String(value).substring(0, 8) + "...",
     },
     {
       key: "user_id",
       label: t("kyc.userId", "User ID"),
-      render: (value: string) => value.substring(0, 8) + "...",
+      render: (value: unknown) => String(value).substring(0, 8) + "...",
     },
     {
       key: "document_type",
       label: t("kyc.documentType", "Document Type"),
-      render: (value: string) =>
-        t(`kyc.documentTypes.${value.toLowerCase()}`, value),
+      render: (value: unknown) =>
+        t(`kyc.documentTypes.${String(value).toLowerCase()}`, String(value)),
     },
     {
       key: "status",
       label: t("kyc.status", "Status"),
-      render: (value: string) => (
+      render: (value: unknown) => (
         <span
           className={`inline-block px-2 py-1 rounded text-xs font-medium ${
             value === "APPROVED"
@@ -128,21 +138,21 @@ const AdminKycFilter: React.FC = () => {
                   : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
           }`}
         >
-          {t(`kyc.status.${value.toLowerCase()}`, value)}
+          {t(`kyc.status.${String(value).toLowerCase()}`, String(value))}
         </span>
       ),
     },
     {
       key: "submitted_at",
       label: t("common.submitted", "Submitted"),
-      render: (value: string) =>
-        value ? date.format(new Date(value), "short") : "-",
+      render: (value: unknown) =>
+        value ? date.format(new Date(String(value)), "short") : "-",
     },
     {
       key: "reviewed_at",
       label: t("common.reviewed", "Reviewed"),
-      render: (value: string) =>
-        value ? date.format(new Date(value), "short") : "-",
+      render: (value: unknown) =>
+        value ? date.format(new Date(String(value)), "short") : "-",
     },
   ];
 

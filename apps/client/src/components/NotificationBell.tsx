@@ -1,7 +1,8 @@
-import { useMemo, useState, type MouseEvent } from "react";
+import { useMemo, useState, useEffect, type MouseEvent } from "react";
 import { useNotifications } from "../lib/notifications";
 
 const MAX_PREVIEW = 8;
+const AUTO_CLOSE_DELAY = 10000; // 10 seconds
 
 const formatRelative = (iso: string): string => {
   const value = new Date(iso).getTime();
@@ -31,6 +32,17 @@ export const NotificationBell = () => {
   const { notifications, unreadCount, markAllAsRead, markAsRead, clear } =
     useNotifications();
   const [open, setOpen] = useState(false);
+
+  // Auto-close after delay
+  useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        setOpen(false);
+      }, AUTO_CLOSE_DELAY);
+
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   const recent = useMemo(
     () => notifications.slice(0, MAX_PREVIEW),

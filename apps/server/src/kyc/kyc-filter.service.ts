@@ -6,7 +6,7 @@ import { KycFilterDto, KycFilterResult } from './dto/kyc-filter.dto';
 export class KycFilterService {
   constructor(private readonly supabase: SupabaseService) { }
 
-  async filter(dto: KycFilterDto): Promise<KycFilterResult<any>> {
+  async filter(dto: KycFilterDto): Promise<KycFilterResult<Record<string, unknown>>> {
     const admin = this.supabase.getAdminClient();
     let query = admin.from('kyc_documents').select('*', { count: 'exact' });
 
@@ -19,7 +19,7 @@ export class KycFilterService {
     if (dto.status) {
       const statuses = dto.status.split(',').map((s) => s.trim()).filter(Boolean);
       if (statuses.length > 0) {
-        query = query.in('status', statuses as any);
+        query = query.in('status', statuses as string[]);
       }
     }
     if (dto.documentType) {

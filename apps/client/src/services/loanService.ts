@@ -89,6 +89,27 @@ export interface LoanRepaymentPayload {
   reference?: string
 }
 
+export interface LoanStatistics {
+  loanId: string
+  amount: number
+  totalCost: number
+  totalPaid: number
+  totalPenalties: number
+  outstandingBalance: number
+  progressPercentage: number
+  paymentsMade: number
+  expectedPayments: number
+  monthlyPayment: number | null
+  nextPaymentDue: string | null
+  onSchedule: boolean
+  status: string
+  repayments: Array<{
+    amount: number
+    penalty_fee: number | null
+    paid_at: string
+  }>
+}
+
 const camelCaseLoan = (loan: Record<string, unknown>): Loan => ({
   id: loan.id as string,
   userId: loan.user_id as string,
@@ -159,5 +180,30 @@ export const recordLoanRepayment = async (loanId: string, payload: LoanRepayment
   return {
     loan: camelCaseLoan(data.loan),
     repayment: camelCaseRepayment(data.repayment),
+  }
+}
+
+export const fetchLoanStatistics = async (loanId: string): Promise<LoanStatistics> => {
+  try {
+    const { data } = await api.get(`/loans/${loanId}/statistics`)
+    return {
+      loanId: data.loanId,
+      amount: data.amount,
+      totalCost: data.totalCost,
+      totalPaid: data.totalPaid,
+      totalPenalties: data.totalPenalties,
+      outstandingBalance: data.outstandingBalance,
+      progressPercentage: data.progressPercentage,
+      paymentsMade: data.paymentsMade,
+      expectedPayments: data.expectedPayments,
+      monthlyPayment: data.monthlyPayment,
+      nextPaymentDue: data.nextPaymentDue,
+      onSchedule: data.onSchedule,
+      status: data.status,
+      repayments: data.repayments,
+    }
+  } catch (error) {
+    console.error('Failed to fetch loan statistics:', error)
+    throw error
   }
 }

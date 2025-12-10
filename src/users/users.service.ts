@@ -64,7 +64,7 @@ export class UsersService {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
-    const { password, email, firstName, lastName, language, notificationsEnabled, ...userData } = updateData;
+    const { password, email, firstName, lastName, language, notificationsEnabled, theme, currency, timezone, locale, widgets, ...userData } = updateData;
     const hashedPassword = password ? await this.hashPassword(password) : undefined;
 
     const updatePayload: any = {};
@@ -75,6 +75,11 @@ export class UsersService {
     if (typeof notificationsEnabled === 'boolean') updatePayload.notifications_enabled = notificationsEnabled;
     if (hashedPassword) updatePayload.password_hash = hashedPassword;
     if (userData.role) updatePayload.role = userData.role;
+    if (theme) updatePayload.theme = theme;
+    if (currency) updatePayload.currency = currency;
+    if (timezone) updatePayload.timezone = timezone;
+    if (locale) updatePayload.locale = locale;
+    if (widgets) updatePayload.widgets = widgets;
 
     const { data, error } = await this.supabase.getAdminClient().from('users').update(updatePayload).eq('id', id).select().single();
     if (error) throw new BadRequestException(`Failed to update user: ${error.message}`);
@@ -184,6 +189,13 @@ export class UsersService {
       twoFactorEnabled: user.two_factor_enabled,
       createdAt: user.created_at,
       updatedAt: user.updated_at,
+      locale: user.locale,
+      currency: user.currency,
+      timezone: user.timezone,
+      theme: user.theme,
+      widgets: user.widgets,
+      phone: user.phone,
+      address: user.address,
     } as any;
 
     if (includeSecrets) {

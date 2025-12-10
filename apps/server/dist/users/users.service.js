@@ -257,7 +257,7 @@ let UsersService = UsersService_1 = class UsersService {
             if (error)
                 throw new common_1.BadRequestException(`Failed to set 2FA secret: ${error.message}`);
         }
-        catch (err) {
+        catch (_err) {
             const { error } = await this.supabase.getAdminClient()
                 .from('users')
                 .update({ two_factor_secret: secret })

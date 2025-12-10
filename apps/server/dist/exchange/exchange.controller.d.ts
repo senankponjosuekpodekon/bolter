@@ -12,5 +12,12 @@ export declare class ExchangeController {
         to: string;
         rate: number;
     }>;
-    convertQuery(amountStr: string, from?: string, to?: string): Promise<any>;
+    convertQuery(amountStr: string, from?: string, to?: string): Promise<{
+        amount: number;
+        originalAmount: number;
+        rate: number;
+        from: string;
+        to: string;
+        timestamp: string;
+    }>;
 }

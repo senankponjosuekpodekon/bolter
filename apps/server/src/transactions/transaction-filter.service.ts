@@ -6,7 +6,7 @@ import { TransactionFilterDto, FilterResultDto } from './dto/transaction-filter.
 export class TransactionFilterService {
   constructor(private readonly supabase: SupabaseService) { }
 
-  async filter(dto: TransactionFilterDto): Promise<FilterResultDto<any>> {
+  async filter(dto: TransactionFilterDto): Promise<FilterResultDto<Record<string, unknown>>> {
     const admin = this.supabase.getAdminClient();
     let query = admin.from('transactions').select('*', { count: 'exact' });
 
@@ -25,7 +25,7 @@ export class TransactionFilterService {
     if (dto.status) {
       const statuses = dto.status.split(',').map((s) => s.trim()).filter(Boolean);
       if (statuses.length > 0) {
-        query = query.in('status', statuses as any);
+        query = query.in('status', statuses as string[]);
       }
     }
     if (dto.type) {

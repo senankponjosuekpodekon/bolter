@@ -4,6 +4,7 @@ import { AccountsService } from '../accounts/accounts.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateDepositDto, PaymentMethod } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
+import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { ValidateTransactionDto } from './dto/validate-transaction.dto';
 import { AdminCreateTransactionDto } from './dto/admin-create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
@@ -210,6 +211,111 @@ export class TransactionsService {
       type: 'WITHDRAWAL',
       currency: data.currency,
       description,
+    });
+
+    return data;
+  }
+
+  async createCardTransaction(userId: string, dto: CreateCardTransactionDto) {
+    // Verify card exists
+    const card = await this.supabase
+      .getAdminClient()
+      .from('cards')
+      .select('*, accounts(id, user_id, balance, currency)')
+      .eq('id', dto.cardId)
+      .single();
+
+    if (card.error || !card.data) {
+      throw new NotFoundException('Card not found');
+    }
+
+    const cardData = card.data as { 
+      status: string;
+      card_number: string;
+      accounts: { 
+        id: string;
+        user_id: string;
+        balance: string | number;
+        currency: string;
+      } & Record<string, unknown>;
+    } & Record<string, unknown>;
+    const account = cardData.accounts;
+
+    // Verify ownership
+    if (account.user_id !== userId) {
+      throw new ForbiddenException('Card does not belong to your account');
+    }
+
+    // Verify card is active
+    if (cardData.status !== 'ACTIVE') {
+      throw new BadRequestException(`Cannot use a ${cardData.status} card`);
+    }
+
+    const amount = Number(dto.amount);
+    const currentBalance = Number(account.balance || 0);
+
+    // Verify sufficient balance
+    if (currentBalance < amount) {
+      throw new BadRequestException('Insufficient balance for this transaction');
+    }
+
+    // Create transaction record with card reference
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('transactions')
+      .insert({
+        account_id: account.id,
+        user_id: userId,
+        type: 'CARD_PAYMENT',
+        amount,
+        balance: currentBalance - amount,
+        currency: String(account.currency || 'EUR'),
+        description: dto.description || `Card payment - ${dto.merchant}`,
+        card_id: dto.cardId,
+        card_number: cardData.card_number,
+        merchant: dto.merchant,
+        category: dto.category,
+        status: 'COMPLETED',
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      this.logger.error(`Error creating card transaction: ${error.message}`);
+      throw new BadRequestException('Failed to create card transaction');
+    }
+
+    // Update account balance
+    const updateResult = await this.supabase
+      .getAdminClient()
+      .from('accounts')
+      .update({ balance: currentBalance - amount })
+      .eq('id', account.id);
+
+    if (updateResult.error) {
+      this.logger.error(`Error updating account balance: ${updateResult.error.message}`);
+      throw new BadRequestException('Failed to update account balance');
+    }
+
+    // Log audit entry
+    await this.logTransactionAction(userId, userId, 'TRANSACTION_INITIATED', data.id, {
+      type: 'CARD_PAYMENT',
+      amount,
+      cardId: dto.cardId,
+      cardNumber: cardData.card_number,
+      merchant: dto.merchant,
+      category: dto.category,
+    });
+
+    // Send notification
+    await this.notificationsService.notifyTransactionCreated({
+      transactionId: data.id,
+      userId,
+      amount,
+      type: 'CARD_PAYMENT',
+      currency: String(account.currency || 'EUR'),
+      description: `Card payment at ${dto.merchant}`,
     });
 
     return data;

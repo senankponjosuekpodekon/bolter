@@ -59,7 +59,7 @@ let ExchangeController = class ExchangeController {
                 rate: result.rate,
                 from: result.from,
                 to: result.to,
-                timestamp: result.timestamp,
+                timestamp: result.timestamp instanceof Date ? result.timestamp.toISOString() : String(result.timestamp),
             };
         }
         catch (error) {

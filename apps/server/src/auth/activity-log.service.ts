@@ -6,7 +6,7 @@ export interface ActivityLogEntry {
     action: string;
     resourceId?: string;
     resourceType?: string;
-    changes?: Record<string, any>;
+    changes?: Record<string, unknown>;
     ipAddress?: string;
     userAgent?: string;
 }

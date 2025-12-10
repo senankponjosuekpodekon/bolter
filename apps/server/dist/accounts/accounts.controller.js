@@ -42,6 +42,9 @@ let AccountsController = class AccountsController {
     createAccount(req, createAccountDto) {
         return this.accountsService.create(req.user.id, createAccountDto);
     }
+    createAccountAsAdmin(req, userId, createAccountDto) {
+        return this.accountsService.create(userId, createAccountDto, true);
+    }
     updateAccount(req, id, updateAccountDto) {
         return this.accountsService.update(req.user.id, id, updateAccountDto);
     }
@@ -87,6 +90,18 @@ __decorate([
     __metadata("design:paramtypes", [Object, create_account_dto_1.CreateAccountDto]),
     __metadata("design:returntype", void 0)
 ], AccountsController.prototype, "createAccount", null);
+__decorate([
+    (0, common_1.Post)('admin/:userId'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create account for a user (Admin - bypasses limits)' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Account successfully created' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('userId')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, create_account_dto_1.CreateAccountDto]),
+    __metadata("design:returntype", void 0)
+], AccountsController.prototype, "createAccountAsAdmin", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, roles_decorator_1.Roles)('ADMIN'),

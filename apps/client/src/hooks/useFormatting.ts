@@ -29,6 +29,9 @@ interface FormattingOptions {
     locale?: string
 }
 
+type SupportedCurrency = Parameters<typeof formatCurrency>[1]
+type FormatterType = 'currency' | 'date' | 'number' | 'percent'
+
 export function useFormatting(options: FormattingOptions = {}) {
     const { locale = 'en-US' } = options
 
@@ -36,8 +39,9 @@ export function useFormatting(options: FormattingOptions = {}) {
     const currency = useMemo(
         () => ({
             format: (amount: number, curr: string = 'USD', useSymbol = true) =>
-                formatCurrency(amount, curr as any, locale, { useSymbol }),
-            formatISO: (amount: number, curr: string = 'USD') => formatCurrencyISO(amount, curr as any, locale),
+                formatCurrency(amount, curr as SupportedCurrency, locale, { useSymbol }),
+            formatISO: (amount: number, curr: string = 'USD') =>
+                formatCurrencyISO(amount, curr as SupportedCurrency, locale),
             parse: parseCurrency,
         }),
         [locale]
@@ -90,8 +94,8 @@ export function useFormatting(options: FormattingOptions = {}) {
 
     // Get formatter by type
     const getFormatter = useCallback(
-        (type: 'currency' | 'date' | 'number' | 'percent') => {
-            const formatters: Record<string, any> = {
+        (type: FormatterType) => {
+            const formatters: Record<FormatterType, unknown> = {
                 currency,
                 date,
                 number,

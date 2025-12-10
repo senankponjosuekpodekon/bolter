@@ -72,6 +72,29 @@ export declare class LoansService {
         id: string;
         role: string;
     }): Promise<any[]>;
+    getLoanStatistics(loanId: string, currentUser: {
+        id: string;
+        role: string;
+    }): Promise<{
+        loanId: string;
+        amount: number;
+        totalCost: number;
+        totalPaid: any;
+        totalPenalties: any;
+        outstandingBalance: number;
+        progressPercentage: number;
+        paymentsMade: number;
+        expectedPayments: number;
+        monthlyPayment: number;
+        nextPaymentDue: string;
+        onSchedule: boolean;
+        status: LoanStatus;
+        repayments: {
+            amount: any;
+            penalty_fee: any;
+            paid_at: any;
+        }[];
+    }>;
     calculateSimulation(amount: number, durationMonths: number, interestRate: number): LoanSimulationResult;
     private ensureUserEligible;
     private sanitizeDocuments;

@@ -31,7 +31,7 @@ export const AuditExportPanel: React.FC = () => {
   const notify = useNotify();
   const [filters, setFilters] = useState<AuditExportFilter>({});
   const [exporting, setExporting] = useState(false);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<Record<string, unknown> | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
 
   const handleFilterChange = (key: keyof AuditExportFilter, value: string) => {

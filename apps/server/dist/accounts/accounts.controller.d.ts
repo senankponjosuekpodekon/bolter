@@ -12,6 +12,7 @@ export declare class AccountsController {
     getAccount(id: string): Promise<import("./accounts.service").Account>;
     getBalance(id: string): Promise<number>;
     createAccount(req: any, createAccountDto: CreateAccountDto): Promise<import("./accounts.service").Account>;
+    createAccountAsAdmin(req: any, userId: string, createAccountDto: CreateAccountDto): Promise<import("./accounts.service").Account>;
     updateAccount(req: any, id: string, updateAccountDto: UpdateAccountDto): Promise<import("./accounts.service").Account>;
     private ensureAdminRole;
 }

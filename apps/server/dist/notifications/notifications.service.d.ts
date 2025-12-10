@@ -23,6 +23,7 @@ export declare class NotificationsService {
     private readonly config;
     constructor(emailService: EmailService, gateway: NotificationsGateway, supabase: SupabaseService, logger: Logger, config: ConfigService);
     notifyAccountCreated(userId: string, accountNumber: string): Promise<void>;
+    notifyCardCreated(userId: string, cardNumber: string, cardType: string): Promise<void>;
     notifyTransactionCreated(options: {
         transactionId: string;
         userId: string;

@@ -9,7 +9,7 @@ export declare class KycStorageService {
         url: string;
     }>;
     getDocumentUrl(filePath: string, expiresIn?: number): Promise<string>;
-    deleteDocument(filePath: string): Promise<void>;
+    deleteDocument(_filePath: string): Promise<void>;
     downloadDocument(filePath: string): Promise<Buffer>;
     fileExists(filePath: string): Promise<boolean>;
 }

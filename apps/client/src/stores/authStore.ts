@@ -15,6 +15,7 @@ interface User {
 
   status?: string
   kyc_status?: string
+  two_factor_enabled?: boolean
   preferences?: Preferences
 }
 
@@ -25,6 +26,8 @@ interface Preferences {
   widgets?: string[]
   alertThreshold?: number
   emailAlerts?: boolean
+  currency?: string
+  timezone?: string
 }
 
 interface AuthState {

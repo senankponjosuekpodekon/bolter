@@ -5,6 +5,8 @@ export interface Account {
     account_number: string;
     account_type: AccountType;
     balance: number;
+    currency?: string;
+    limit?: number;
     status: string;
     created_at?: string;
     user?: {
@@ -34,7 +36,7 @@ export declare class AccountsService {
         total: number;
     }>;
     findByIds(ids: string[]): Promise<Account[]>;
-    create(userId: string, dto: CreateAccountDto): Promise<Account>;
+    create(userId: string, dto: CreateAccountDto, bypassLimits?: boolean): Promise<Account>;
     getBalance(accountId: string): Promise<number>;
     update(adminId: string, accountId: string, updateDto: UpdateAccountDto): Promise<Account>;
 }

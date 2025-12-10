@@ -73,12 +73,17 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 if (import.meta.env.DEV) {
   try {
     const OriginalURL = URL;
-    const URLWrapper: any = function (raw: string, base?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const URLWrapper: any = function (this: any, raw: string, base?: string) {
       try {
         return base === undefined
-          ? new (OriginalURL as any)(raw)
-          : new (OriginalURL as any)(raw, base);
-      } catch (err) {
+          ? new (OriginalURL as { new (raw: string): URL })(raw)
+          : new (OriginalURL as { new (raw: string, base: string): URL })(
+              raw,
+              base
+            );
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (_err) {
         try {
           console.warn(
             "Admin URL construction failed, attempting fallbacks — raw:",
@@ -86,16 +91,17 @@ if (import.meta.env.DEV) {
             "base:",
             base,
             "error:",
-            err
+            _err
           );
 
           if (base && typeof window !== "undefined" && window.location) {
             try {
-              return new (OriginalURL as any)(
-                raw,
-                base || window.location.origin
-              );
-            } catch {}
+              return new (OriginalURL as {
+                new (raw: string, base: string): URL;
+              })(raw, base || window.location.origin);
+            } catch {
+              // Fallback failed, continue to next attempt
+            }
           }
 
           let candidate = String(raw ?? "");
@@ -106,7 +112,7 @@ if (import.meta.env.DEV) {
           ) {
             candidate = `${window.location.protocol}//${window.location.hostname}${candidate}`;
           } else if (
-            /^[^\/]+:\d+$/.test(candidate) &&
+            /^[^/]+:\d+$/.test(candidate) &&
             typeof window !== "undefined" &&
             window.location
           ) {
@@ -120,11 +126,12 @@ if (import.meta.env.DEV) {
 
           if (typeof window !== "undefined" && window.location) {
             try {
-              return new (OriginalURL as any)(
-                candidate,
-                window.location.origin
-              );
-            } catch {}
+              return new (OriginalURL as {
+                new (raw: string, base: string): URL;
+              })(candidate, window.location.origin);
+            } catch {
+              // Fallback failed, continue to final fallback
+            }
           }
 
           const fallbackBase =
@@ -138,10 +145,10 @@ if (import.meta.env.DEV) {
             "base",
             base
           );
-          return new (OriginalURL as any)(fallbackBase);
+          return new (OriginalURL as { new (raw: string): URL })(fallbackBase);
         } catch (e) {
           console.error("Admin URL wrapper fallback failed unexpectedly", e);
-          throw err;
+          throw _err;
         }
       }
     };
@@ -149,10 +156,12 @@ if (import.meta.env.DEV) {
     URLWrapper.prototype = OriginalURL.prototype;
     Object.getOwnPropertyNames(OriginalURL).forEach((k) => {
       try {
-        // @ts-ignore assign static props
-        URLWrapper[k] = (OriginalURL as any)[k];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (URLWrapper as any)[k] = (OriginalURL as any)[k];
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
       } catch (_e) {}
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).URL = URLWrapper;
     // eslint-disable-next-line no-console
     console.info(
@@ -177,5 +186,7 @@ if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console
       console.error("Admin unhandled rejection captured (dev):", ev.reason);
     });
-  } catch {}
+  } catch {
+    // Event listener registration failed, continue anyway
+  }
 }

@@ -245,8 +245,10 @@ export class UsersService {
         .update({ two_factor_secret: secret, two_factor_enabled: true })
         .eq('id', userId);
       if (error) throw new BadRequestException(`Failed to set 2FA secret: ${error.message}`);
-    } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_err) {
       // If columns don't exist, try with simpler update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { error } = await this.supabase.getAdminClient()
         .from('users')
         .update({ two_factor_secret: secret })

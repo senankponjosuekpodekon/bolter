@@ -30,7 +30,7 @@ let KycStorageService = class KycStorageService {
         const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
         const filePath = `kyc/${userId}/${documentType}/${timestamp}-${sanitizedFileName}`;
         try {
-            const { data, error } = await this.supabase
+            const { data: _uploadData, error } = await this.supabase
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
                 .upload(filePath, fileBuffer, {
@@ -68,12 +68,12 @@ let KycStorageService = class KycStorageService {
             throw new common_1.BadRequestException(`Failed to generate document URL: ${err instanceof Error ? err.message : 'Unknown error'}`);
         }
     }
-    async deleteDocument(filePath) {
+    async deleteDocument(_filePath) {
         try {
             const { error } = await this.supabase
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
-                .remove([filePath]);
+                .remove([_filePath]);
             if (error) {
                 throw new common_1.BadRequestException(`Failed to delete document: ${error.message}`);
             }
@@ -88,8 +88,8 @@ let KycStorageService = class KycStorageService {
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
                 .download(filePath);
-            if (error) {
-                throw new common_1.BadRequestException(`Failed to download document: ${error.message}`);
+            if (error || !data) {
+                throw new common_1.BadRequestException(`Failed to download document: ${error?.message || 'No data returned'}`);
             }
             return Buffer.from(await data.arrayBuffer());
         }
@@ -99,7 +99,7 @@ let KycStorageService = class KycStorageService {
     }
     async fileExists(filePath) {
         try {
-            const { data, error } = await this.supabase
+            const { data: _listData, error } = await this.supabase
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
                 .list('kyc', { limit: 1 });

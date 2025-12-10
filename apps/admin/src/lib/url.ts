@@ -15,7 +15,7 @@ export const normalizeApiBase = (raw?: string): string => {
                 let candidate = value
                 if (value.startsWith(':')) {
                     candidate = `${window.location.protocol}//${window.location.hostname}${value}`
-                } else if (/^[^\/]+:\d+$/.test(value)) {
+                } else if (/^[^:]+:\d+$/.test(value)) {
                     candidate = `${window.location.protocol}//${value}`
                 } else if (value.startsWith('//')) {
                     candidate = `${window.location.protocol}${value}`

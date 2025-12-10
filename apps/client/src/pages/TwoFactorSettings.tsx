@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import api from "../services/api";
 
 export default function TwoFactorSettings() {
-  const [showSetup, setShowSetup] = useState(false);
+  const [showSetup, setShowSetup] = useState(true);
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("");
+  const [isEnabled, setIsEnabled] = useState(false);
 
   // Fetch user profile to check if 2FA is already enabled
   const { data: userProfile, isLoading: profileLoading } = useQuery({
@@ -17,8 +18,15 @@ export default function TwoFactorSettings() {
   const { data: setupData, isLoading: setupLoading } = useQuery({
     queryKey: ["2fa-setup"],
     queryFn: async () => (await api.get("/auth/2fa/setup")).data,
-    enabled: showSetup, // Only fetch when user clicks Setup button
+    enabled: showSetup,
   });
+
+  useEffect(() => {
+    if (userProfile?.two_factor_enabled === true) {
+      setIsEnabled(true);
+      setShowSetup(false);
+    }
+  }, [userProfile]);
 
   const enable2fa = useMutation({
     mutationFn: async () => {
@@ -27,14 +35,17 @@ export default function TwoFactorSettings() {
     onSuccess: () => {
       setMessage("2FA activée !");
       setShowSetup(false);
-      setToken("");
+      setIsEnabled(true);
       // Refetch user profile to update 2FA status
       setTimeout(() => window.location.reload(), 1500);
     },
-    onError: (err: any) => {
-      const status = err?.response?.status;
+    onError: (err: unknown) => {
+      const error = err as {
+        response?: { status?: number; headers?: Record<string, string> };
+      };
+      const status = error.response?.status;
       if (status === 429) {
-        const retryAfter = err?.response?.headers?.["retry-after"];
+        const retryAfter = error.response?.headers?.["retry-after"];
         setMessage(
           retryAfter
             ? `Trop de tentatives. Réessayez dans ${retryAfter} secondes.`
@@ -53,11 +64,13 @@ export default function TwoFactorSettings() {
     onSuccess: () => {
       setMessage("2FA désactivée.");
       setToken("");
+      setIsEnabled(false);
       // Refetch user profile to update 2FA status
       setTimeout(() => window.location.reload(), 1500);
     },
-    onError: (err: any) => {
-      const status = err?.response?.status;
+    onError: (err: unknown) => {
+      const error = err as { response?: { status?: number } };
+      const status = error.response?.status;
       if (status === 429) {
         setMessage("Trop de tentatives. Réessayez plus tard.");
       } else {
@@ -66,15 +79,7 @@ export default function TwoFactorSettings() {
     },
   });
 
-  if (profileLoading) {
-    return (
-      <div className="max-w-lg mx-auto p-6 bg-white rounded shadow">
-        <p className="text-gray-600">Chargement...</p>
-      </div>
-    );
-  }
-
-  const isTwoFactorEnabled = userProfile?.two_factor_enabled === true;
+  const isTwoFactorEnabled = isEnabled;
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded shadow">
@@ -82,12 +87,18 @@ export default function TwoFactorSettings() {
         Sécurité : Authentification à deux facteurs (2FA)
       </h1>
 
+      {profileLoading && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded">
+          <p className="text-sm text-gray-700">Chargement...</p>
+        </div>
+      )}
+
       {/* State 1: 2FA not enabled, no setup in progress */}
       {!showSetup && !isTwoFactorEnabled && (
         <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
           <p className="text-sm text-gray-700 mb-3">
-            2FA n'est pas encore configuré. Cliquez ci-dessous pour commencer la
-            configuration.
+            2FA n&apos;est pas encore configuré. Cliquez ci-dessous pour
+            commencer la configuration.
           </p>
           <button
             type="button"
@@ -141,7 +152,7 @@ export default function TwoFactorSettings() {
                   setToken(e.target.value.replace(/\D/g, "").slice(0, 6))
                 }
                 className="mt-1 block w-full border rounded p-2 text-center text-2xl tracking-widest"
-                placeholder="000000"
+                placeholder="123456"
                 maxLength={6}
               />
             </div>
@@ -201,7 +212,7 @@ export default function TwoFactorSettings() {
                   setToken(e.target.value.replace(/\D/g, "").slice(0, 6))
                 }
                 className="mt-1 block w-full border rounded p-2 text-center text-2xl tracking-widest"
-                placeholder="000000"
+                placeholder="123456"
                 maxLength={6}
               />
             </div>

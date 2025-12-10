@@ -1,5 +1,6 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -24,6 +25,7 @@ export default {
       },
       boxShadow: {
         mdsoft: "0 10px 30px rgba(2,6,23,0.06)",
+        mdsoft_dark: "0 10px 30px rgba(0,0,0,0.3)",
       },
     },
   },

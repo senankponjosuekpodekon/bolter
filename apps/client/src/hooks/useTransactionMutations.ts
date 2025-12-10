@@ -28,5 +28,14 @@ export function useTransactionMutations() {
         },
     })
 
-    return { createTransfer, createDeposit, createWithdraw }
+    const createCardTransaction = useMutation({
+        mutationFn: async (data: Record<string, unknown>) => (await api.post('/transactions/card', data)).data,
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['transactions'] })
+            qc.invalidateQueries({ queryKey: ['accounts'] })
+            qc.invalidateQueries({ queryKey: ['cards'] })
+        },
+    })
+
+    return { createTransfer, createDeposit, createWithdraw, createCardTransaction }
 }

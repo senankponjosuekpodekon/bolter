@@ -5,6 +5,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AccountsModule } from './accounts/accounts.module';
+import { CardsModule } from './cards/cards.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { KycModule } from './kyc/kyc.module';
 import { LoggerModule } from './common/logger/logger.module';
@@ -29,6 +30,7 @@ import configuration from './config/configuration';
     AuthModule,
     UsersModule,
     AccountsModule,
+    CardsModule,
     TransactionsModule,
     KycModule,
     AuditLogsModule,

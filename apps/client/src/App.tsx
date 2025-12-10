@@ -6,6 +6,8 @@ import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { ToastContainer } from "./components/ui/ToastContainer";
+import { I18nDebugPanel } from "./components/I18nDebugPanel";
+import { useTheme } from "./hooks/useTheme";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 import Accounts from "./pages/Accounts";
 import Transactions from "./pages/Transactions";
@@ -22,6 +24,9 @@ import { Notifications } from "./components/Notifications";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
+
+  // Apply theme based on user preferences
+  useTheme();
 
   return (
     <>
@@ -99,6 +104,7 @@ function App() {
       </Routes>
       <ToastContainer />
       <Notifications />
+      <I18nDebugPanel />
     </>
   );
 }

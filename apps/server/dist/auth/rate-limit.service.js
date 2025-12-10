@@ -31,7 +31,7 @@ let RateLimitService = RateLimitService_1 = class RateLimitService {
         }
         const now = new Date();
         const windowStart = new Date(now.getTime() - config.windowMs);
-        let entry = await this.getRateLimitEntry(userId, actionType, ipAddress);
+        const entry = await this.getRateLimitEntry(userId, actionType, ipAddress);
         if (!entry) {
             await this.createRateLimitEntry(userId, actionType, ipAddress);
             return { allowed: true, remainingAttempts: config.maxAttempts - 1, resetAt: new Date(now.getTime() + config.windowMs) };

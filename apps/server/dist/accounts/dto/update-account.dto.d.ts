@@ -1,4 +1,4 @@
-import { AccountType } from './create-account.dto';
+import { AccountType, Currency } from './create-account.dto';
 export declare const ACCOUNT_STATUSES: readonly ["ACTIVE", "FROZEN", "CLOSED"];
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
 export declare class UpdateAccountDto {
@@ -6,4 +6,6 @@ export declare class UpdateAccountDto {
     accountType?: AccountType;
     status?: AccountStatus;
     balance?: number;
+    currency?: Currency;
+    limit?: number;
 }

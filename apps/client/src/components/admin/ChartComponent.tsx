@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
+import type { ChartData, ChartOptions, ChartType, Chart } from "chart.js";
 import { Loader } from "lucide-react";
 
 interface ChartProps {
-  type: "line" | "bar" | "pie" | "doughnut";
-  data: any;
-  options?: any;
+  type: ChartType;
+  data: ChartData<ChartType>;
+  options?: ChartOptions<ChartType>;
   title?: string;
   loading?: boolean;
   error?: boolean;
@@ -25,7 +26,7 @@ export const ChartComponent: React.FC<ChartProps> = ({
   height = 300,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<any>(null);
+  const chartRef = useRef<Chart<ChartType> | null>(null);
 
   useEffect(() => {
     if (!canvasRef.current || loading || error || !data) return;

@@ -1,4 +1,4 @@
 export class UploadKycFileDto {
     documentType: 'ID_CARD' | 'PASSPORT' | 'SELFIE' | 'PROOF_ADDRESS';
-    file: any; // Express.Multer.File type
+    file: { originalname: string; buffer: Buffer; mimetype: string; size: number };
 }

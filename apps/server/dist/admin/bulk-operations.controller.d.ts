@@ -57,11 +57,7 @@ export declare class BulkOperationsController {
         failed: number;
         details: string[];
     }>;
-    getStats(req: Request & {
-        user?: {
-            id?: string;
-        };
-    }): Promise<{
+    getStats(): Promise<{
         pendingKyc: number;
         pendingTransactions: number;
         flaggedItems: number;

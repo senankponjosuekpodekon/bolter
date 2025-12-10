@@ -1,16 +1,19 @@
-import React, { ReactNode, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
+import { ReactNode, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
 
-interface FilteredResultsProps {
-  data: any[];
+type ColumnKey<T extends Record<string, unknown>> = Extract<keyof T, string>;
+
+interface TableColumn<T extends Record<string, unknown>> {
+  key: ColumnKey<T>;
+  label: string;
+  render?: (value: T[ColumnKey<T>], row: T) => ReactNode;
+  sortable?: boolean;
+}
+
+interface FilteredResultsProps<T extends Record<string, unknown>> {
+  data: T[];
   total: number;
-  columns: Array<{
-    key: string;
-    label: string;
-    render?: (value: any, row: any) => ReactNode;
-    sortable?: boolean;
-  }>;
+  columns: Array<TableColumn<T>>;
   currentPage: number;
   pageSize: number;
   onPageChange: (page: number) => void;
@@ -19,13 +22,13 @@ interface FilteredResultsProps {
   loading?: boolean;
   error?: string;
   emptyMessage?: string;
-  idField?: string;
+  idField?: ColumnKey<T>;
 }
 
 /**
  * FilteredResults component - Displays filtered results in table with pagination and optional selection
  */
-export const FilteredResults: React.FC<FilteredResultsProps> = ({
+export function FilteredResults<T extends Record<string, unknown>>({
   data,
   total,
   columns,
@@ -37,9 +40,8 @@ export const FilteredResults: React.FC<FilteredResultsProps> = ({
   loading = false,
   error,
   emptyMessage = "No results found",
-  idField = "id",
-}) => {
-  const { t: _t } = useTranslation();
+  idField = "id" as ColumnKey<T>,
+}: FilteredResultsProps<T>) {
   const totalPages = Math.ceil(total / pageSize);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -48,7 +50,9 @@ export const FilteredResults: React.FC<FilteredResultsProps> = ({
       setSelectedIds(new Set());
       onSelectionChange?.([]);
     } else {
-      const newSelected = new Set(data.map((row) => row[idField]));
+      const newSelected = new Set(
+        data.map((row) => String(row[idField] ?? ""))
+      );
       setSelectedIds(newSelected);
       onSelectionChange?.(Array.from(newSelected));
     }
@@ -135,7 +139,7 @@ export const FilteredResults: React.FC<FilteredResultsProps> = ({
               <tr
                 key={rowIndex}
                 className={`border-b border-gray-100 dark:border-gray-700 transition ${
-                  enableSelection && selectedIds.has(row[idField])
+                  enableSelection && selectedIds.has(String(row[idField] ?? ""))
                     ? "bg-blue-50 dark:bg-blue-900"
                     : "hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
@@ -144,8 +148,10 @@ export const FilteredResults: React.FC<FilteredResultsProps> = ({
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
-                      checked={selectedIds.has(row[idField])}
-                      onChange={() => handleSelectRow(row[idField])}
+                      checked={selectedIds.has(String(row[idField] ?? ""))}
+                      onChange={() =>
+                        handleSelectRow(String(row[idField] ?? ""))
+                      }
                       className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
                       aria-label={`Select row ${rowIndex + 1}`}
                     />
@@ -158,7 +164,7 @@ export const FilteredResults: React.FC<FilteredResultsProps> = ({
                   >
                     {column.render
                       ? column.render(row[column.key], row)
-                      : (row[column.key] ?? "-")}
+                      : String(row[column.key] ?? "-")}
                   </td>
                 ))}
               </tr>
@@ -207,6 +213,6 @@ export const FilteredResults: React.FC<FilteredResultsProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default FilteredResults;

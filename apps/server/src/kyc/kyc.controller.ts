@@ -45,13 +45,13 @@ export class KycController {
   @ApiOperation({ summary: 'Upload KYC document file' })
   async uploadFile(
     @Req() req: Request & { user?: { id?: string } },
-    @UploadedFile() file: any,
+    @UploadedFile() file: { originalname: string; buffer: Buffer; mimetype: string; size: number },
     @Body('documentType') documentType: string,
   ) {
     const userId = req.user?.id ?? 'unknown';
 
     // Upload to storage and get path/url
-    const { path, url } = await this.kycStorageService.uploadDocument(
+    const { path } = await this.kycStorageService.uploadDocument(
       userId,
       documentType,
       file.originalname,

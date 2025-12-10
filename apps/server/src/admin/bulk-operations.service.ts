@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ActivityLogService } from '../auth/activity-log.service';
 
@@ -288,7 +288,7 @@ export class BulkOperationsService {
     /**
      * Get bulk operation statistics
      */
-    async getBulkOperationStats(userId: string): Promise<{
+    async getBulkOperationStats(): Promise<{
         pendingKyc: number;
         pendingTransactions: number;
         flaggedItems: number;
@@ -319,7 +319,8 @@ export class BulkOperationsService {
                 flaggedItems: flaggedResult.count || 0,
                 recentBulkActions: 0, // Can be tracked separately if needed
             };
-        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (_err) {
             return {
                 pendingKyc: 0,
                 pendingTransactions: 0,

@@ -152,7 +152,7 @@ let AuditExportService = class AuditExportService {
       <h3>Filters Applied:</h3>
       <p>
         ${Object.entries(filters)
-                .filter(([_, v]) => v)
+                .filter(([_k, v]) => v)
                 .map(([k, v]) => `<strong>${k}:</strong> ${v}`)
                 .join('<br>')}
       </p>

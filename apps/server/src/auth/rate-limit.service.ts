@@ -46,7 +46,7 @@ export class RateLimitService {
     const windowStart = new Date(now.getTime() - config.windowMs);
 
     // Get or create rate limit entry
-    let entry = await this.getRateLimitEntry(userId, actionType, ipAddress);
+    const entry = await this.getRateLimitEntry(userId, actionType, ipAddress);
 
     if (!entry) {
       // First attempt - create entry

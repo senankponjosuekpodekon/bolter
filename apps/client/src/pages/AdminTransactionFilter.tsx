@@ -19,6 +19,17 @@ interface TransactionFilter {
   search?: string;
 }
 
+interface TransactionResult {
+  id: string;
+  from_user_id: string;
+  to_user_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  created_at: string;
+  [key: string]: unknown;
+}
+
 /**
  * AdminTransactionFilter page - Transaction filtering with advanced search
  */
@@ -27,7 +38,7 @@ const AdminTransactionFilter: React.FC = () => {
   const { currency, date } = useFormatting();
 
   const [filters, setFilters] = useState<TransactionFilter>({});
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<TransactionResult[]>([]);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -55,7 +66,7 @@ const AdminTransactionFilter: React.FC = () => {
       };
 
       const response = await FilterService.filterTransactions(params);
-      setResults(response.results || []);
+      setResults((response.results as TransactionResult[]) || []);
       setTotal(response.total || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch results");
@@ -103,23 +114,23 @@ const AdminTransactionFilter: React.FC = () => {
     {
       key: "id",
       label: t("transactions.id", "ID"),
-      render: (value: string) => value.substring(0, 8) + "...",
+      render: (value: unknown) => String(value).substring(0, 8) + "...",
     },
     {
       key: "from_user_id",
       label: t("transactions.from", "From"),
-      render: (value: string) => value.substring(0, 8) + "...",
+      render: (value: unknown) => String(value).substring(0, 8) + "...",
     },
     {
       key: "to_user_id",
       label: t("transactions.to", "To"),
-      render: (value: string) => value.substring(0, 8) + "...",
+      render: (value: unknown) => String(value).substring(0, 8) + "...",
     },
     {
       key: "amount",
       label: t("transactions.amount", "Amount"),
-      render: (value: number, row: any) =>
-        currency.format(value, row.currency || "USD"),
+      render: (value: unknown, row: TransactionResult) =>
+        currency.format(Number(value), row.currency || "USD"),
     },
     {
       key: "currency",
@@ -128,7 +139,7 @@ const AdminTransactionFilter: React.FC = () => {
     {
       key: "status",
       label: t("transactions.status", "Status"),
-      render: (value: string) => (
+      render: (value: unknown) => (
         <span
           className={`inline-block px-2 py-1 rounded text-xs font-medium ${
             value === "COMPLETED"
@@ -138,14 +149,17 @@ const AdminTransactionFilter: React.FC = () => {
                 : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
           }`}
         >
-          {t(`transactions.status.${value.toLowerCase()}`, value)}
+          {t(
+            `transactions.status.${String(value).toLowerCase()}`,
+            String(value)
+          )}
         </span>
       ),
     },
     {
       key: "created_at",
       label: t("common.date", "Date"),
-      render: (value: string) => date.format(new Date(value), "short"),
+      render: (value: unknown) => date.format(new Date(String(value)), "short"),
     },
   ];
 

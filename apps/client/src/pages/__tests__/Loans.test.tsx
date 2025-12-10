@@ -30,10 +30,11 @@ describe("Loans page", () => {
     );
 
     // The component disables submission when KYC isn't APPROVED — assert button is disabled
-    const submit = await screen.findByRole("button", {
+    // Use getAllByRole to get all buttons with that name, then pick the first one (the CTA)
+    const buttons = await screen.findAllByRole("button", {
       name: /Submit loan request/i,
     });
-    expect(submit).toBeDisabled();
+    expect(buttons[0]).toBeDisabled();
   });
 
   // NOTE: we keep the suite focused on KYC blocking behavior; other flows require

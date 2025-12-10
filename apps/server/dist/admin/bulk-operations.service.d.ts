@@ -30,7 +30,7 @@ export declare class BulkOperationsService {
         failed: number;
         details: string[];
     }>;
-    getBulkOperationStats(userId: string): Promise<{
+    getBulkOperationStats(): Promise<{
         pendingKyc: number;
         pendingTransactions: number;
         flaggedItems: number;

@@ -20,6 +20,7 @@ const transaction_filter_service_1 = require("./transaction-filter.service");
 const create_transfer_dto_1 = require("./dto/create-transfer.dto");
 const create_deposit_dto_1 = require("./dto/create-deposit.dto");
 const create_withdraw_dto_1 = require("./dto/create-withdraw.dto");
+const create_card_transaction_dto_1 = require("./dto/create-card-transaction.dto");
 const validate_transaction_dto_1 = require("./dto/validate-transaction.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
@@ -40,6 +41,9 @@ let TransactionsController = class TransactionsController {
     }
     createWithdraw(req, createWithdrawDto) {
         return this.transactionsService.createWithdraw(req.user.id, createWithdrawDto);
+    }
+    createCardTransaction(req, createCardTransactionDto) {
+        return this.transactionsService.createCardTransaction(req.user.id, createCardTransactionDto);
     }
     getTransactions(req, query) {
         if (query.scope === 'admin') {
@@ -97,6 +101,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, create_withdraw_dto_1.CreateWithdrawDto]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "createWithdraw", null);
+__decorate([
+    (0, common_1.Post)('card'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a card transaction' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_card_transaction_dto_1.CreateCardTransactionDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "createCardTransaction", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get user transactions or full ledger for admin' }),

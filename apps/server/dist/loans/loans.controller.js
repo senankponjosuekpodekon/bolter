@@ -40,6 +40,9 @@ let LoansController = class LoansController {
     getRepayments(req, id) {
         return this.loansService.getRepayments(id, req.user);
     }
+    getLoanStatistics(req, id) {
+        return this.loansService.getLoanStatistics(id, req.user);
+    }
     recordRepayment(req, id, dto) {
         return this.loansService.recordRepayment(req.user.id, id, dto);
     }
@@ -87,6 +90,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], LoansController.prototype, "getRepayments", null);
+__decorate([
+    (0, common_1.Get)(':id/statistics'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get loan statistics and repayment progress' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], LoansController.prototype, "getLoanStatistics", null);
 __decorate([
     (0, common_1.Post)(':id/repayments'),
     (0, swagger_1.ApiOperation)({ summary: 'Record a loan repayment' }),

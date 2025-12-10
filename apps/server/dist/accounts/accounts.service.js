@@ -79,9 +79,28 @@ let AccountsService = AccountsService_1 = class AccountsService {
         }
         return (data ?? []);
     }
-    async create(userId, dto) {
+    async create(userId, dto, bypassLimits = false) {
         const accountType = dto.accountType || 'SAVINGS';
+        const currency = dto.currency || 'EUR';
+        const limit = dto.limit || 1000;
         const accountNumber = (0, account_number_util_1.generateFrenchIban)();
+        if (!bypassLimits) {
+            const { data: existingAccounts, error: fetchError } = await this.supabase
+                .getAdminClient()
+                .from('accounts')
+                .select('account_type')
+                .eq('user_id', userId);
+            if (fetchError) {
+                throw new common_1.BadRequestException(`Failed to verify account limits: ${fetchError.message}`);
+            }
+            const accountTypeCounts = existingAccounts?.reduce((acc, acc_item) => {
+                acc[acc_item.account_type] = (acc[acc_item.account_type] || 0) + 1;
+                return acc;
+            }, {}) ?? {};
+            if ((accountTypeCounts[accountType] ?? 0) >= 2) {
+                throw new common_1.BadRequestException(`You already have ${accountTypeCounts[accountType]} ${accountType} account(s). Maximum 2 ${accountType} accounts allowed per user.`);
+            }
+        }
         const { data, error } = await this.supabase
             .getAdminClient()
             .from('accounts')
@@ -89,6 +108,8 @@ let AccountsService = AccountsService_1 = class AccountsService {
             user_id: userId,
             account_number: accountNumber,
             account_type: accountType,
+            currency: currency,
+            limit: limit,
             balance: 0,
             status: 'ACTIVE',
         })
@@ -105,6 +126,8 @@ let AccountsService = AccountsService_1 = class AccountsService {
             metadata: {
                 changes: {
                     accountType,
+                    currency,
+                    limit,
                     accountNumber,
                 },
             },
@@ -134,6 +157,12 @@ let AccountsService = AccountsService_1 = class AccountsService {
         if (updateDto.balance !== undefined) {
             const roundedBalance = Math.round(updateDto.balance * 100) / 100;
             updateData.balance = roundedBalance;
+        }
+        if (updateDto.currency !== undefined) {
+            updateData.currency = updateDto.currency;
+        }
+        if (updateDto.limit !== undefined) {
+            updateData.limit = updateDto.limit;
         }
         if (!Object.keys(updateData).length) {
             return account;

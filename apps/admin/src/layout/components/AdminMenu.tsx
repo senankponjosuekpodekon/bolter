@@ -4,7 +4,6 @@ import PeopleIcon from "@mui/icons-material/People";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
-import PaidIcon from "@mui/icons-material/Paid";
 import HistoryIcon from "@mui/icons-material/History";
 import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 

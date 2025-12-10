@@ -16,6 +16,7 @@ export class LocalizationService {
     private loadMessages(): void {
         // Load EN messages
         try {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const enMessages = require('./messages/en.messages.json');
             this.messages.set('en', enMessages);
             this.logger.debug('Loaded EN localization messages');
@@ -25,6 +26,7 @@ export class LocalizationService {
 
         // Load FR messages
         try {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const frMessages = require('./messages/fr.messages.json');
             this.messages.set('fr', frMessages);
             this.logger.debug('Loaded FR localization messages');
@@ -51,7 +53,7 @@ export class LocalizationService {
         }
 
         const keys = key.split('.');
-        let message: any = messages;
+        let message: string | LocalizationMessages | undefined = messages;
 
         for (const k of keys) {
             if (typeof message === 'object' && message !== null && k in message) {

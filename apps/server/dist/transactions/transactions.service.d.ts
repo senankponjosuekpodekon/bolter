@@ -3,6 +3,7 @@ import { AccountsService } from '../accounts/accounts.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
+import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { ValidateTransactionDto } from './dto/validate-transaction.dto';
 import { AdminCreateTransactionDto } from './dto/admin-create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
@@ -30,6 +31,7 @@ export declare class TransactionsService {
     createTransfer(userId: string, dto: CreateTransferDto): Promise<any>;
     createDeposit(userId: string, dto: CreateDepositDto): Promise<any>;
     createWithdraw(userId: string, dto: CreateWithdrawDto): Promise<any>;
+    createCardTransaction(userId: string, dto: CreateCardTransactionDto): Promise<any>;
     findByUserId(userId: string): Promise<any[]>;
     findPending(): Promise<any[]>;
     findPendingById(id: string): Promise<any>;

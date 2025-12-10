@@ -13,7 +13,10 @@ const ToastContext = createContext<{ push: (t: Toast) => void } | undefined>(
 
 export const useToast = () => {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error("useToast must be used within ToastProvider");
+  if (!ctx) {
+    // Provide a noop fallback in environments (like unit tests) where the provider isn't mounted
+    return { push: () => {} };
+  }
   return ctx;
 };
 

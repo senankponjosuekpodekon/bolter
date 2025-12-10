@@ -7,6 +7,8 @@ export interface Account {
   account_number: string;
   account_type: AccountType;
   balance: number;
+  currency?: string;
+  limit?: number;
   status: string;
   created_at?: string;
   user?: {
@@ -99,9 +101,38 @@ export class AccountsService {
     return (data ?? []) as Account[];
   }
 
-  async create(userId: string, dto: CreateAccountDto): Promise<Account> {
+  async create(userId: string, dto: CreateAccountDto, bypassLimits: boolean = false): Promise<Account> {
     const accountType: AccountType = dto.accountType || 'SAVINGS';
+    const currency = dto.currency || 'EUR';
+    const limit = dto.limit || 1000;
     const accountNumber = generateFrenchIban();
+
+    // Check account type limits: max 2 CHECKING and 2 SAVINGS per user (unless bypassed by admin)
+    if (!bypassLimits) {
+      const { data: existingAccounts, error: fetchError } = await this.supabase
+        .getAdminClient()
+        .from('accounts')
+        .select('account_type')
+        .eq('user_id', userId);
+
+      if (fetchError) {
+        throw new BadRequestException(`Failed to verify account limits: ${fetchError.message}`);
+      }
+
+      const accountTypeCounts = existingAccounts?.reduce(
+        (acc, acc_item) => {
+          acc[acc_item.account_type as AccountType] = (acc[acc_item.account_type as AccountType] || 0) + 1;
+          return acc;
+        },
+        {} as Record<AccountType, number>
+      ) ?? {};
+
+      if ((accountTypeCounts[accountType] ?? 0) >= 2) {
+        throw new BadRequestException(
+          `You already have ${accountTypeCounts[accountType]} ${accountType} account(s). Maximum 2 ${accountType} accounts allowed per user.`
+        );
+      }
+    }
 
     const { data, error } = await this.supabase
       .getAdminClient()
@@ -110,6 +141,8 @@ export class AccountsService {
         user_id: userId,
         account_number: accountNumber,
         account_type: accountType,
+        currency: currency,
+        limit: limit,
         balance: 0,
         status: 'ACTIVE',
       })
@@ -127,6 +160,8 @@ export class AccountsService {
       metadata: {
         changes: {
           accountType,
+          currency,
+          limit,
           accountNumber,
         },
       },
@@ -163,6 +198,12 @@ export class AccountsService {
     if (updateDto.balance !== undefined) {
       const roundedBalance = Math.round(updateDto.balance * 100) / 100;
       updateData.balance = roundedBalance;
+    }
+    if (updateDto.currency !== undefined) {
+      updateData.currency = updateDto.currency;
+    }
+    if (updateDto.limit !== undefined) {
+      updateData.limit = updateDto.limit;
     }
 
     if (!Object.keys(updateData).length) {

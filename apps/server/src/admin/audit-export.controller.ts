@@ -3,7 +3,6 @@ import {
   Get,
   Query,
   UseGuards,
-  Req,
   Res,
   HttpCode,
 } from '@nestjs/common';
@@ -12,7 +11,7 @@ import { AuditExportService, AuditExportFilter } from './audit-export.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 
 @ApiTags('admin/audit-export')
 @Controller('admin/audit-export')
@@ -20,7 +19,7 @@ import { Request, Response } from 'express';
 @Roles('admin')
 @ApiBearerAuth()
 export class AuditExportController {
-  constructor(private readonly auditExportService: AuditExportService) {}
+  constructor(private readonly auditExportService: AuditExportService) { }
 
   @Get('csv')
   @HttpCode(200)

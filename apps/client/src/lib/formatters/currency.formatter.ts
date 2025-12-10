@@ -106,7 +106,7 @@ export function formatCurrencyISO(amount: number, currency: CurrencyCode, locale
  */
 export function parseCurrency(formatted: string): number {
     // Remove all non-numeric characters except decimal point and minus
-    const cleaned = formatted.replace(/[^\d.,\-]/g, '')
+    const cleaned = formatted.replace(/[^\d.,-]/g, '')
     // Replace comma with dot if it's a thousands separator
     return parseFloat(cleaned.replace(',', '.'))
 }

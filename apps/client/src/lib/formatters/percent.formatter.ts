@@ -71,7 +71,7 @@ export function formatChangePercentage(
  * @example parsePercentage("25.5%") => 0.255
  */
 export function parsePercentage(formatted: string): number {
-    const cleaned = formatted.replace(/[^\d.,\-]/g, '')
+    const cleaned = formatted.replace(/[^\d.,-]/g, '')
     const parsed = parseFloat(cleaned.replace(',', '.'))
     return isNaN(parsed) ? 0 : parsed / 100
 }

@@ -3,5 +3,5 @@ import { TransactionFilterDto, FilterResultDto } from './dto/transaction-filter.
 export declare class TransactionFilterService {
     private readonly supabase;
     constructor(supabase: SupabaseService);
-    filter(dto: TransactionFilterDto): Promise<FilterResultDto<any>>;
+    filter(dto: TransactionFilterDto): Promise<FilterResultDto<Record<string, unknown>>>;
 }

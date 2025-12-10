@@ -44,6 +44,18 @@ export class AccountsController {
     return this.accountsService.create(req.user.id, createAccountDto);
   }
 
+  @Post('admin/:userId')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Create account for a user (Admin - bypasses limits)' })
+  @ApiResponse({ status: 201, description: 'Account successfully created' })
+  createAccountAsAdmin(
+    @Req() req,
+    @Param('userId') userId: string,
+    @Body() createAccountDto: CreateAccountDto,
+  ) {
+    return this.accountsService.create(userId, createAccountDto, true);
+  }
+
   @Patch(':id')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Update account (Admin only - can edit IBAN)' })

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config/api.config';
+import api from './api';
 
 export interface TransactionFilterParams {
   dateFrom?: string;
@@ -32,7 +32,7 @@ export interface KycFilterParams {
 export interface FilterResult<T> {
   total: number;
   results: T[];
-  filters: Record<string, any>;
+  filters: Record<string, unknown>;
 }
 
 /**
@@ -40,58 +40,31 @@ export interface FilterResult<T> {
  * Handles filtering for transactions and KYC
  */
 export class FilterService {
-  private baseUrl = `${API_BASE_URL}`;
-
-  /**
-   * Filter transactions
-   */
-  async filterTransactions(params: TransactionFilterParams): Promise<FilterResult<any>> {
-    const queryString = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        queryString.append(key, String(value));
-      }
-    });
-
-    const response = await fetch(`${this.baseUrl}/transactions/filter?${queryString}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to filter transactions: ${response.statusText}`);
-    }
-
-    return response.json();
+  async filterTransactions(
+    params: TransactionFilterParams
+  ): Promise<FilterResult<Record<string, unknown>>> {
+    const response = await api.get('/admin/filter/transactions', { params });
+    return response.data;
   }
 
-  /**
-   * Filter KYC applications
-   */
-  async filterKyc(params: KycFilterParams): Promise<FilterResult<any>> {
-    const queryString = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        queryString.append(key, String(value));
-      }
+  async filterKyc(
+    params: KycFilterParams
+  ): Promise<FilterResult<Record<string, unknown>>> {
+    const response = await api.get('/admin/filter/kyc', { params });
+    return response.data;
+  }
+
+  async filterUsers(params: Record<string, unknown>) {
+    const response = await api.get('/admin/filter/users', { params });
+    return response.data;
+  }
+
+  async exportFilteredData(params: Record<string, unknown>) {
+    const response = await api.get('/admin/filter/export', {
+      params,
+      responseType: params?.format === 'csv' ? 'blob' : 'json',
     });
-
-    const response = await fetch(`${this.baseUrl}/kyc/applications/filter?${queryString}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to filter KYC applications: ${response.statusText}`);
-    }
-
-    return response.json();
+    return response.data;
   }
 }
 

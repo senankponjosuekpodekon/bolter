@@ -6,6 +6,8 @@
 import { useCallback, useState, useEffect } from 'react'
 import { formatCurrency, formatCurrencyISO, parseCurrency } from '../lib/formatters'
 
+type SupportedCurrency = Parameters<typeof formatCurrency>[1]
+
 interface ExchangeRate {
     from: string
     to: string
@@ -111,7 +113,7 @@ export function useCurrency(options: CurrencyOptions = {}) {
     // Format amount in specific currency
     const format = useCallback(
         (amount: number, curr: string = currency, useSymbol: boolean = true) => {
-            return formatCurrency(amount, curr as any, locale, { useSymbol })
+            return formatCurrency(amount, curr as SupportedCurrency, locale, { useSymbol })
         },
         [currency, locale]
     )
@@ -119,7 +121,7 @@ export function useCurrency(options: CurrencyOptions = {}) {
     // Format with ISO code
     const formatISO = useCallback(
         (amount: number, curr: string = currency) => {
-            return formatCurrencyISO(amount, curr as any, locale)
+            return formatCurrencyISO(amount, curr as SupportedCurrency, locale)
         },
         [currency, locale]
     )

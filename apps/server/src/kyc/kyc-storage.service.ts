@@ -46,7 +46,8 @@ export class KycStorageService {
 
         try {
             // Upload to Supabase Storage
-            const { data, error } = await this.supabase
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { data: _uploadData, error } = await this.supabase
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
                 .upload(filePath, fileBuffer, {
@@ -101,12 +102,13 @@ export class KycStorageService {
     /**
      * Delete a KYC document from storage
      */
-    async deleteDocument(filePath: string): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async deleteDocument(_filePath: string): Promise<void> {
         try {
             const { error } = await this.supabase
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
-                .remove([filePath]);
+                .remove([_filePath]);
 
             if (error) {
                 throw new BadRequestException(`Failed to delete document: ${error.message}`);
@@ -123,13 +125,14 @@ export class KycStorageService {
      */
     async downloadDocument(filePath: string): Promise<Buffer> {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data, error } = await this.supabase
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
                 .download(filePath);
 
-            if (error) {
-                throw new BadRequestException(`Failed to download document: ${error.message}`);
+            if (error || !data) {
+                throw new BadRequestException(`Failed to download document: ${error?.message || 'No data returned'}`);
             }
 
             return Buffer.from(await data.arrayBuffer());
@@ -143,9 +146,11 @@ export class KycStorageService {
     /**
      * Check if a file exists in storage
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async fileExists(filePath: string): Promise<boolean> {
         try {
-            const { data, error } = await this.supabase
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { data: _listData, error } = await this.supabase
                 .getAdminClient()
                 .storage.from(this.BUCKET_NAME)
                 .list('kyc', { limit: 1 });

@@ -115,6 +115,21 @@
     "loading": "Loading transactions...",
     "export": "Export History"
   },
+  "filters": "Filters",
+  "filter_by_type": "Transaction Type",
+  "filter_by_status": "Status",
+  "reset_filters": "Reset all filters",
+  "showing_results": "Showing {{count}} of {{total}} transactions",
+  "history_title": "Transaction History",
+  "no_results": "No transactions found",
+  "pagination_info": "Page {{current}} of {{total}}",
+  "no_data_export": "No data to export",
+  "export_success": "Transactions exported successfully",
+  "types": {
+    "deposit": "Deposit",
+    "withdrawal": "Withdrawal",
+    "transfer": "Transfer"
+  },
   "details": {
     "title": "Transaction Details",
     "general": "General Information",

@@ -14,7 +14,6 @@ import ChartComponent from "../components/admin/ChartComponent";
 import adminService, {
   DashboardMetrics,
   TransactionStats,
-  UserStats,
   KycStats,
   TimeSeriesData,
 } from "../services/admin.service";
@@ -34,7 +33,6 @@ export const AdminDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [transactionStats, setTransactionStats] =
     useState<TransactionStats | null>(null);
-  const [_userStats, setUserStats] = useState<UserStats | null>(null);
   const [kycStats, setKycStats] = useState<KycStats | null>(null);
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData | null>(
     null
@@ -50,18 +48,15 @@ export const AdminDashboard: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const [metrics, txStats, userStats, kycStats, timeData] =
-          await Promise.all([
-            adminService.getDashboardMetrics(),
-            adminService.getTransactionStats(period),
-            adminService.getUserStats(),
-            adminService.getKycStats(),
-            adminService.getTimeSeriesData(period),
-          ]);
+        const [metrics, txStats, kycStats, timeData] = await Promise.all([
+          adminService.getDashboardMetrics(),
+          adminService.getTransactionStats(period),
+          adminService.getKycStats(),
+          adminService.getTimeSeriesData(period),
+        ]);
 
         setMetrics(metrics);
         setTransactionStats(txStats);
-        setUserStats(userStats);
         setKycStats(kycStats);
         setTimeSeriesData(timeData);
       } catch (err) {

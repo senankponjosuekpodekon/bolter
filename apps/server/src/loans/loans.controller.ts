@@ -41,6 +41,12 @@ export class LoansController {
     return this.loansService.getRepayments(id, req.user);
   }
 
+  @Get(':id/statistics')
+  @ApiOperation({ summary: 'Get loan statistics and repayment progress' })
+  getLoanStatistics(@Req() req, @Param('id') id: string) {
+    return this.loansService.getLoanStatistics(id, req.user);
+  }
+
   @Post(':id/repayments')
   @ApiOperation({ summary: 'Record a loan repayment' })
   recordRepayment(@Req() req, @Param('id') id: string, @Body() dto: RecordRepaymentDto) {

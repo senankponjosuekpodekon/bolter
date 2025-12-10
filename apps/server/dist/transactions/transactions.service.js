@@ -165,6 +165,80 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         });
         return data;
     }
+    async createCardTransaction(userId, dto) {
+        const card = await this.supabase
+            .getAdminClient()
+            .from('cards')
+            .select('*, accounts(id, user_id, balance, currency)')
+            .eq('id', dto.cardId)
+            .single();
+        if (card.error || !card.data) {
+            throw new common_1.NotFoundException('Card not found');
+        }
+        const cardData = card.data;
+        const account = cardData.accounts;
+        if (account.user_id !== userId) {
+            throw new common_1.ForbiddenException('Card does not belong to your account');
+        }
+        if (cardData.status !== 'ACTIVE') {
+            throw new common_1.BadRequestException(`Cannot use a ${cardData.status} card`);
+        }
+        const amount = Number(dto.amount);
+        const currentBalance = Number(account.balance || 0);
+        if (currentBalance < amount) {
+            throw new common_1.BadRequestException('Insufficient balance for this transaction');
+        }
+        const { data, error } = await this.supabase
+            .getAdminClient()
+            .from('transactions')
+            .insert({
+            account_id: account.id,
+            user_id: userId,
+            type: 'CARD_PAYMENT',
+            amount,
+            balance: currentBalance - amount,
+            currency: String(account.currency || 'EUR'),
+            description: dto.description || `Card payment - ${dto.merchant}`,
+            card_id: dto.cardId,
+            card_number: cardData.card_number,
+            merchant: dto.merchant,
+            category: dto.category,
+            status: 'COMPLETED',
+            created_at: new Date().toISOString(),
+        })
+            .select()
+            .single();
+        if (error) {
+            this.logger.error(`Error creating card transaction: ${error.message}`);
+            throw new common_1.BadRequestException('Failed to create card transaction');
+        }
+        const updateResult = await this.supabase
+            .getAdminClient()
+            .from('accounts')
+            .update({ balance: currentBalance - amount })
+            .eq('id', account.id);
+        if (updateResult.error) {
+            this.logger.error(`Error updating account balance: ${updateResult.error.message}`);
+            throw new common_1.BadRequestException('Failed to update account balance');
+        }
+        await this.logTransactionAction(userId, userId, 'TRANSACTION_INITIATED', data.id, {
+            type: 'CARD_PAYMENT',
+            amount,
+            cardId: dto.cardId,
+            cardNumber: cardData.card_number,
+            merchant: dto.merchant,
+            category: dto.category,
+        });
+        await this.notificationsService.notifyTransactionCreated({
+            transactionId: data.id,
+            userId,
+            amount,
+            type: 'CARD_PAYMENT',
+            currency: String(account.currency || 'EUR'),
+            description: `Card payment at ${dto.merchant}`,
+        });
+        return data;
+    }
     async findByUserId(userId) {
         const accounts = await this.accountsService.findByUserId(userId);
         const accountIds = accounts.map((account) => account.id);

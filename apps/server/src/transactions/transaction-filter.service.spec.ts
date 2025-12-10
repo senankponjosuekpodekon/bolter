@@ -17,11 +17,11 @@ describe('TransactionFilterService', () => {
 
   const mockSupabaseClient = {
     from: jest.fn(() => mockQuery),
-  } as any;
+  } as { from: jest.Mock };
 
   const mockSupabaseService = {
     getAdminClient: jest.fn(() => mockSupabaseClient),
-  } as any;
+  } as { getAdminClient: jest.Mock };
 
   beforeEach(async () => {
     jest.clearAllMocks();

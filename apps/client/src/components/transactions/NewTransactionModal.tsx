@@ -10,12 +10,17 @@ import { useToast } from "../ui/ToastProvider";
 type Props = {
   open: boolean;
   onClose: () => void;
+  initialType?: "transfer" | "deposit" | "withdraw";
 };
 
 type TransactionType = "transfer" | "deposit" | "withdraw";
 
-export default function NewTransactionModal({ open, onClose }: Props) {
-  const [type, setType] = useState<TransactionType>("transfer");
+export default function NewTransactionModal({
+  open,
+  onClose,
+  initialType = "transfer",
+}: Props) {
+  const [type, setType] = useState<TransactionType>(initialType);
   const dialogRef = useRef<HTMLDivElement | null>(null);
 
   // fetch accounts to show on selects
@@ -26,8 +31,8 @@ export default function NewTransactionModal({ open, onClose }: Props) {
   });
 
   useEffect(() => {
-    if (open) setType("transfer");
-  }, [open]);
+    if (open) setType(initialType);
+  }, [open, initialType]);
 
   const { createTransfer, createDeposit, createWithdraw } =
     useTransactionMutations();

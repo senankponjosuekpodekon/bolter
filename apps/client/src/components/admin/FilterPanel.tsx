@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Search, X, ChevronDown } from "lucide-react";
 
 interface FilterPanelProps {
-  onApplyFilters: (filters: Record<string, any>) => void;
+  onApplyFilters: (filters: Record<string, string | number>) => void;
   onClearFilters: () => void;
   filterType: "transactions" | "kyc";
   loading?: boolean;
@@ -36,7 +36,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   const [kycStatus, setKycStatus] = useState("");
 
   const handleApply = () => {
-    const filters: Record<string, any> = {};
+    const filters: Record<string, string | number> = {};
 
     if (dateFrom) filters.dateFrom = dateFrom;
     if (dateTo) filters.dateTo = dateTo;

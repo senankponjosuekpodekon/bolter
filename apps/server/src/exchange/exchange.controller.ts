@@ -76,7 +76,7 @@ export class ExchangeController {
         @Query('amount') amountStr: string,
         @Query('from') from: string = 'EUR',
         @Query('to') to: string = 'EUR',
-    ): Promise<any> {
+    ): Promise<{ amount: number; originalAmount: number; rate: number; from: string; to: string; timestamp: string }> {
         const amount = Number(amountStr || '0');
         if (isNaN(amount) || amount <= 0) {
             throw new BadRequestException('Amount must be a positive number');
@@ -90,7 +90,7 @@ export class ExchangeController {
                 rate: result.rate,
                 from: result.from,
                 to: result.to,
-                timestamp: result.timestamp,
+                timestamp: result.timestamp instanceof Date ? result.timestamp.toISOString() : String(result.timestamp),
             };
         } catch (error) {
             throw new BadRequestException(error instanceof Error ? error.message : 'Conversion failed');

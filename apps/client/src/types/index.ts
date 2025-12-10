@@ -9,11 +9,27 @@ export interface Account {
   created_at?: string;
 }
 
+export interface Card {
+  id: string;
+  account_id: string;
+  card_number: string;
+  type: 'VIRTUAL' | 'PHYSICAL';
+  status: 'ACTIVE' | 'BLOCKED' | 'EXPIRED';
+  cvv: string;
+  expiry_date: string;
+  cardholder_name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Transaction {
   id: string;
   amount: string;
   currency: string;
   type: 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER';
+  account_id?: string;
+  card_id?: string;
+  card_number?: string;
   category?: string;
   description?: string;
   status?: string;

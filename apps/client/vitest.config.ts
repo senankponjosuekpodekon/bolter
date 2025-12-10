@@ -4,8 +4,8 @@ import path from 'path'
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    // Ensure this config resolves the setup file regardless of current working dir
-    setupFiles: [path.resolve(process.cwd(), 'apps/client/src/setupTests.ts')],
+    // Resolve setup file relative to this config file so npm test works from any CWD
+    setupFiles: [path.resolve(__dirname, 'src/setupTests.ts')],
     globals: true,
     // avoid running third-party tests from node_modules (they can crash or pollute the test run)
     // avoid running third-party tests from node_modules and e2e (playwright) tests

@@ -5,6 +5,7 @@ import { TransactionFilterService } from './transaction-filter.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
+import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { ValidateTransactionDto } from './dto/validate-transaction.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -39,6 +40,12 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Create a withdrawal (requires admin validation)' })
   createWithdraw(@Req() req, @Body() createWithdrawDto: CreateWithdrawDto) {
     return this.transactionsService.createWithdraw(req.user.id, createWithdrawDto);
+  }
+
+  @Post('card')
+  @ApiOperation({ summary: 'Create a card transaction' })
+  createCardTransaction(@Req() req, @Body() createCardTransactionDto: CreateCardTransactionDto) {
+    return this.transactionsService.createCardTransaction(req.user.id, createCardTransactionDto);
   }
 
   @Get()

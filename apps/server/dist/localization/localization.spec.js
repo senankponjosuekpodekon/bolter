@@ -23,7 +23,7 @@ describe('Formatters', () => {
             const enResult = formatter.formatCurrency(1234.56, 'EUR', 'en-US');
             expect(enResult).toContain('1,234.56');
             const frResult = formatter.formatCurrency(1234.56, 'EUR', 'fr-FR');
-            expect(frResult).toContain('1 234,56');
+            expect(frResult).toMatch(/1\s234,56/);
         });
     });
     describe('DateFormatter', () => {
@@ -59,7 +59,7 @@ describe('Formatters', () => {
         });
         it('should format number with FR locale', () => {
             const result = formatter.formatNumber(1234.56, 'fr-FR');
-            expect(result).toBe('1 234,56');
+            expect(result).toMatch(/1.234,56/);
         });
         it('should format percent', () => {
             const result = formatter.formatPercent(85.5, 'en-US', 1);

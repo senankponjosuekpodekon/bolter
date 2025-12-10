@@ -5,6 +5,7 @@
 
 import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo } from 'react'
+import { loadLocale } from '../i18n'
 
 interface LocalizationOptions {
     locale?: string
@@ -27,9 +28,9 @@ export function useLocalization(options: LocalizationOptions = {}) {
     // Change language/locale
     const changeLanguage = useCallback(
         async (newLocale: string) => {
-            const lang = newLocale.split('-')[0] // Extract language code
-            await i18n.changeLanguage(lang)
-            localStorage.setItem('i18nextLng', lang)
+            await loadLocale(newLocale) // Validate locale
+            await i18n.changeLanguage(newLocale) // Change to new locale
+            localStorage.setItem('i18nextLng', newLocale) // Store full locale code
         },
         [i18n]
     )
@@ -59,7 +60,7 @@ export function useLocalization(options: LocalizationOptions = {}) {
 
     // Get all messages for a namespace
     const getNamespaceMessages = useCallback(
-        (namespace: string = 'common'): Record<string, any> => {
+        (namespace: string = 'common'): Record<string, unknown> => {
             try {
                 return i18n.getResourceBundle(locale, namespace) || {}
             } catch {

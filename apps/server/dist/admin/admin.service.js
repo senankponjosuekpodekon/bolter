@@ -87,9 +87,9 @@ let AdminService = AdminService_1 = class AdminService {
             todaysTransactionVolume: todayVolume,
         };
     }
-    async getRecentMetrics(period) {
+    async getRecentMetrics(_period) {
         const admin = this.supabase.getAdminClient();
-        const daysAgo = period === '7d' ? 7 : period === '30d' ? 30 : 90;
+        const daysAgo = _period === '7d' ? 7 : _period === '30d' ? 30 : 90;
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - daysAgo);
         const [userGrowth, transactionGrowth, kycStats] = await Promise.all([
@@ -124,7 +124,7 @@ let AdminService = AdminService_1 = class AdminService {
         const averageProcessingTime = processedCount > 0 ? totalProcessingTime / processedCount : 0;
         return {
             lastUpdated: new Date(),
-            period,
+            period: _period,
             userGrowthRate: userGrowthRate,
             transactionGrowthRate: transactionGrowthRate,
             kycApprovalRate: Math.round(kycApprovalRate * 100) / 100,
@@ -356,7 +356,7 @@ let AdminService = AdminService_1 = class AdminService {
             data: sorted,
         };
     }
-    buildTimeline(txData, period) {
+    buildTimeline(txData, _period) {
         const timelineMap = new Map();
         txData.forEach((tx) => {
             const date = new Date(tx.created_at).toISOString().split('T')[0];

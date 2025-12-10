@@ -3,6 +3,7 @@ import { TransactionFilterService } from './transaction-filter.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
+import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { ValidateTransactionDto } from './dto/validate-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { AdminCreateTransactionDto } from './dto/admin-create-transaction.dto';
@@ -14,6 +15,7 @@ export declare class TransactionsController {
     createTransfer(req: any, createTransferDto: CreateTransferDto): Promise<any>;
     createDeposit(req: any, createDepositDto: CreateDepositDto): Promise<any>;
     createWithdraw(req: any, createWithdrawDto: CreateWithdrawDto): Promise<any>;
+    createCardTransaction(req: any, createCardTransactionDto: CreateCardTransactionDto): Promise<any>;
     getTransactions(req: any, query: QueryTransactionsDto): Promise<any[]> | Promise<{
         data: {
             fromAccount: {
@@ -49,7 +51,7 @@ export declare class TransactionsController {
     }>;
     getPendingTransactions(): Promise<any[]>;
     getPendingTransaction(id: string): Promise<any>;
-    filterTransactions(query: TransactionFilterDto): Promise<import("./dto/transaction-filter.dto").FilterResultDto<any>>;
+    filterTransactions(query: TransactionFilterDto): Promise<import("./dto/transaction-filter.dto").FilterResultDto<Record<string, unknown>>>;
     createAdminTransaction(req: any, dto: AdminCreateTransactionDto): Promise<any>;
     validateTransaction(req: any, id: string, validateDto: ValidateTransactionDto): Promise<any>;
     private ensureAdminRole;

@@ -49,15 +49,22 @@ export default function KYC() {
   };
 
   const requiredDocs = ["ID_CARD", "SELFIE", "PROOF_ADDRESS"];
+  const tx = (key: string, fallback: string) =>
+    t(key, { defaultValue: fallback });
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">
-        {t("documents.title")}
+        {tx("documents.title", "KYC Documents")}
       </h1>
 
       <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
-        <p className="text-sm text-blue-700">{t("documents.instructions")}</p>
+        <p className="text-sm text-blue-700">
+          {tx(
+            "documents.instructions",
+            "Please upload the required documents to verify your identity."
+          )}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -69,7 +76,10 @@ export default function KYC() {
           return (
             <div key={docType} className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t(`documents.types.${docType.toLowerCase()}`)}
+                {tx(
+                  `documents.types.${docType.toLowerCase()}`,
+                  docType.replace(/_/g, " ")
+                )}
               </h3>
               {existing ? (
                 <div>
@@ -120,23 +130,23 @@ export default function KYC() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-medium text-gray-900">
-              {t("documents.history_title")}
+              {tx("documents.history_title", "Document History")}
             </h2>
           </div>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  {t("documents.headers.type")}
+                  {tx("documents.headers.type", "Type")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  {t("documents.headers.status")}
+                  {tx("documents.headers.status", "Status")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  {t("documents.headers.uploaded")}
+                  {tx("documents.headers.uploaded", "Uploaded")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  {t("documents.headers.reviewed")}
+                  {tx("documents.headers.reviewed", "Reviewed")}
                 </th>
               </tr>
             </thead>
@@ -144,7 +154,10 @@ export default function KYC() {
               {documents.map((doc: import("../types/kyc").KycDocument) => (
                 <tr key={doc.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {t(`documents.types.${doc.document_type.toLowerCase()}`)}
+                    {tx(
+                      `documents.types.${doc.document_type.toLowerCase()}`,
+                      doc.document_type
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span

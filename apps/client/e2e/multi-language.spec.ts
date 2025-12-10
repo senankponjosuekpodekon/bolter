@@ -300,7 +300,7 @@ test.describe('Multi-Language & Multi-Currency Features', () => {
             const firstAmount = await amounts.first().textContent() || '';
 
             // Should show 2 decimal places (or appropriate for currency)
-            expect(firstAmount).toMatch(/\d+[\.,]\d{2}|\d+$/);
+            expect(firstAmount).toMatch(/\d+[.,]\d{2}|\d+$/);
         });
 
         test('should format percentage values correctly', async ({ page }) => {
@@ -335,6 +335,7 @@ test.describe('Multi-Language & Multi-Currency Features', () => {
 
             // After waiting, verify no critical errors
             await page.waitForTimeout(1000);
+            expect(consoleErrors).toBe(false);
             // This is a soft assertion - we mainly check the page doesn't crash
         });
 
@@ -416,6 +417,7 @@ test.describe('Accessibility with Multi-Language Support', () => {
 
         // Should have associated label
         const label = page.locator('label:has-text("Language"), label:has-text("Locale")');
+        await expect(localeSelect).toHaveCount(1);
         expect(label).toBeDefined();
     });
 

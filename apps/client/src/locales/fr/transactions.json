@@ -115,6 +115,21 @@
     "loading": "Chargement des transactions...",
     "export": "Exporter l'Historique"
   },
+  "filters": "Filtres",
+  "filter_by_type": "Type de Transaction",
+  "filter_by_status": "Statut",
+  "reset_filters": "Réinitialiser tous les filtres",
+  "showing_results": "Affichage {{count}} sur {{total}} transactions",
+  "history_title": "Historique des Transactions",
+  "no_results": "Aucune transaction trouvée",
+  "pagination_info": "Page {{current}} sur {{total}}",
+  "no_data_export": "Aucune donnée à exporter",
+  "export_success": "Transactions exportées avec succès",
+  "types": {
+    "deposit": "Dépôt",
+    "withdrawal": "Retrait",
+    "transfer": "Virement"
+  },
   "details": {
     "title": "Détails de la Transaction",
     "general": "Informations Générales",

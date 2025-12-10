@@ -13,7 +13,7 @@ export interface AuditExportFilter {
 
 @Injectable()
 export class AuditExportService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService) { }
 
   /**
    * Fetch audit logs based on filters
@@ -65,7 +65,7 @@ export class AuditExportService {
   /**
    * Helper to convert value to CSV-safe string
    */
-  private escapeCSV(value: any): string {
+  private escapeCSV(value: unknown): string {
     if (value === null || value === undefined) return '';
     const str = String(value);
     if (str.includes(',') || str.includes('"') || str.includes('\n')) {
@@ -186,18 +186,19 @@ export class AuditExportService {
     </div>
 
     ${Object.keys(filters).some((k) => filters[k as keyof AuditExportFilter])
-      ? `
+        ? `
     <div class="filters">
       <h3>Filters Applied:</h3>
       <p>
         ${Object.entries(filters)
-          .filter(([_, v]) => v)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          .filter(([_k, v]) => v)
           .map(([k, v]) => `<strong>${k}:</strong> ${v}`)
           .join('<br>')}
       </p>
     </div>
     `
-      : ''}
+        : ''}
 
     <table>
       <thead>
@@ -211,20 +212,19 @@ export class AuditExportService {
       </thead>
       <tbody>
         ${logs
-          .map(
-            (log) => `
+        .map(
+          (log) => `
         <tr>
           <td>${new Date(log.created_at).toLocaleString()}</td>
           <td>${log.user_id.substring(0, 8)}...</td>
           <td>${log.action}</td>
           <td>${log.resource_type || '-'}</td>
-          <td>${
-              log.changes ? JSON.stringify(log.changes).substring(0, 50) + '...' : '-'
+          <td>${log.changes ? JSON.stringify(log.changes).substring(0, 50) + '...' : '-'
             }</td>
         </tr>
         `,
-          )
-          .join('')}
+        )
+        .join('')}
       </tbody>
     </table>
 

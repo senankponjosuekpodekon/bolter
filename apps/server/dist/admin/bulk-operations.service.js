@@ -215,7 +215,7 @@ let BulkOperationsService = class BulkOperationsService {
         }
         return results;
     }
-    async getBulkOperationStats(userId) {
+    async getBulkOperationStats() {
         try {
             const [kycResult, txResult, flaggedResult] = await Promise.all([
                 this.supabase
@@ -241,7 +241,7 @@ let BulkOperationsService = class BulkOperationsService {
                 recentBulkActions: 0,
             };
         }
-        catch (err) {
+        catch (_err) {
             return {
                 pendingKyc: 0,
                 pendingTransactions: 0,

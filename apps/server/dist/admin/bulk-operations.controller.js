@@ -47,9 +47,8 @@ let BulkOperationsController = class BulkOperationsController {
         const userId = req.user?.id ?? 'unknown';
         return this.bulkOperationsService.bulkDeleteItems(userId, 'transactions', payload);
     }
-    async getStats(req) {
-        const userId = req.user?.id ?? 'unknown';
-        return this.bulkOperationsService.getBulkOperationStats(userId);
+    async getStats() {
+        return this.bulkOperationsService.getBulkOperationStats();
     }
 };
 exports.BulkOperationsController = BulkOperationsController;
@@ -116,9 +115,8 @@ __decorate([
 __decorate([
     (0, common_1.Get)('stats'),
     (0, swagger_1.ApiOperation)({ summary: 'Get bulk operation statistics' }),
-    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], BulkOperationsController.prototype, "getStats", null);
 exports.BulkOperationsController = BulkOperationsController = __decorate([

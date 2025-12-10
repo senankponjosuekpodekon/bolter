@@ -31,29 +31,34 @@ export default function MobileDrawer({ open, onClose }: Props) {
       aria-modal="true"
       aria-label="Navigation mobile"
     >
-      <div className="w-80 max-w-full bg-white h-full shadow-lg" ref={ref}>
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold">Menu</h2>
+      <div
+        className="w-80 max-w-full bg-white dark:bg-slate-900 h-full shadow-lg border-r border-gray-200 dark:border-slate-800"
+        ref={ref}
+      >
+        <div className="p-4 border-b border-gray-200 dark:border-slate-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Menu
+          </h2>
         </div>
         <nav className="p-4 space-y-2">
           <Link
             to="/dashboard"
             onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100"
+            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
           >
             Dashboard
           </Link>
           <Link
             to="/accounts"
             onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100"
+            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
           >
             Accounts
           </Link>
           <Link
             to="/loans"
             onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100"
+            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
           >
             Loans
           </Link>
@@ -61,21 +66,21 @@ export default function MobileDrawer({ open, onClose }: Props) {
           <Link
             to="/profile"
             onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100"
+            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
           >
             Profile
           </Link>
         </nav>
 
         {/* Logout stays below the menus on mobile */}
-        <div className="p-4 border-t mt-auto">
+        <div className="p-4 border-t border-gray-200 dark:border-slate-800 mt-auto">
           <button
             onClick={() => {
               logout();
               navigate("/login");
               onClose();
             }}
-            className="w-full text-left py-3 px-2 rounded hover:bg-gray-100 text-red-600 font-medium"
+            className="w-full text-left py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-red-600 font-medium"
           >
             Logout
           </button>

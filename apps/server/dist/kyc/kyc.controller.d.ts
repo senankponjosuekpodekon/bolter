@@ -19,7 +19,12 @@ export declare class KycController {
         user?: {
             id?: string;
         };
-    }, file: any, documentType: string): Promise<any>;
+    }, file: {
+        originalname: string;
+        buffer: Buffer;
+        mimetype: string;
+        size: number;
+    }, documentType: string): Promise<any>;
     getUserDocuments(req: Request & {
         user?: {
             id?: string;
@@ -40,5 +45,5 @@ export declare class KycController {
             id?: string;
         };
     }, id: string, reviewDto: ReviewKycDocumentDto): Promise<any>;
-    filterApplications(query: KycFilterDto): Promise<import("./dto/kyc-filter.dto").KycFilterResult<any>>;
+    filterApplications(query: KycFilterDto): Promise<import("./dto/kyc-filter.dto").KycFilterResult<Record<string, unknown>>>;
 }

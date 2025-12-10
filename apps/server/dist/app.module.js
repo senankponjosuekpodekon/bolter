@@ -17,6 +17,7 @@ const supabase_module_1 = require("./supabase/supabase.module");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const accounts_module_1 = require("./accounts/accounts.module");
+const cards_module_1 = require("./cards/cards.module");
 const transactions_module_1 = require("./transactions/transactions.module");
 const kyc_module_1 = require("./kyc/kyc.module");
 const logger_module_1 = require("./common/logger/logger.module");
@@ -44,6 +45,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             accounts_module_1.AccountsModule,
+            cards_module_1.CardsModule,
             transactions_module_1.TransactionsModule,
             kyc_module_1.KycModule,
             audit_logs_module_1.AuditLogsModule,

@@ -18,5 +18,5 @@ export declare class TransactionFilterDto {
 export interface FilterResultDto<T> {
     total: number;
     results: T[];
-    filters: Record<string, any>;
+    filters: Record<string, unknown>;
 }

@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { EmailService } from './email.service';
@@ -55,6 +55,29 @@ export class NotificationsService {
       subject: 'Votre nouveau compte est prêt',
       html: this.renderHtmlTemplate('Nouveau compte disponible', `Bonjour ${this.formatName(user)},<br><br>Votre compte <strong>${accountNumber}</strong> a bien été créé et est désormais actif.`),
       text: `Bonjour ${this.formatName(user)}, votre compte ${accountNumber} a bien été créé.`,
+    });
+  }
+
+  async notifyCardCreated(userId: string, cardNumber: string, cardType: string): Promise<void> {
+    const user = await this.getUserContact(userId);
+    if (!user) {
+      return;
+    }
+
+    const cardDisplay = `****${cardNumber.slice(-4)}`;
+    const payload = this.buildPayload(NotificationEvent.ACCOUNT_CREATED, {
+      title: 'Nouvelle carte créée',
+      message: `Votre carte ${cardType} ${cardDisplay} est maintenant disponible.`,
+      userId: user.id,
+      cardNumber: cardDisplay,
+      cardType,
+    });
+
+    this.gateway.emitToUser(user.id, payload);
+    await this.safeSendEmail(user, {
+      subject: 'Votre nouvelle carte est prête',
+      html: this.renderHtmlTemplate('Nouvelle carte disponible', `Bonjour ${this.formatName(user)},<br><br>Votre carte <strong>${cardType}</strong> <strong>${cardDisplay}</strong> a bien été créée et est désormais active.`),
+      text: `Bonjour ${this.formatName(user)}, votre carte ${cardType} ${cardDisplay} a bien été créée.`,
     });
   }
 

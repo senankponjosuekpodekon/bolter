@@ -1,0 +1,125 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { NotificationsService } from './notifications.service';
+import { SupabaseService } from '../supabase/supabase.service';
+import { NotificationsGateway } from './notifications.gateway';
+import { EmailService } from './email.service';
+import { Logger } from '../common/logger/logger.service';
+import { ConfigService } from '@nestjs/config';
+
+describe('NotificationsService', () => {
+  let service: NotificationsService;
+  let supabaseService: SupabaseService;
+
+  const mockAdminClient = {
+    from: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        NotificationsService,
+        {
+          provide: EmailService,
+          useValue: {
+            sendEmail: jest.fn().mockResolvedValue(true),
+          },
+        },
+        {
+          provide: NotificationsGateway,
+          useValue: {
+            notifyUser: jest.fn(),
+            notifyUsers: jest.fn(),
+          },
+        },
+        {
+          provide: SupabaseService,
+          useValue: {
+            getAdminClient: jest.fn().mockReturnValue(mockAdminClient),
+          },
+        },
+        Logger,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('test'),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<NotificationsService>(NotificationsService);
+    supabaseService = module.get<SupabaseService>(SupabaseService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('notifyTransactionCreated', () => {
+    it('should create a transaction notification', async () => {
+      mockAdminClient.from.mockReturnValue({
+        insert: jest.fn().mockResolvedValue({ error: null }),
+      });
+
+      await service.notifyTransactionCreated({
+        transactionId: 'tx-123',
+        userId: 'user-123',
+        amount: 100,
+        type: 'TRANSFER',
+        currency: 'EUR',
+        description: 'Test transfer',
+      });
+
+      expect(mockAdminClient.from).toHaveBeenCalledWith('notifications');
+      expect(mockAdminClient.from().insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'user-123',
+          type: 'TRANSACTION',
+          title: expect.any(String),
+          message: expect.any(String),
+        })
+      );
+    });
+  });
+
+  describe('notifyLoanCreated', () => {
+    it('should create a loan notification', async () => {
+      mockAdminClient.from.mockReturnValue({
+        insert: jest.fn().mockResolvedValue({ error: null }),
+      });
+
+      await service.notifyLoanCreated({
+        loanId: 'loan-123',
+        userId: 'user-123',
+        amount: 10000,
+        durationMonths: 24,
+        monthlyPayment: 450,
+      });
+
+      expect(mockAdminClient.from).toHaveBeenCalledWith('notifications');
+    });
+  });
+
+  describe('notifyKycStatusChange', () => {
+    it('should notify user of KYC status change', async () => {
+      mockAdminClient.from.mockReturnValue({
+        insert: jest.fn().mockResolvedValue({ error: null }),
+      });
+
+      await service.notifyKycStatusChanged({
+        userId: 'user-123',
+        previousStatus: 'PENDING',
+        newStatus: 'APPROVED',
+      });
+
+      expect(mockAdminClient.from).toHaveBeenCalledWith('notifications');
+      expect(mockAdminClient.from().insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'user-123',
+          type: 'KYC',
+        })
+      );
+    });
+  });
+
+});
