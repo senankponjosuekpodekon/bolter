@@ -164,6 +164,7 @@ APP_URL=http://localhost:5173
 VITE_API_URL=http://localhost:3000
 VITE_NOTIFICATIONS_URL=http://localhost:3000
 PORT=3000
+
 ```
 
 ### Base de données Supabase
