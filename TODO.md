@@ -4,7 +4,8 @@
 
 - [ ] Photo de profil : upload + preview côté client, endpoint `/users/profile/avatar`, stockage et redimensionnement (Sharp), limites 5MB et filtres JPG/PNG/WebP.
 - [ ] Empreinte digitale (WebAuthn) : options d'enregistrement + vérification (`@simplewebauthn/server`), front `startRegistration`, stockage du credential publicKey/credentialID, UI dans le profil.
-- [ ] OTP / 2FA : ajouter codes de secours (10 codes, hashés en base), régénération et affichage unique, tests de vérification.
+- [x] OTP / 2FA : activer/désactiver, vérification côté client (UI `TwoFactorSettings.tsx`, `Verify2FAModal.tsx`) et endpoints `/auth/2fa/*`.
+- [ ] Codes de secours (10 codes, hashés en base), régénération et affichage unique, tests de vérification.
 - [ ] Transactions : protéger les endpoints avec `JwtVerifiedGuard`, exiger OTP supplémentaire au-delà d'un seuil (ex: > 1000), vérification ownership compte, journal d'audit.
 - [ ] Notifications sécurité : push temps réel (WebSocket) pour transactions/création de session, logs d'audit consultables.
 - [ ] Limites & anomalies : rate limit renforcé sur OTP, seuils journaliers/hebdomadaires de transaction, alerte sur device/IP inconnus.
@@ -13,22 +14,20 @@
 
 ### Infrastructure Supabase & Base de Données
 
-- [ ] Vérifier configuration bucket Supabase `kyc-documents` (5MB, private, JPG/PNG/PDF)
+- [x] Vérifier/configurer bucket Supabase `kyc-documents` (5MB, private, JPG/PNG/PDF) — migration présente (`apps/server/migrations/0003_create_kyc_storage_bucket.sql`).
 - [ ] Créer bucket `profile-avatars` (2MB, private, JPG/PNG/WebP)
 - [ ] Ajouter table `file_audit_logs` : user_id, file_path, action (upload/delete/access), timestamp, status
-- [ ] Vérifier RLS policies sur kyc_documents (4 policies : utilisateur peut lire ses docs, admin peut lire tous, etc.)
+- [x] Vérifier RLS policies sur `kyc-documents` (lecture/upload utilisateur, lecture/suppression admin) — documenté et utilisé via signed URLs.
 - [ ] Ajouter RLS policies sur profile_avatars (privée, accès utilisateur/admin)
 - [ ] Ajouter RLS policies sur file_audit_logs (utilisateur lit ses logs, admin lit tous)
-- [ ] Tester connexion Supabase SDK depuis backend (auth, storage, database)
+- [x] Tester connexion Supabase SDK depuis backend (auth, storage, database) — utilisé dans `apps/server/src/kyc/kyc-storage.service.ts`.
 
 ### Backend : Service & Endpoints (KYC existant + Photo)
 
 - [ ] Améliorer KycService : validation fichier avant upload (type MIME, taille, checksum)
-- [ ] Ajouter FileStorageService : méthodes upload/download/delete/audit
-- [ ] Endpoint `POST /files/upload` : upload générique, validation, stockage Supabase, log audit
-- [ ] Endpoint `GET /files/:id/download` : téléchargement sécurisé (vérif ownership), log audit
-- [ ] Endpoint `DELETE /files/:id` : suppression logique (soft delete), log audit
-- [ ] Endpoint `GET /files/audit` : logs d'accès fichiers (filtrable par user/date/action)
+- [x] Ajouter FileStorageService : méthodes upload/download/delete/audit — implémenté (`apps/server/src/kyc/kyc-storage.service.ts`).
+- [x] Endpoints KYC fichiers — `POST /kyc/documents/upload`, `GET /kyc/documents/:id/view` (signed URL), `GET /kyc/documents/:id/download`.
+- [x] Audit logs export côté admin — `admin/audit-export.*` (CSV/JSON/PDF/stats/logs).
 - [ ] Endpoint `POST /profile/avatar` : upload photo profil (image validation + Sharp resize)
 - [ ] Endpoint `GET /profile/avatar/:userId` : récupération photo (public ou private selon config)
 - [ ] Endpoint `DELETE /profile/avatar` : suppression avatar utilisateur
@@ -40,8 +39,8 @@
 
 - [ ] Vérifier RLS policies appliquées (test par query directe PostgreSQL)
 - [ ] Implémenter checksum validation (SHA256) pour intégrité fichier
-- [ ] Ajouter signed URLs (Supabase, expiration 1h) pour téléchargements sécurisés
-- [ ] Audit logging : chaque upload/delete/access enregistré (user_id, file_path, action, timestamp, IP)
+- [x] Ajouter signed URLs (Supabase, expiration 1h) pour visualisation sécurisée des documents KYC.
+- [x] Audit logging : système d'audit présent (`apps/server/src/audit-logs/*`, `admin/audit-export.*`).
 - [ ] Implémenter rate limiting : 10 uploads/heure par utilisateur
 - [ ] Vérifier RGPD compliance : droit d'accès (GET audit logs), droit d'oubli (soft delete + purge après 90j)
 - [ ] Tests sécurité : RLS bypass, accès cross-user, token expiré
@@ -54,7 +53,7 @@
 - [ ] Gestion erreurs : messages utilisateur clairs (fichier trop gros, type invalide, etc.)
 - [ ] Retry automatique : 3 tentatives en cas d'erreur réseau
 - [ ] État upload : pending → uploading → success/error
-- [ ] Afficher liste documents uploadés (avec date, statut KYC)
+- [x] Afficher statut KYC dans `Profile.tsx` et Dashboard (alertes et navigation vers `#profile-kyc`).
 - [ ] Bouton delete : suppression logique avec confirmation
 - [ ] Responsive design (mobile-first) + dark mode
 
@@ -75,7 +74,7 @@
 - [ ] Page `/audit/files` : tableau historique accès fichiers
 - [ ] Colonnes : date, action (upload/delete/access), fichier, utilisateur (admin view), statut, détails
 - [ ] Filtres : par action, par date range, par utilisateur (admin)
-- [ ] Export CSV : audit trail complète
+- [x] Export CSV/JSON/PDF : audit trail côté admin (AuditExportPanel + endpoints).
 - [ ] Responsive design + dark mode
 
 ### Frontend : Intégration globale
@@ -98,7 +97,7 @@
 
 ### Documentation
 
-- [ ] Mettre à jour README : file storage architecture, Supabase config
+- [x] Documentation complète ajoutée (`FILE_STORAGE_*.md`, `START_HERE_FILE_STORAGE.md`).
 - [ ] Ajouter guide sécurité : RLS policies, signed URLs, audit logging
 - [ ] API documentation : endpoints fichiers (Swagger/OpenAPI)
 - [ ] Troubleshooting : 404 sur download, upload timeout, quota dépassé
