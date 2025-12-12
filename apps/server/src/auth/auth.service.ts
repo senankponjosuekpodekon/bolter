@@ -62,11 +62,17 @@ export class AuthService {
       this.auditLogger.warn(`Failed to persist login audit log for ${user.email}`);
     }
 
-    return {
+    // Check if user has 2FA enabled - if so, require verification before granting full access
+    const twoFactorEnabled = user.two_factor_enabled === true;
+
+    const response: any = {
       accessToken: this.jwtService.sign(payload),
       refreshToken,
       user: this.stripSensitiveFields(user),
+      requires2FA: twoFactorEnabled,
     };
+
+    return response;
   }
 
   async register(registerDto: RegisterDto) {

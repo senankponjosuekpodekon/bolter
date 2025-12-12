@@ -10,13 +10,16 @@ interface UserSelector {
 }
 
 vi.mock("../../stores/authStore", () => {
-  const mockUser = { user: { id: "u1", locale: "fr-FR", currency: "EUR" } };
+  const mockState = {
+    user: { id: "u1", locale: "fr-FR", currency: "EUR" },
+    setUser: vi.fn(),
+  };
   // create a callable mock that resembles the zustand useStore hook
   const useAuthStoreMock: UserSelector = (
     selector?: (state: unknown) => unknown
-  ) => (typeof selector === "function" ? selector(mockUser) : mockUser);
+  ) => (typeof selector === "function" ? selector(mockState) : mockState);
   // expose getState for callers that use useAuthStore.getState()
-  useAuthStoreMock.getState = () => mockUser;
+  useAuthStoreMock.getState = () => mockState;
   return { useAuthStore: useAuthStoreMock };
 });
 

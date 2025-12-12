@@ -19,9 +19,9 @@ describe('NotificationsService (Simplified)', () => {
       getAdminClient: jest.fn().mockImplementation(() => ({
         from: jest.fn().mockImplementation(() => ({
           insert: jest.fn().mockResolvedValue({ error: null }),
-          select: jest.fn().mockImplementation(function() {
+          select: jest.fn().mockImplementation(function () {
             return {
-              eq: jest.fn().mockImplementation(function() {
+              eq: jest.fn().mockImplementation(function () {
                 return {
                   maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
                 };
@@ -56,7 +56,7 @@ describe('NotificationsService (Simplified)', () => {
       mockLogger as any,
       mockConfigService as any,
     );
-  });  describe('Service Initialization', () => {
+  }); describe('Service Initialization', () => {
     it('should be defined', () => {
       expect(service).toBeDefined();
     });

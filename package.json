@@ -28,7 +28,7 @@
     "e2e:ui": "npm run e2e:ui --workspace=client",
     "security:audit": "npm audit --production",
     "security:audit:fix": "npm audit fix",
-    "prepare": "husky install",
+    "prepare": "command -v husky > /dev/null 2>&1 && husky install || true",
     "ci:all": "npm run lint && npm run test:coverage && npm run build && npm run e2e"
   },
   "devDependencies": {

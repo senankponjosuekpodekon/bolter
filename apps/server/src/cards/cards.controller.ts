@@ -4,12 +4,13 @@ import { CardsService } from './cards.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtVerifiedGuard } from '../auth/guards/jwt-verified.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 
 @ApiTags('cards')
 @Controller('cards')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, JwtVerifiedGuard, RolesGuard)
 @ApiBearerAuth()
 export class CardsController {
     constructor(private readonly cardsService: CardsService) { }

@@ -6,6 +6,15 @@ export interface BulkActionPayload {
   updates?: Record<string, unknown>;
 }
 
+export interface BulkOperationResult {
+  success: number; // Number of successful operations
+  failed: number; // Number of failed operations
+  processed: number; // Total processed
+  errors?: Array<{ id: string; error: string }>;
+  details?: string[]; // Operation details
+  message?: string;
+}
+
 class BulkOperationsService {
   async bulkApprove(type: string, ids: string[]) {
     if (!ids.length) return;
@@ -56,6 +65,38 @@ class BulkOperationsService {
       type,
       ids,
     });
+    return response.data;
+  }
+
+  // KYC-specific methods
+  async bulkReviewKyc(payload: BulkActionPayload): Promise<BulkOperationResult> {
+    const response = await api.post('/admin/bulk/approve/kyc', payload);
+    return response.data;
+  }
+
+  async bulkFlagKyc(payload: BulkActionPayload): Promise<BulkOperationResult> {
+    const response = await api.post('/admin/bulk/reject/kyc', payload);
+    return response.data;
+  }
+
+  async bulkDeleteKyc(payload: BulkActionPayload): Promise<BulkOperationResult> {
+    const response = await api.post('/admin/bulk/delete/kyc', payload);
+    return response.data;
+  }
+
+  // Transaction-specific methods
+  async bulkReviewTransactions(payload: BulkActionPayload): Promise<BulkOperationResult> {
+    const response = await api.post('/admin/bulk/approve/transactions', payload);
+    return response.data;
+  }
+
+  async bulkFlagTransactions(payload: BulkActionPayload): Promise<BulkOperationResult> {
+    const response = await api.post('/admin/bulk/reject/transactions', payload);
+    return response.data;
+  }
+
+  async bulkDeleteTransactions(payload: BulkActionPayload): Promise<BulkOperationResult> {
+    const response = await api.post('/admin/bulk/delete/transactions', payload);
     return response.data;
   }
 }

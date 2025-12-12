@@ -19,6 +19,7 @@ const accounts_service_1 = require("./accounts.service");
 const update_account_dto_1 = require("./dto/update-account.dto");
 const create_account_dto_1 = require("./dto/create-account.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const jwt_verified_guard_1 = require("../auth/guards/jwt-verified.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const query_accounts_dto_1 = require("./dto/query-accounts.dto");
@@ -116,7 +117,7 @@ __decorate([
 exports.AccountsController = AccountsController = __decorate([
     (0, swagger_1.ApiTags)('accounts'),
     (0, common_1.Controller)('accounts'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, jwt_verified_guard_1.JwtVerifiedGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [accounts_service_1.AccountsService])
 ], AccountsController);

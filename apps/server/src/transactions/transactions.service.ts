@@ -229,10 +229,10 @@ export class TransactionsService {
       throw new NotFoundException('Card not found');
     }
 
-    const cardData = card.data as { 
+    const cardData = card.data as {
       status: string;
       card_number: string;
-      accounts: { 
+      accounts: {
         id: string;
         user_id: string;
         balance: string | number;

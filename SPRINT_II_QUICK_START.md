@@ -9,6 +9,7 @@
 ## Current Status (10 décembre 2025)
 
 ✅ **All code quality checks passing**
+
 - Lint: 0 errors
 - TypeScript: 0 type errors
 - Tests: 66/66 backend unit tests passing (100%)
@@ -97,7 +98,7 @@ npm run lint
 cd apps/server
 npm test -- --forceExit
 
-# Run frontend tests  
+# Run frontend tests
 cd ../client
 npm test
 
@@ -130,6 +131,7 @@ npm run lint
 ```
 
 **Current Test Status:**
+
 - ✅ Backend: 66/66 tests passing (100%)
 - ✅ 8/8 test suites passing
 - ✅ 0 lint errors

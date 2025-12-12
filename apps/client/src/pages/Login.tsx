@@ -4,12 +4,24 @@ import { useAuthStore } from "../stores/authStore";
 import { useTranslation } from "react-i18next";
 import { loadLocale } from "../i18n";
 import api from "../services/api";
+import Verify2FAModal from "../components/auth/Verify2FAModal";
+
+interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: any;
+  requires2FA?: boolean;
+}
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [tempToken, setTempToken] = useState<string | null>(null);
+  const [tempUser, setTempUser] = useState<any>(null);
+  const [tempRefreshToken, setTempRefreshToken] = useState<string | null>(null);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -29,10 +41,23 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await api.post("/auth/login", { email, password });
-      const { accessToken, user } = response.data;
-      setAuth(user, accessToken);
-      navigate("/dashboard");
+      const response = await api.post<LoginResponse>("/auth/login", {
+        email,
+        password,
+      });
+      const { accessToken, user, refreshToken, requires2FA } = response.data;
+
+      if (requires2FA) {
+        // Store temporary credentials for 2FA verification
+        setTempToken(accessToken);
+        setTempUser(user);
+        setTempRefreshToken(refreshToken);
+        setShow2FAModal(true);
+      } else {
+        // No 2FA needed, login directly
+        setAuth(user, accessToken);
+        navigate("/dashboard");
+      }
     } catch (err) {
       let message = "Login failed";
       if (typeof err === "object" && err !== null && "response" in err) {
@@ -42,6 +67,22 @@ export default function Login() {
       setError(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClose2FAModal = () => {
+    setShow2FAModal(false);
+    setTempToken(null);
+    setTempUser(null);
+    setTempRefreshToken(null);
+  };
+
+  const handleVerify2FA = () => {
+    // Modal verified successfully, complete login
+    if (tempToken && tempUser && tempRefreshToken) {
+      setAuth(tempUser, tempToken);
+      handleClose2FAModal();
+      navigate("/dashboard");
     }
   };
 
@@ -102,6 +143,13 @@ export default function Login() {
           </div>
         </form>
       </div>
+
+      <Verify2FAModal
+        isOpen={show2FAModal}
+        onClose={handleClose2FAModal}
+        tempToken={tempToken}
+        onVerifySuccess={handleVerify2FA}
+      />
     </div>
   );
 }

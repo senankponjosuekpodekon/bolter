@@ -16,7 +16,7 @@ export declare class TransactionsController {
     createDeposit(req: any, createDepositDto: CreateDepositDto): Promise<any>;
     createWithdraw(req: any, createWithdrawDto: CreateWithdrawDto): Promise<any>;
     createCardTransaction(req: any, createCardTransactionDto: CreateCardTransactionDto): Promise<any>;
-    getTransactions(req: any, query: QueryTransactionsDto): Promise<any[]> | Promise<{
+    getTransactions(req: any, query: QueryTransactionsDto): Promise<{
         data: {
             fromAccount: {
                 id: string;
@@ -48,7 +48,7 @@ export declare class TransactionsController {
             created_at?: string | null;
         }[];
         total: number;
-    }>;
+    }> | Promise<any[]>;
     getPendingTransactions(): Promise<any[]>;
     getPendingTransaction(id: string): Promise<any>;
     filterTransactions(query: TransactionFilterDto): Promise<import("./dto/transaction-filter.dto").FilterResultDto<Record<string, unknown>>>;

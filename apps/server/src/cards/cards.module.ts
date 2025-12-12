@@ -4,9 +4,10 @@ import { CardsController } from './cards.controller';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { AuditLogsModule } from '../audit-logs/audit-logs.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-    imports: [SupabaseModule, AuditLogsModule, NotificationsModule],
+    imports: [SupabaseModule, AuditLogsModule, NotificationsModule, UsersModule],
     controllers: [CardsController],
     providers: [CardsService],
     exports: [CardsService],

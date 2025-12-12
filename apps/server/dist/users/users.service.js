@@ -303,12 +303,17 @@ let UsersService = UsersService_1 = class UsersService {
             throw new common_1.BadRequestException(`Failed to clear 2FA secret: ${error.message}`);
     }
     async clearTempTwoFactorSecret(userId) {
-        const { error } = await this.supabase.getAdminClient()
-            .from('users')
-            .update({ temp_two_factor_secret: null })
-            .eq('id', userId);
-        if (error)
-            throw new common_1.BadRequestException(`Failed to clear temp 2FA secret: ${error.message}`);
+        try {
+            const { error } = await this.supabase.getAdminClient()
+                .from('users')
+                .update({ temp_two_factor_secret: null })
+                .eq('id', userId);
+            if (error)
+                throw new common_1.BadRequestException(`Failed to clear temp 2FA secret: ${error.message}`);
+        }
+        catch (err) {
+            console.warn('Failed to clear temp 2FA secret:', err);
+        }
     }
     async hashPassword(password) {
         const salt = await bcrypt.genSalt(10);
@@ -329,7 +334,7 @@ let UsersService = UsersService_1 = class UsersService {
             status: user.status,
             kyc_status: user.kyc_status,
             hasPassword: Boolean(user.password_hash),
-            two_factor_enabled: Boolean(user.two_factor_enabled),
+            two_factor_enabled: Boolean(user.two_factor_enabled ?? false),
             createdAt: user.created_at,
             updatedAt: user.updated_at,
         };

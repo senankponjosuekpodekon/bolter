@@ -92,11 +92,14 @@ let AuthService = class AuthService {
         if (!success) {
             this.auditLogger.warn(`Failed to persist login audit log for ${user.email}`);
         }
-        return {
+        const twoFactorEnabled = user.two_factor_enabled === true;
+        const response = {
             accessToken: this.jwtService.sign(payload),
             refreshToken,
             user: this.stripSensitiveFields(user),
+            requires2FA: twoFactorEnabled,
         };
+        return response;
     }
     async register(registerDto) {
         const existingUser = await this.usersService.findByEmail(registerDto.email);

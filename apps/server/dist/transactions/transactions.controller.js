@@ -23,6 +23,7 @@ const create_withdraw_dto_1 = require("./dto/create-withdraw.dto");
 const create_card_transaction_dto_1 = require("./dto/create-card-transaction.dto");
 const validate_transaction_dto_1 = require("./dto/validate-transaction.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const jwt_verified_guard_1 = require("../auth/guards/jwt-verified.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const query_transactions_dto_1 = require("./dto/query-transactions.dto");
@@ -169,7 +170,7 @@ __decorate([
 exports.TransactionsController = TransactionsController = __decorate([
     (0, swagger_1.ApiTags)('transactions'),
     (0, common_1.Controller)('transactions'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, jwt_verified_guard_1.JwtVerifiedGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [transactions_service_1.TransactionsService,
         transaction_filter_service_1.TransactionFilterService])

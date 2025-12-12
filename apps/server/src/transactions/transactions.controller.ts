@@ -8,6 +8,7 @@ import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { CreateCardTransactionDto } from './dto/create-card-transaction.dto';
 import { ValidateTransactionDto } from './dto/validate-transaction.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtVerifiedGuard } from '../auth/guards/jwt-verified.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
@@ -16,7 +17,7 @@ import { TransactionFilterDto } from './dto/transaction-filter.dto';
 
 @ApiTags('transactions')
 @Controller('transactions')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, JwtVerifiedGuard, RolesGuard)
 @ApiBearerAuth()
 export class TransactionsController {
   constructor(

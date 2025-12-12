@@ -34,6 +34,37 @@ export default function Accounts() {
     locale: user?.locale ?? "en-US",
   });
   const toast = useToast();
+  const copyText = useCallback(async (text: string) => {
+    try {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.clipboard &&
+        window.isSecureContext
+      ) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (err) {
+      console.warn("Clipboard API failed, falling back", err);
+    }
+
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.top = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch (err) {
+      console.error("Legacy copy fallback failed", err);
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     const l =
@@ -257,17 +288,16 @@ export default function Accounts() {
     async (account: Account | null) => {
       if (!account) return;
       const details = formatAccountDetails(account);
-      try {
-        await navigator.clipboard.writeText(details);
+      const ok = await copyText(details);
+      if (ok) {
         toast.success(t("accounts.copied", { defaultValue: "Details copied" }));
-      } catch (err) {
-        console.error("Copy failed", err);
+      } else {
         toast.error(
           t("accounts.copy_error", { defaultValue: "Unable to copy" })
         );
       }
     },
-    [formatAccountDetails, toast, t]
+    [copyText, formatAccountDetails, toast, t]
   );
 
   const handleShareDetails = useCallback(
@@ -321,19 +351,18 @@ export default function Accounts() {
   const handleCopyCard = useCallback(
     async (card: Card) => {
       const details = formatCardDetails(card);
-      try {
-        await navigator.clipboard.writeText(details);
+      const ok = await copyText(details);
+      if (ok) {
         toast.success(
           t("accounts.copied", { defaultValue: "Card details copied" })
         );
-      } catch (err) {
-        console.error("Copy failed", err);
+      } else {
         toast.error(
           t("accounts.copy_error", { defaultValue: "Unable to copy" })
         );
       }
     },
-    [formatCardDetails, toast, t]
+    [copyText, formatCardDetails, toast, t]
   );
 
   const cardsCount = cards?.length ?? 0;

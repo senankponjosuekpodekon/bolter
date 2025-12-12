@@ -13,12 +13,13 @@ const transactions_service_1 = require("./transactions.service");
 const accounts_module_1 = require("../accounts/accounts.module");
 const transaction_filter_service_1 = require("./transaction-filter.service");
 const supabase_module_1 = require("../supabase/supabase.module");
+const users_module_1 = require("../users/users.module");
 let TransactionsModule = class TransactionsModule {
 };
 exports.TransactionsModule = TransactionsModule;
 exports.TransactionsModule = TransactionsModule = __decorate([
     (0, common_1.Module)({
-        imports: [accounts_module_1.AccountsModule, supabase_module_1.SupabaseModule],
+        imports: [accounts_module_1.AccountsModule, supabase_module_1.SupabaseModule, users_module_1.UsersModule],
         controllers: [transactions_controller_1.TransactionsController],
         providers: [transactions_service_1.TransactionsService, transaction_filter_service_1.TransactionFilterService],
         exports: [transactions_service_1.TransactionsService, transaction_filter_service_1.TransactionFilterService],

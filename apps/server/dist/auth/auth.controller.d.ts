@@ -5,16 +5,8 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
-    register(registerDto: RegisterDto): Promise<{
-        accessToken: string;
-        refreshToken: string;
-        user: Omit<import("../users/users.service").User, "password" | "refreshToken">;
-    }>;
-    login(loginDto: LoginDto, req: any): Promise<{
-        accessToken: string;
-        refreshToken: string;
-        user: Omit<import("../users/users.service").User, "password" | "refreshToken">;
-    }>;
+    register(registerDto: RegisterDto): Promise<any>;
+    login(loginDto: LoginDto, req: any): Promise<any>;
     refresh(refreshTokenDto: RefreshTokenDto, req: any): Promise<{
         accessToken: string;
     }>;
@@ -22,11 +14,7 @@ export declare class AuthController {
         success: boolean;
     }>;
     googleAuth(): Promise<void>;
-    googleAuthCallback(req: any): Promise<{
-        accessToken: string;
-        refreshToken: string;
-        user: Omit<import("../users/users.service").User, "password" | "refreshToken">;
-    }>;
+    googleAuthCallback(req: any): Promise<any>;
     getProfile(req: any): any;
     setupTwoFactor(req: any): Promise<{
         secret: string;

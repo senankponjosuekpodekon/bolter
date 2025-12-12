@@ -245,7 +245,7 @@ export class UsersService {
         .update({ two_factor_secret: secret, two_factor_enabled: true })
         .eq('id', userId);
       if (error) throw new BadRequestException(`Failed to set 2FA secret: ${error.message}`);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_err) {
       // If columns don't exist, try with simpler update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -294,11 +294,16 @@ export class UsersService {
   }
 
   async clearTempTwoFactorSecret(userId: string): Promise<void> {
-    const { error } = await this.supabase.getAdminClient()
-      .from('users')
-      .update({ temp_two_factor_secret: null })
-      .eq('id', userId);
-    if (error) throw new BadRequestException(`Failed to clear temp 2FA secret: ${error.message}`);
+    try {
+      const { error } = await this.supabase.getAdminClient()
+        .from('users')
+        .update({ temp_two_factor_secret: null })
+        .eq('id', userId);
+      if (error) throw new BadRequestException(`Failed to clear temp 2FA secret: ${error.message}`);
+    } catch (err) {
+      // Log but don't fail - temp secret clearing is not critical
+      console.warn('Failed to clear temp 2FA secret:', err);
+    }
   }
 
   private async hashPassword(password: string): Promise<string> {
@@ -323,7 +328,8 @@ export class UsersService {
       status: user.status,
       kyc_status: user.kyc_status,
       hasPassword: Boolean(user.password_hash),
-      two_factor_enabled: Boolean(user.two_factor_enabled),
+      // Safe fallback for two_factor_enabled if column doesn't exist
+      two_factor_enabled: Boolean(user.two_factor_enabled ?? false),
       createdAt: user.created_at,
       updatedAt: user.updated_at,
     };

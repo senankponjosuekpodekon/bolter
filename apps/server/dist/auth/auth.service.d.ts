@@ -13,16 +13,8 @@ export declare class AuthService {
     private readonly auditLogger;
     constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, logger: Logger, auditLogsService: AuditLogsService);
     validateUser(email: string, password: string): Promise<Omit<User, 'password' | 'refreshToken'>>;
-    login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<{
-        accessToken: string;
-        refreshToken: string;
-        user: Omit<User, "password" | "refreshToken">;
-    }>;
-    register(registerDto: RegisterDto): Promise<{
-        accessToken: string;
-        refreshToken: string;
-        user: Omit<User, "password" | "refreshToken">;
-    }>;
+    login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<any>;
+    register(registerDto: RegisterDto): Promise<any>;
     refreshToken(userId: string, refreshToken: string): Promise<{
         accessToken: string;
     }>;

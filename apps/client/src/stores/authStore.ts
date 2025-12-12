@@ -16,6 +16,7 @@ interface User {
   status?: string
   kyc_status?: string
   two_factor_enabled?: boolean
+  two_factor_verified?: boolean
   preferences?: Preferences
 }
 

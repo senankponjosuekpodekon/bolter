@@ -6,7 +6,10 @@ class WebSocketService {
 
   connect(userId: string) {
     if (!this.socket) {
-      this.socket = io('http://localhost:3000', {
+      const host = window.location.hostname;
+      const defaultBase = `http://${host}:3000`;
+      const base = import.meta.env?.VITE_API_BASE_URL || defaultBase;
+      this.socket = io(base, {
         transports: ['websocket'],
       });
       this.socket.emit('join', userId);

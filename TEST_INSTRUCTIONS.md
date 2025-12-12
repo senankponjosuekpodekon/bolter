@@ -10,6 +10,7 @@
 ### Backend Tests: 66/66 Passing (100%) ✅
 
 **Test Suites:**
+
 1. ✅ loans.service.simple.spec.ts - 12 tests passing
 2. ✅ exchange.service.spec.ts - 3 tests passing
 3. ✅ notifications.service.simple.spec.ts - 7 tests passing
@@ -95,16 +96,17 @@ Before starting, verify:
 ---
 
 ## 🎯 Test 1: Language Change EN → FR Immediate
-   - [ ] Le dropdown affiche maintenant "Français (FR)"
-   - [ ] Le titre "Profile" en haut se change en "Profil"
-   - [ ] La section "Personal Information" devient "Informations personnelles"
-   - [ ] La section "Interface personalization" devient "Personnalisation de l'interface"
-   - [ ] Les labels changent:
-     - [ ] "Email" reste "Email" (même en FR)
-     - [ ] "First name" → "Prénom"
-     - [ ] "Last name" → "Nom"
-     - [ ] "Phone" → "Téléphone"
-     - [ ] "Address" → "Adresse"
+
+- [ ] Le dropdown affiche maintenant "Français (FR)"
+- [ ] Le titre "Profile" en haut se change en "Profil"
+- [ ] La section "Personal Information" devient "Informations personnelles"
+- [ ] La section "Interface personalization" devient "Personnalisation de l'interface"
+- [ ] Les labels changent:
+  - [ ] "Email" reste "Email" (même en FR)
+  - [ ] "First name" → "Prénom"
+  - [ ] "Last name" → "Nom"
+  - [ ] "Phone" → "Téléphone"
+  - [ ] "Address" → "Adresse"
 
 **Résultat attendu:** 🟢 **TOUS les textes changent IMMÉDIATEMENT**
 
@@ -285,6 +287,7 @@ Before starting, verify:
    - Si true → ressources chargées OK
 
 3. **Vérifier i18n.language**
+
    ```javascript
    console.log(i18n.language);
    ```
@@ -321,10 +324,10 @@ Pour valider la correction, TOUS les critères doivent être ✅:
 
 ## 📝 Fiche de Test à Remplir
 
-**Date du test:** ******\_\_\_******  
-**Testeur:** ******\_\_\_******  
-**Navigateur:** ******\_\_\_******  
-**Version Node:** ******\_\_\_******
+**Date du test:** **\*\***\_\_\_**\*\***  
+**Testeur:** **\*\***\_\_\_**\*\***  
+**Navigateur:** **\*\***\_\_\_**\*\***  
+**Version Node:** **\*\***\_\_\_**\*\***
 
 ### Résultats
 
@@ -352,8 +355,8 @@ Pour valider la correction, TOUS les critères doivent être ✅:
 
 ### Signature
 
-******\_\_\_****** (Testeur)  
-******\_\_\_****** (Date)
+**\*\***\_\_\_**\*\*** (Testeur)  
+**\*\***\_\_\_**\*\*** (Date)
 
 ---
 

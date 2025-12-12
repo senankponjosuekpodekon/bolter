@@ -15,10 +15,32 @@
 5. [Viewing Dates in Your Locale](#viewing-dates-in-your-locale)
 6. [FAQ](#faq)
 7. [Support](#support)
+8. [Two-Factor Authentication (2FA)](#two-factor-authentication-2fa)
 
 ---
 
 ## Getting Started
+
+## Two-Factor Authentication (2FA)
+
+### Login flow with 2FA
+
+- If 2FA is enabled on your account, the login response includes `requires2FA: true` and issues a temporary token with claim `two_factor_verified: false`.
+- The client shows a verification modal where you enter the 6-digit code from your authenticator app.
+- On successful verification, the server returns fresh tokens (access + refresh) and the `two_factor_verified: true` claim.
+- Only verified tokens grant access to protected routes; requests made with non-verified tokens are blocked by the backend guard.
+
+### Technical notes
+
+- Backend adds `two_factor_verified` to JWT:
+  - `false` on initial login when 2FA is enabled
+  - `true` after `/auth/2fa/verify`
+- A guard `TwoFactorVerifiedGuard` is available to protect sensitive endpoints. Apply alongside `JwtAuthGuard`.
+
+### Troubleshooting
+
+- If you see “Two-factor authentication required”, complete verification in the modal.
+- If the modal fails repeatedly, check your device time sync and try a new code.
 
 Welcome to the Bolter Banking Platform with full multi-language and multi-currency support!
 

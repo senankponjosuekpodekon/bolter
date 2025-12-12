@@ -4,13 +4,14 @@ import { AccountsService } from './accounts.service';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtVerifiedGuard } from '../auth/guards/jwt-verified.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { QueryAccountsDto } from './dto/query-accounts.dto';
 
 @ApiTags('accounts')
 @Controller('accounts')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, JwtVerifiedGuard, RolesGuard)
 @ApiBearerAuth()
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) { }

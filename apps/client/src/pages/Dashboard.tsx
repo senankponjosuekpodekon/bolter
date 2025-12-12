@@ -68,6 +68,37 @@ export default function Dashboard() {
     staleTime: 5000,
   });
 
+  // Get auth store user and setter early
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
+
+  // Fetch profile to keep auth store in sync with backend
+  // This ensures 2FA status, KYC status, etc. are always current
+  const { data: profileData } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const response = await api.get("/auth/profile");
+      return response.data;
+    },
+  });
+
+  // Update auth store when profile data changes, but only if there are actual changes
+  useEffect(() => {
+    if (!profileData || !user) return;
+
+    // Check if any profile data differs from current user state
+    const hasChanges = Object.entries(profileData).some(
+      ([key, value]) => user[key as keyof typeof user] !== value
+    );
+
+    if (hasChanges) {
+      setUser({
+        ...user,
+        ...profileData,
+      });
+    }
+  }, [profileData]);
+
   const [activeAccountIndex, setActiveAccountIndex] = useState(0);
 
   const activeAccount = accounts?.[activeAccountIndex];
@@ -85,7 +116,6 @@ export default function Dashboard() {
   }, [transactions, activeAccount?.id]);
 
   const { t } = useTranslation();
-  const user = useAuthStore((s) => s.user);
   const toast = useToast();
   const { currency: currencyFormatter, date: dateFormatter } = useFormatting({
     locale: user?.locale ?? "en-US",

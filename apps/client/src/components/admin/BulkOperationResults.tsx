@@ -64,7 +64,7 @@ export const BulkOperationResults: React.FC<BulkOperationResultsProps> = ({
       </div>
 
       {/* Details */}
-      {result.details.length > 0 && (
+      {result.details && result.details.length > 0 && (
         <div className="px-6 py-4">
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             {t("bulkResults.details", "Operation Details")}

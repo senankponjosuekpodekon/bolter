@@ -13,12 +13,13 @@ const cards_controller_1 = require("./cards.controller");
 const supabase_module_1 = require("../supabase/supabase.module");
 const audit_logs_module_1 = require("../audit-logs/audit-logs.module");
 const notifications_module_1 = require("../notifications/notifications.module");
+const users_module_1 = require("../users/users.module");
 let CardsModule = class CardsModule {
 };
 exports.CardsModule = CardsModule;
 exports.CardsModule = CardsModule = __decorate([
     (0, common_1.Module)({
-        imports: [supabase_module_1.SupabaseModule, audit_logs_module_1.AuditLogsModule, notifications_module_1.NotificationsModule],
+        imports: [supabase_module_1.SupabaseModule, audit_logs_module_1.AuditLogsModule, notifications_module_1.NotificationsModule, users_module_1.UsersModule],
         controllers: [cards_controller_1.CardsController],
         providers: [cards_service_1.CardsService],
         exports: [cards_service_1.CardsService],
