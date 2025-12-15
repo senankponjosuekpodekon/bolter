@@ -2,7 +2,7 @@
 
 ## Sécurité & Authentification (Nouvelles actions)
 
-- [ ] Photo de profil : upload + preview côté client, endpoint `/users/profile/avatar`, stockage et redimensionnement (Sharp), limites 5MB et filtres JPG/PNG/WebP.
+- [x] Photo de profil : upload + preview côté client, endpoint `/users/profile/avatar`, stockage et redimensionnement (Sharp), limites 2MB et filtres JPG/PNG/WebP. ✅ DONE (avatar.service, avatar.controller, ProfileAvatar.tsx)
 - [ ] Empreinte digitale (WebAuthn) : options d'enregistrement + vérification (`@simplewebauthn/server`), front `startRegistration`, stockage du credential publicKey/credentialID, UI dans le profil.
 - [x] OTP / 2FA : activer/désactiver, vérification côté client (UI `TwoFactorSettings.tsx`, `Verify2FAModal.tsx`) et endpoints `/auth/2fa/*`.
 - [ ] Codes de secours (10 codes, hashés en base), régénération et affichage unique, tests de vérification.
@@ -42,7 +42,7 @@
 - [x] Ajouter signed URLs (Supabase, expiration 1h) pour visualisation sécurisée des documents KYC.
 - [x] Audit logging : système d'audit présent (`apps/server/src/audit-logs/*`, `admin/audit-export.*`).
 - [ ] Implémenter rate limiting : 10 uploads/heure par utilisateur
-- [ ] Vérifier RGPD compliance : droit d'accès (GET audit logs), droit d'oubli (soft delete + purge après 90j)
+- [x] Vérifier RGPD compliance : droit d'accès (GET audit logs), droit d'oubli (soft delete + purge après 90j). ✅ DONE (soft-delete + cascading cleanup + 90-day retention + daily cron purge)
 - [ ] Tests sécurité : RLS bypass, accès cross-user, token expiré
 
 ### Frontend : Upload KYC (React)
@@ -114,7 +114,7 @@
 - [ ] Ajouter metrics : uploads/jour, total stockage utilisé, erreurs
 - [ ] Alerte : quota bucket presque atteint (> 80%), uploads échoués
 - [ ] Cron job : archiver audit logs > 6 mois
-- [ ] Cron job : supprimer fichiers "soft deleted" > 90 jours (RGPD)
+- [x] Cron job : supprimer fichiers "soft deleted" > 90 jours (RGPD) ✅ DONE (CleanupTaskService with daily 2 AM cron)
 - [ ] Dashboard monitoring : stockage par user, uploads trends
 - [ ] Backup Supabase : daily snapshots PostgreSQL + bucket exports
 
