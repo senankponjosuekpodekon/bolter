@@ -41,7 +41,7 @@
 - [ ] Implémenter checksum validation (SHA256) pour intégrité fichier
 - [x] Ajouter signed URLs (Supabase, expiration 1h) pour visualisation sécurisée des documents KYC.
 - [x] Audit logging : système d'audit présent (`apps/server/src/audit-logs/*`, `admin/audit-export.*`).
-- [ ] Implémenter rate limiting : 10 uploads/heure par utilisateur
+- [x] Implémenter rate limiting : 10 uploads/heure par utilisateur. ✅ DONE (UploadRateLimitService on avatar + KYC)
 - [x] Vérifier RGPD compliance : droit d'accès (GET audit logs), droit d'oubli (soft delete + purge après 90j). ✅ DONE (soft-delete + cascading cleanup + 90-day retention + daily cron purge)
 - [ ] Tests sécurité : RLS bypass, accès cross-user, token expiré
 
@@ -111,8 +111,8 @@
 
 ### Monitoring & Maintenance
 
-- [ ] Ajouter metrics : uploads/jour, total stockage utilisé, erreurs
-- [ ] Alerte : quota bucket presque atteint (> 80%), uploads échoués
+- [x] Ajouter metrics : uploads/jour, total stockage utilisé, erreurs. ✅ DONE (StorageMonitoringService)
+- [x] Alerte : quota bucket presque atteint (> 80%), uploads échoués. ✅ DONE (quota alerts at 80% + 95%, failure logging)
 - [ ] Cron job : archiver audit logs > 6 mois
 - [x] Cron job : supprimer fichiers "soft deleted" > 90 jours (RGPD) ✅ DONE (CleanupTaskService with daily 2 AM cron)
 - [ ] Dashboard monitoring : stockage par user, uploads trends
