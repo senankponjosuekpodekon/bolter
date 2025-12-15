@@ -6,6 +6,7 @@ import { AvatarService } from './avatar.service';
 import { SupabaseService } from '../supabase/supabase.service';
 import { AuditLogsModule } from '../audit-logs/audit-logs.module';
 import { UploadRateLimitService } from '../common/services/upload-rate-limit.service';
+import { StorageMonitoringService } from '../common/services/storage-monitoring.service';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UploadRateLimitService } from '../common/services/upload-rate-limit.ser
     AvatarService,
     SupabaseService,
     UploadRateLimitService,
+    StorageMonitoringService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

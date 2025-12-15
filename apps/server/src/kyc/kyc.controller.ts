@@ -12,6 +12,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { KycFilterDto } from './dto/kyc-filter.dto';
 import { UploadRateLimitService } from '../common/services/upload-rate-limit.service';
+import { StorageMonitoringService } from '../common/services/storage-monitoring.service';
 
 @ApiTags('kyc')
 @Controller('kyc')
@@ -23,6 +24,7 @@ export class KycController {
     private readonly kycFilterService: KycFilterService,
     private readonly kycStorageService: KycStorageService,
     private readonly uploadRateLimit: UploadRateLimitService,
+    private readonly storageMonitoring: StorageMonitoringService,
   ) { }
 
   @Post('documents')
@@ -55,27 +57,36 @@ export class KycController {
     // Check per-user upload rate limit (10 uploads/hour)
     await this.uploadRateLimit.recordUpload(userId);
 
-    // Upload to storage and get path/url
-    const { path } = await this.kycStorageService.uploadDocument(
-      userId,
-      documentType,
-      file.originalname,
-      file.buffer,
-      file.mimetype,
-    );
+    try {
+      // Upload to storage and get path/url
+      const { path } = await this.kycStorageService.uploadDocument(
+        userId,
+        documentType,
+        file.originalname,
+        file.buffer,
+        file.mimetype,
+      );
 
-    // Save document record in database
-    const result = await this.kycService.uploadDocument(userId, {
-      documentType,
-      filePath: path,
-      fileSize: file.size,
-      mimeType: file.mimetype,
-    });
+      // Save document record in database
+      const result = await this.kycService.uploadDocument(userId, {
+        documentType,
+        filePath: path,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+      });
 
-    return {
-      ...result,
-      remaining: this.uploadRateLimit.getRemainingUploads(userId),
-    };
+      // Log successful upload to monitoring
+      await this.storageMonitoring.logUploadAttempt(userId, 'kyc-documents', file.size, true);
+
+      return {
+        ...result,
+        remaining: this.uploadRateLimit.getRemainingUploads(userId),
+      };
+    } catch (error) {
+      // Log failed upload to monitoring
+      await this.storageMonitoring.logUploadAttempt(userId, 'kyc-documents', file.size || 0, false, error.message);
+      throw error;
+    }
   }
 
   @Get('documents')

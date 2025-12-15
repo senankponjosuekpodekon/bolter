@@ -5,6 +5,7 @@ import { AvatarService } from './avatar.service';
 import { JwtVerifiedGuard } from '../auth/guards/jwt-verified.guard';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { UploadRateLimitService } from '../common/services/upload-rate-limit.service';
+import { StorageMonitoringService } from '../common/services/storage-monitoring.service';
 
 @Controller('profile/avatar')
 export class AvatarController {
@@ -12,6 +13,7 @@ export class AvatarController {
     private readonly avatarService: AvatarService,
     private readonly auditLogs: AuditLogsService,
     private readonly uploadRateLimit: UploadRateLimitService,
+    private readonly storageMonitoring: StorageMonitoringService,
   ) {}
 
   @Post()
@@ -24,26 +26,37 @@ export class AvatarController {
     // Check per-user upload rate limit (10 uploads/hour)
     await this.uploadRateLimit.recordUpload(userId);
 
-    const result = await this.avatarService.upload(userId, file);
-    await this.auditLogs.log({
-      action: 'avatar.upload',
-      resourceType: 'avatar',
-      resourceId: userId,
-      userId,
-      metadata: {
-        path: result.path,
-        remainingUploads: this.uploadRateLimit.getRemainingUploads(userId),
-      },
-      context: {
-        ip: req.ip,
-        userAgent: req.headers?.['user-agent'] ?? null,
-        requestId: req.id ?? null,
-      },
-    });
-    return {
-      ...result,
-      remaining: this.uploadRateLimit.getRemainingUploads(userId),
-    };
+    try {
+      const result = await this.avatarService.upload(userId, file);
+      await this.auditLogs.log({
+        action: 'avatar.upload',
+        resourceType: 'avatar',
+        resourceId: userId,
+        userId,
+        metadata: {
+          path: result.path,
+          fileSize: file.size,
+          remainingUploads: this.uploadRateLimit.getRemainingUploads(userId),
+        },
+        context: {
+          ip: req.ip,
+          userAgent: req.headers?.['user-agent'] ?? null,
+          requestId: req.id ?? null,
+        },
+      });
+
+      // Log successful upload to monitoring
+      await this.storageMonitoring.logUploadAttempt(userId, 'profile-avatars', file.size, true);
+
+      return {
+        ...result,
+        remaining: this.uploadRateLimit.getRemainingUploads(userId),
+      };
+    } catch (error) {
+      // Log failed upload to monitoring
+      await this.storageMonitoring.logUploadAttempt(userId, 'profile-avatars', file.size || 0, false, error.message);
+      throw error;
+    }
   }
 
   @Get()

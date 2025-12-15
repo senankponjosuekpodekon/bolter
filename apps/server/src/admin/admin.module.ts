@@ -7,11 +7,14 @@ import { AdminService } from './admin.service';
 import { AdminDashboardController } from './admin-dashboard.controller';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { AuthModule } from '../auth/auth.module';
+import { StorageMonitoringService } from '../common/services/storage-monitoring.service';
+import { StorageMonitoringController } from './storage-monitoring.controller';
+import { AuditLogsModule } from '../audit-logs/audit-logs.module';
 
 @Module({
-  imports: [SupabaseModule, AuthModule],
-  controllers: [BulkOperationsController, AuditExportController, AdminDashboardController],
-  providers: [BulkOperationsService, AuditExportService, AdminService],
-  exports: [BulkOperationsService, AuditExportService, AdminService],
+  imports: [SupabaseModule, AuthModule, AuditLogsModule],
+  controllers: [BulkOperationsController, AuditExportController, AdminDashboardController, StorageMonitoringController],
+  providers: [BulkOperationsService, AuditExportService, AdminService, StorageMonitoringService],
+  exports: [BulkOperationsService, AuditExportService, AdminService, StorageMonitoringService],
 })
 export class AdminModule { }
