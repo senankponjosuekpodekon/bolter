@@ -9734,3 +9734,10 @@
 {"context":"NotificationsGateway","level":"debug","message":"Client connected to notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T11:33:53.970Z"}
 {"context":"NotificationsGateway","level":"debug","message":"Client disconnected from notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T11:38:02.605Z"}
 {"context":"NotificationsGateway","level":"debug","message":"Client connected to notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T11:38:03.512Z"}
+{"context":"NotificationsGateway","level":"debug","message":"Client disconnected from notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T11:44:39.504Z"}
+{"context":"NotificationsGateway","level":"debug","message":"Client connected to notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T11:52:52.215Z"}
+{"context":"NotificationsGateway","level":"debug","message":"Client disconnected from notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T11:59:28.523Z"}
+{"context":"NotificationsGateway","level":"debug","message":"Client connected to notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T12:06:59.316Z"}
+{"context":"NotificationsGateway","level":"debug","message":"Client disconnected from notifications (user: b4868eb2-15d9-4c0e-aa30-af039df5dd82)","service":"financial-platform","timestamp":"2025-12-12T12:07:48.825Z"}
+{"context":"NotificationsGateway","level":"debug","message":"Client disconnected from notifications (user: b4868eb2-15d9-4c0e-aa30-af039df5dd82)","service":"financial-platform","timestamp":"2025-12-12T12:07:48.829Z"}
+{"context":"NotificationsGateway","level":"debug","message":"Client disconnected from notifications (user: 1863c268-cac0-44d8-97b2-f33cc7f05df6)","service":"financial-platform","timestamp":"2025-12-12T12:14:00.153Z"}

@@ -3,9 +3,11 @@
 ## 📦 Fichiers Créés (8 documents)
 
 ### 1. FILE_STORAGE_SUMMARY.md (15 KB) ⭐ **COMMENCER ICI**
+
 **Durée de lecture:** 10 minutes  
 **Audience:** Tous  
 **Contenu:**
+
 - Résumé en une page
 - En Une Page (TL;DR)
 - Système actuel implémenté
@@ -20,10 +22,12 @@
 
 ---
 
-### 2. FILE_STORAGE_QUICK_REFERENCE.md (5 KB) 
+### 2. FILE_STORAGE_QUICK_REFERENCE.md (5 KB)
+
 **Durée de lecture:** 5 minutes  
 **Audience:** Tous les profils  
 **Contenu:**
+
 - Résumé rapide (tableau)
 - Questions réponses
 - Fichiers importants
@@ -39,9 +43,11 @@
 ---
 
 ### 3. FILE_STORAGE_SYSTEM.md (18 KB)
+
 **Durée de lecture:** 25-30 minutes  
 **Audience:** Backend devs, DevOps, architectes  
 **Contenu:**
+
 - Vue d'ensemble
 - Architecture actuelle complète
 - Backend Supabase Storage
@@ -61,9 +67,11 @@
 ---
 
 ### 4. FILE_STORAGE_PRACTICAL_GUIDE.md (13 KB)
+
 **Durée de lecture:** 15-20 minutes  
 **Audience:** Devs, QA, testeurs  
 **Contenu:**
+
 - Résumé rapide (tableau)
 - Flux d'upload visuel
 - Exemple complet (7 étapes réelles)
@@ -86,10 +94,12 @@
 
 ---
 
-### 5. FILE_STORAGE_TECHNICAL_DIAGRAM.md (41 KB) 
+### 5. FILE_STORAGE_TECHNICAL_DIAGRAM.md (41 KB)
+
 **Durée de lecture:** 20-25 minutes  
 **Audience:** Architectes, lead devs, DevOps  
 **Contenu:**
+
 - Vue architecturale globale (diagramme ASCII)
 - Flux de données (9 étapes détaillées)
 - Upload flow complet (10 étapes + code)
@@ -107,9 +117,11 @@
 ---
 
 ### 6. FILE_STORAGE_INFOGRAPHY.md (25 KB)
+
 **Durée de lecture:** 15 minutes  
 **Audience:** Tous  
 **Contenu:**
+
 - Vue globale du système (ASCII diagram)
 - Cycle de vie d'un document (flowchart)
 - Comparaison des statuts
@@ -123,9 +135,11 @@
 ---
 
 ### 7. FILE_STORAGE_INDEX.md (12 KB)
+
 **Durée de lecture:** 10 minutes  
 **Audience:** Tous  
 **Contenu:**
+
 - Navigation rapide (mapa)
 - Point d'entrée par profil (6 profils)
 - Learning path recommandé (3 semaines)
@@ -141,9 +155,11 @@
 ---
 
 ### 8. FILE_STORAGE_DOCUMENTATION_GUIDE.md (8,7 KB)
+
 **Durée de lecture:** 8 minutes  
 **Audience:** Tous  
 **Contenu:**
+
 - Documents créés (liste + résumé de chaque)
 - Par profil (6 profils mappés)
 - Par sujet (10 sujets)
@@ -177,17 +193,20 @@ Temps lecture total:    90-120 minutes
 ## 🗺️ Navigation par Besoin
 
 ### Besoin Express (5 min)
+
 ```
 FILE_STORAGE_SUMMARY.md
 ```
 
 ### Vue d'ensemble (15 min)
+
 ```
 FILE_STORAGE_SUMMARY.md
 + FILE_STORAGE_QUICK_REFERENCE.md
 ```
 
 ### Comprendre complet (1 heure)
+
 ```
 FILE_STORAGE_SUMMARY.md
 + FILE_STORAGE_SYSTEM.md
@@ -195,6 +214,7 @@ FILE_STORAGE_SUMMARY.md
 ```
 
 ### Implémenter feature (2+ heures)
+
 ```
 Tous les documents
 + Examiner code source
@@ -206,6 +226,7 @@ Tous les documents
 ## 👥 Par Profil Professionnel
 
 ### Backend Dev 👨‍💻
+
 1. FILE_STORAGE_SUMMARY.md (10 min)
 2. FILE_STORAGE_SYSTEM.md (30 min)
 3. FILE_STORAGE_TECHNICAL_DIAGRAM.md (20 min)
@@ -216,6 +237,7 @@ Tous les documents
 ---
 
 ### Frontend Dev 🎨
+
 1. FILE_STORAGE_SUMMARY.md (10 min)
 2. FILE_STORAGE_PRACTICAL_GUIDE.md (15 min)
 3. FILE_STORAGE_INFOGRAPHY.md (10 min)
@@ -226,6 +248,7 @@ Tous les documents
 ---
 
 ### QA / Testeur 🧪
+
 1. FILE_STORAGE_SUMMARY.md (10 min)
 2. FILE_STORAGE_PRACTICAL_GUIDE.md (15 min)
 3. FILE_STORAGE_INFOGRAPHY.md (10 min)
@@ -236,6 +259,7 @@ Tous les documents
 ---
 
 ### DevOps / Ops 🚀
+
 1. FILE_STORAGE_SUMMARY.md (10 min)
 2. FILE_STORAGE_TECHNICAL_DIAGRAM.md (20 min)
 3. FILE_STORAGE_SYSTEM.md (20 min) [sécurité focus]
@@ -246,6 +270,7 @@ Tous les documents
 ---
 
 ### Product Manager 📊
+
 1. FILE_STORAGE_SUMMARY.md (10 min)
 2. FILE_STORAGE_INFOGRAPHY.md (15 min)
 3. FILE_STORAGE_PRACTICAL_GUIDE.md (optional, 10 min)
@@ -255,6 +280,7 @@ Tous les documents
 ---
 
 ### Manager / Stakeholder 👔
+
 1. FILE_STORAGE_SUMMARY.md (10 min)
 2. FILE_STORAGE_INFOGRAPHY.md (15 min)
 
@@ -265,6 +291,7 @@ Tous les documents
 ## 📚 Index des Sujets
 
 ### Sujets Couverts
+
 - ✅ Où sont les fichiers?
 - ✅ Où sont les métadonnées?
 - ✅ Comment fonctionne le système?
@@ -283,18 +310,21 @@ Tous les documents
 ## 📖 Par Document
 
 ### FILE_STORAGE_SUMMARY.md
+
 **Best for:** Vue générale complète  
 **Contains:** Résumé, workflow, sécurité, futur  
 **Length:** ~10 min  
-**Diagrams:** 1 major  
+**Diagrams:** 1 major
 
 ### FILE_STORAGE_QUICK_REFERENCE.md
+
 **Best for:** Réponses rapides  
 **Contains:** Tableaux, endpoints, FAQ  
 **Length:** ~5 min  
-**Diagrams:** 2 minor  
+**Diagrams:** 2 minor
 
 ### FILE_STORAGE_SYSTEM.md
+
 **Best for:** Détails techniques  
 **Contains:** Architecture, code, RLS, API  
 **Length:** ~25 min  
@@ -302,6 +332,7 @@ Tous les documents
 **Code:** Extensive examples
 
 ### FILE_STORAGE_PRACTICAL_GUIDE.md
+
 **Best for:** Cas réels & exemples  
 **Contains:** Cycle de vie, cas d'usage, troubleshooting  
 **Length:** ~15 min  
@@ -309,6 +340,7 @@ Tous les documents
 **Code:** 4+ examples
 
 ### FILE_STORAGE_TECHNICAL_DIAGRAM.md
+
 **Best for:** Architecture visuelle  
 **Contains:** Diagrammes détaillés, flux, schema  
 **Length:** ~20 min  
@@ -316,18 +348,21 @@ Tous les documents
 **Code:** 5+ detailed flows
 
 ### FILE_STORAGE_INFOGRAPHY.md
+
 **Best for:** Vue visuelle simple  
 **Contains:** Infographies, lifecycles, stats  
 **Length:** ~15 min  
-**Diagrams:** 8+ colorful  
+**Diagrams:** 8+ colorful
 
 ### FILE_STORAGE_INDEX.md
+
 **Best for:** Navigation  
 **Contains:** Maps, profiles, learning paths  
 **Length:** ~10 min  
 **Diagrams:** 2 navigation maps
 
 ### FILE_STORAGE_DOCUMENTATION_GUIDE.md
+
 **Best for:** Comprendre la doc  
 **Contains:** Structure, profiles, highlights  
 **Length:** ~8 min  
@@ -338,16 +373,19 @@ Tous les documents
 ## ✨ Highlights
 
 ### Les Plus Complets
+
 1. FILE_STORAGE_TECHNICAL_DIAGRAM.md (41 KB)
 2. FILE_STORAGE_INFOGRAPHY.md (25 KB)
 3. FILE_STORAGE_SYSTEM.md (18 KB)
 
 ### Les Plus Practiques
+
 1. FILE_STORAGE_PRACTICAL_GUIDE.md
 2. FILE_STORAGE_QUICK_REFERENCE.md
 3. FILE_STORAGE_SUMMARY.md
 
 ### Les Plus Visuels
+
 1. FILE_STORAGE_TECHNICAL_DIAGRAM.md (10+ diagrammes)
 2. FILE_STORAGE_INFOGRAPHY.md (8+ infographies)
 3. FILE_STORAGE_PRACTICAL_GUIDE.md (3 diagrammes)
@@ -357,11 +395,13 @@ Tous les documents
 ## 🎯 Recommandations de Lecture
 
 ### Première Lecture (Tous)
+
 ```
 1. FILE_STORAGE_SUMMARY.md (10 min)
 ```
 
 ### Selon Rôle
+
 ```
 Backend:  + SYSTEM + TECHNICAL_DIAGRAM
 Frontend: + PRACTICAL_GUIDE + INFOGRAPHY
@@ -372,6 +412,7 @@ Manager:  + INFOGRAPHY (+ SUMMARY)
 ```
 
 ### Approfondissement
+
 ```
 Examiner code + Tester + FILE_STORAGE_INDEX.md
 ```
@@ -413,16 +454,16 @@ Examiner code + Tester + FILE_STORAGE_INDEX.md
 
 **Où chercher...**
 
-| Question | Document |
-|----------|----------|
-| Vue générale? | FILE_STORAGE_SUMMARY.md |
-| Réponse rapide? | FILE_STORAGE_QUICK_REFERENCE.md |
-| Détails complets? | FILE_STORAGE_SYSTEM.md |
-| Cas réel? | FILE_STORAGE_PRACTICAL_GUIDE.md |
-| Diagrammes? | FILE_STORAGE_TECHNICAL_DIAGRAM.md |
-| Infographies? | FILE_STORAGE_INFOGRAPHY.md |
-| Navigation? | FILE_STORAGE_INDEX.md |
-| Structure doc? | FILE_STORAGE_DOCUMENTATION_GUIDE.md |
+| Question          | Document                            |
+| ----------------- | ----------------------------------- |
+| Vue générale?     | FILE_STORAGE_SUMMARY.md             |
+| Réponse rapide?   | FILE_STORAGE_QUICK_REFERENCE.md     |
+| Détails complets? | FILE_STORAGE_SYSTEM.md              |
+| Cas réel?         | FILE_STORAGE_PRACTICAL_GUIDE.md     |
+| Diagrammes?       | FILE_STORAGE_TECHNICAL_DIAGRAM.md   |
+| Infographies?     | FILE_STORAGE_INFOGRAPHY.md          |
+| Navigation?       | FILE_STORAGE_INDEX.md               |
+| Structure doc?    | FILE_STORAGE_DOCUMENTATION_GUIDE.md |
 
 ---
 
@@ -451,24 +492,24 @@ Chaque document inclut:
 ✅ Reference tables  
 ✅ Case studies  
 ✅ Troubleshooting  
-✅ Metadata/version  
+✅ Metadata/version
 
 ---
 
 ## 📈 Stats Complètes
 
-| Métrique | Nombre |
-|----------|--------|
-| Fichiers | 8 |
-| Pages | ~100 |
-| Diagrammes | 20+ |
-| Cas d'usage | 15+ |
-| Code samples | 10+ |
-| Tables référence | 20+ |
-| Endpoints API | 4 |
-| Tables BD | 2 |
-| RLS Policies | 4 |
-| Temps lecture | 90-120 min |
+| Métrique         | Nombre     |
+| ---------------- | ---------- |
+| Fichiers         | 8          |
+| Pages            | ~100       |
+| Diagrammes       | 20+        |
+| Cas d'usage      | 15+        |
+| Code samples     | 10+        |
+| Tables référence | 20+        |
+| Endpoints API    | 4          |
+| Tables BD        | 2          |
+| RLS Policies     | 4          |
+| Temps lecture    | 90-120 min |
 
 ---
 

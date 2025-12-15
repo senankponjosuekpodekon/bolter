@@ -251,3 +251,6 @@
 - [ ] Documentation finale
 
 4 problems vscode, remboursements, tests clients
+
+Admin doit pouvoir délivré un borderau de virement, régistre interne pour tracer les mouvements
+Systeme de compensation simulé si plusieurs banque existe dans votre plateforme, Preuve de transaction pour la transparence

@@ -68,18 +68,18 @@ describe("TwoFactorSettings", () => {
     );
 
     // Wait for profile to load, then click Setup 2FA
-    await screen.findByText(/2FA n'est pas encore configuré/i);
-    const setupBtn = screen.getByRole("button", { name: /Setup 2FA/i });
+    await screen.findByText(/double authentification n'est pas encore activée/i);
+    const setupBtn = screen.getByRole("button", { name: /Activer la 2FA/i });
     fireEvent.click(setupBtn);
 
     // Now wait for QR code to appear after setup is initiated
-    expect(await screen.findByAltText(/QR Code 2FA/i)).toBeInTheDocument();
+    expect(await screen.findByAltText(/QR Code/i)).toBeInTheDocument();
 
-    const input = screen.getByPlaceholderText(/123456/);
+    const input = screen.getByPlaceholderText(/000000/);
     fireEvent.change(input, { target: { value: "000000" } });
 
-    // Use an exact (anchored) matcher to avoid matching 'Désactiver 2FA'
-    const enableBtn = screen.getByRole("button", { name: /^Activer 2FA$/i });
+    // Use an exact (anchored) matcher to avoid matching 'Désactiver la 2FA'
+    const enableBtn = screen.getByRole("button", { name: /Activer la 2FA/i });
     fireEvent.click(enableBtn);
 
     await waitFor(() =>
@@ -98,12 +98,12 @@ describe("TwoFactorSettings", () => {
     });
 
     // Clear token and re-enter it for disable
-    const disableInput = screen.getAllByPlaceholderText(/123456/)[0]; // Get disable input
+    const disableInput = screen.getAllByPlaceholderText(/000000/)[0]; // Get disable input
     fireEvent.change(disableInput, { target: { value: "" } }); // Clear it first
     fireEvent.change(disableInput, { target: { value: "111111" } }); // Enter different token
 
     const disableBtn = screen.getByRole("button", {
-      name: /Désactiver 2FA/i,
+      name: /Désactiver la 2FA/i,
     });
     fireEvent.click(disableBtn);
 

@@ -12,24 +12,24 @@ where not exists (
 -- Policies: users can manage their own avatar files under folder {auth.uid()}/
 
 -- Helper: allow users to insert files into their own folder
-create policy if not exists "Users can upload their own avatars"
+drop policy if exists "Users can upload their own avatars" on storage.objects;
+create policy "Users can upload their own avatars"
 on storage.objects for insert to authenticated
-using (
-  bucket_id = 'profile-avatars' and auth.uid()::text = (storage.foldername(name))[1]
-)
 with check (
   bucket_id = 'profile-avatars' and auth.uid()::text = (storage.foldername(name))[1]
 );
 
 -- Allow users to select (read) only their own avatar files
-create policy if not exists "Users can read their own avatars"
+drop policy if exists "Users can read their own avatars" on storage.objects;
+create policy "Users can read their own avatars"
 on storage.objects for select to authenticated
 using (
   bucket_id = 'profile-avatars' and auth.uid()::text = (storage.foldername(name))[1]
 );
 
 -- Allow users to delete their own avatar files
-create policy if not exists "Users can delete their own avatars"
+drop policy if exists "Users can delete their own avatars" on storage.objects;
+create policy "Users can delete their own avatars"
 on storage.objects for delete to authenticated
 using (
   bucket_id = 'profile-avatars' and auth.uid()::text = (storage.foldername(name))[1]

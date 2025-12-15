@@ -33,7 +33,7 @@ describe("Profile page", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /Profile/i })
+      screen.getByRole("heading", { name: /Profile/i, level: 1 })
     ).toBeInTheDocument();
     expect(screen.getByText(/Jane/)).toBeInTheDocument();
     // The KYC tab is a tab role (uses a button element with role="tab")
@@ -48,8 +48,8 @@ describe("Profile page", () => {
     );
     // Switch by clicking the tab
     fireEvent.click(screen.getByRole("tab", { name: /KYC/i }));
-    // KYC component includes a header with 'KYC Documents'
-    expect(screen.getByText(/KYC Documents/i)).toBeInTheDocument();
+    // KYC component includes a header with 'Vérification KYC'
+    expect(screen.getByText(/Vérification KYC/i)).toBeInTheDocument();
   });
 
   it("respects hash deep links for 2fa", () => {
@@ -62,7 +62,7 @@ describe("Profile page", () => {
       </QueryClientProvider>
     );
     expect(
-      screen.getByText(/Sécurité : Authentification/i)
+      screen.getByText(/Authentification à deux facteurs/i)
     ).toBeInTheDocument();
     window.location.hash = oldHash;
   });

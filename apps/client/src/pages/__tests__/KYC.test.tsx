@@ -46,7 +46,7 @@ describe("KYC page", () => {
       </QueryClientProvider>
     );
 
-    expect(await screen.findByText(/Document History/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Historique des documents/i)).toBeInTheDocument();
     expect(screen.getByText(/ID_CARD/)).toBeInTheDocument();
   });
 
