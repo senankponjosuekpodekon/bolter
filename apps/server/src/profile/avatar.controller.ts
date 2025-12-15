@@ -1,15 +1,17 @@
-import { Controller, Post, Get, Delete, UseInterceptors, UploadedFile, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Delete, UseInterceptors, UploadedFile, Req, UseGuards, HttpCode } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AvatarService } from './avatar.service';
 import { JwtVerifiedGuard } from '../auth/guards/jwt-verified.guard';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { UploadRateLimitService } from '../common/services/upload-rate-limit.service';
 
 @Controller('profile/avatar')
 export class AvatarController {
   constructor(
     private readonly avatarService: AvatarService,
     private readonly auditLogs: AuditLogsService,
+    private readonly uploadRateLimit: UploadRateLimitService,
   ) {}
 
   @Post()
@@ -18,20 +20,30 @@ export class AvatarController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(@Req() req: any, @UploadedFile() file: any) {
     const userId = req.user?.id || req.user?.sub;
+
+    // Check per-user upload rate limit (10 uploads/hour)
+    await this.uploadRateLimit.recordUpload(userId);
+
     const result = await this.avatarService.upload(userId, file);
     await this.auditLogs.log({
       action: 'avatar.upload',
       resourceType: 'avatar',
       resourceId: userId,
       userId,
-      metadata: { path: result.path },
+      metadata: {
+        path: result.path,
+        remainingUploads: this.uploadRateLimit.getRemainingUploads(userId),
+      },
       context: {
         ip: req.ip,
         userAgent: req.headers?.['user-agent'] ?? null,
         requestId: req.id ?? null,
       },
     });
-    return result;
+    return {
+      ...result,
+      remaining: this.uploadRateLimit.getRemainingUploads(userId),
+    };
   }
 
   @Get()

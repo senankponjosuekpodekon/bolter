@@ -11,6 +11,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { KycFilterDto } from './dto/kyc-filter.dto';
+import { UploadRateLimitService } from '../common/services/upload-rate-limit.service';
 
 @ApiTags('kyc')
 @Controller('kyc')
@@ -21,6 +22,7 @@ export class KycController {
     private readonly kycService: KycService,
     private readonly kycFilterService: KycFilterService,
     private readonly kycStorageService: KycStorageService,
+    private readonly uploadRateLimit: UploadRateLimitService,
   ) { }
 
   @Post('documents')
@@ -50,6 +52,9 @@ export class KycController {
   ) {
     const userId = req.user?.id ?? 'unknown';
 
+    // Check per-user upload rate limit (10 uploads/hour)
+    await this.uploadRateLimit.recordUpload(userId);
+
     // Upload to storage and get path/url
     const { path } = await this.kycStorageService.uploadDocument(
       userId,
@@ -60,12 +65,17 @@ export class KycController {
     );
 
     // Save document record in database
-    return this.kycService.uploadDocument(userId, {
+    const result = await this.kycService.uploadDocument(userId, {
       documentType,
       filePath: path,
       fileSize: file.size,
       mimeType: file.mimetype,
     });
+
+    return {
+      ...result,
+      remaining: this.uploadRateLimit.getRemainingUploads(userId),
+    };
   }
 
   @Get('documents')
