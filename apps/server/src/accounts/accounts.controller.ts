@@ -1,8 +1,9 @@
-import { Controller, Get, Param, UseGuards, Req, Patch, Body, Post, Query, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Req, Patch, Body, Post, Query, ForbiddenException, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AccountsService } from './accounts.service';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtVerifiedGuard } from '../auth/guards/jwt-verified.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -62,6 +63,17 @@ export class AccountsController {
   @ApiOperation({ summary: 'Update account (Admin only - can edit IBAN)' })
   updateAccount(@Req() req, @Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
     return this.accountsService.update(req.user.id, id, updateAccountDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete account (soft-delete with 90-day retention for RGPD compliance)' })
+  @ApiResponse({ status: 200, description: 'Account marked for deletion' })
+  deleteAccount(
+    @Req() req,
+    @Param('id') id: string,
+    @Body() deleteAccountDto: DeleteAccountDto,
+  ) {
+    return this.accountsService.delete(req.user.id, id, deleteAccountDto);
   }
 
   private ensureAdminRole(role: string) {

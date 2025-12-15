@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { DeleteAccountDto } from './dto/delete-account.dto';
+import { DataCleanupService } from '../common/services/data-cleanup.service';
 
 export interface Account {
   id: string;
@@ -35,6 +37,7 @@ export class AccountsService {
     private supabase: SupabaseService,
     private readonly auditLogsService: AuditLogsService,
     private readonly notificationsService: NotificationsService,
+    private readonly dataCleanupService: DataCleanupService,
   ) { }
 
   async findByUserId(userId: string): Promise<Account[]> {
@@ -234,5 +237,67 @@ export class AccountsService {
     }
 
     return data as Account;
+  }
+
+  async delete(userId: string, accountId: string, deleteDto: DeleteAccountDto): Promise<{ message: string; deletedAt: string }> {
+    const account = await this.findById(accountId);
+
+    // Verify user owns this account or is admin (admin check would be in controller via guard)
+    if (account.user_id !== userId) {
+      throw new BadRequestException('You can only delete your own accounts');
+    }
+
+    const deletedAt = new Date().toISOString();
+    const updateData = {
+      deleted_at: deletedAt,
+      deletion_reason: deleteDto.reason || 'User-initiated account deletion',
+      status: 'DELETED',
+    };
+
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('accounts')
+      .update(updateData)
+      .eq('id', accountId)
+      .select()
+      .single();
+
+    if (error) throw new BadRequestException(`Failed to delete account: ${error.message}`);
+
+    // If permanent deletion requested, delete files immediately
+    if (deleteDto.permanent) {
+      try {
+        await this.dataCleanupService.deleteUserFiles(userId);
+        this.logger.log(`Permanently deleted all files for user ${userId}`);
+      } catch (cleanupError) {
+        this.logger.error(`Failed to permanently delete user files: ${cleanupError}`, cleanupError);
+        // Don't throw - account deletion succeeded, file cleanup failed but can be retried
+      }
+    }
+
+    // Log the account deletion
+    const success = await this.auditLogsService.log({
+      userId,
+      performedBy: userId,
+      action: 'ACCOUNT_DELETED',
+      resourceType: 'account',
+      resourceId: accountId,
+      metadata: {
+        reason: deleteDto.reason,
+        permanent: deleteDto.permanent || false,
+        retentionDays: deleteDto.permanent ? 0 : 90,
+      },
+    });
+
+    if (!success) {
+      this.logger.warn(`Failed to persist audit log for account deletion (${accountId})`);
+    }
+
+    await this.notificationsService.notifyAccountDeleted(userId, account.account_number);
+
+    return {
+      message: `Account marked for deletion. Data will be retained for 90 days before permanent removal (RGPD compliance).`,
+      deletedAt,
+    };
   }
 }

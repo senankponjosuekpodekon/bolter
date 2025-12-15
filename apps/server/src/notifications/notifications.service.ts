@@ -58,6 +58,27 @@ export class NotificationsService {
     });
   }
 
+  async notifyAccountDeleted(userId: string, accountNumber: string): Promise<void> {
+    const user = await this.getUserContact(userId);
+    if (!user) {
+      return;
+    }
+
+    const payload = this.buildPayload(NotificationEvent.ACCOUNT_CREATED, {
+      title: 'Compte supprimé',
+      message: `Votre compte ${accountNumber} a été marqué pour suppression. Les données seront conservées 90 jours avant suppression définitive.`,
+      userId: user.id,
+      accountNumber,
+    });
+
+    this.gateway.emitToUser(user.id, payload);
+    await this.safeSendEmail(user, {
+      subject: 'Votre compte a été supprimé',
+      html: this.renderHtmlTemplate('Compte supprimé', `Bonjour ${this.formatName(user)},<br><br>Votre compte <strong>${accountNumber}</strong> a bien été marqué pour suppression. Conformément au RGPD, vos données seront conservées 90 jours avant suppression définitive. Vous pouvez annuler cette action en contactant notre support.`),
+      text: `Bonjour ${this.formatName(user)}, votre compte ${accountNumber} a bien été marqué pour suppression. Données conservées 90 jours.`,
+    });
+  }
+
   async notifyCardCreated(userId: string, cardNumber: string, cardType: string): Promise<void> {
     const user = await this.getUserContact(userId);
     if (!user) {
