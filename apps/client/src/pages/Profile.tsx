@@ -9,6 +9,7 @@ import {
 } from "../services/profileService";
 import { useLocalization } from "../hooks";
 import KYC from "./KYC";
+import ProfileAvatar from "../components/ProfileAvatar";
 import TwoFactorSettings from "./TwoFactorSettings";
 import {
   User,
@@ -397,6 +398,14 @@ export default function Profile(): JSX.Element {
                     </span>
                   </div>
                 </div>
+              </div>
+
+              {/* Avatar Management */}
+              <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  {t("profile.labels.avatar")}
+                </h3>
+                <ProfileAvatar />
               </div>
             </div>
           )}
