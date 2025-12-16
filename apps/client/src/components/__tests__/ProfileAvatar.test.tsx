@@ -18,10 +18,20 @@ vi.mock("axios", () => ({
 
 function renderAvatar() {
   const utils = render(<ProfileAvatar />);
-  return { ...utils, fileInput: () => document.querySelector('input[type="file"]') as HTMLInputElement };
+  return {
+    ...utils,
+    fileInput: () =>
+      document.querySelector('input[type="file"]') as HTMLInputElement,
+  };
 }
 
-function makeFile({ type = "image/png", size = 10 }: { type?: string; size?: number }) {
+function makeFile({
+  type = "image/png",
+  size = 10,
+}: {
+  type?: string;
+  size?: number;
+}) {
   const blob = new File(["x".repeat(size)], "avatar.png", { type });
   return blob;
 }
@@ -40,7 +50,9 @@ describe("ProfileAvatar", () => {
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByRole("button", { name: /Uploader/i }));
 
-    expect(await screen.findByText(/Type de fichier non supporté/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Type de fichier non supporté/i)
+    ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
@@ -51,7 +63,9 @@ describe("ProfileAvatar", () => {
     fireEvent.change(input, { target: { files: [big] } });
     fireEvent.click(screen.getByRole("button", { name: /Uploader/i }));
 
-    expect(await screen.findByText(/Fichier trop volumineux/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Fichier trop volumineux/i)
+    ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
@@ -67,7 +81,11 @@ describe("ProfileAvatar", () => {
     expect(mockPost).toHaveBeenCalledWith(
       "/profile/avatar",
       expect.any(FormData),
-      expect.objectContaining({ headers: expect.objectContaining({ "Content-Type": expect.stringContaining("multipart") }) })
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "Content-Type": expect.stringContaining("multipart"),
+        }),
+      })
     );
     expect(await screen.findByAltText(/avatar/i)).toBeInTheDocument();
   });
@@ -91,7 +109,9 @@ describe("ProfileAvatar", () => {
     await screen.findByAltText(/avatar/i);
 
     fireEvent.click(screen.getByRole("button", { name: /Supprimer/i }));
-    await waitFor(() => expect(mockDelete).toHaveBeenCalledWith("/profile/avatar"));
+    await waitFor(() =>
+      expect(mockDelete).toHaveBeenCalledWith("/profile/avatar")
+    );
     expect(screen.queryByAltText(/avatar/i)).not.toBeInTheDocument();
   });
 });

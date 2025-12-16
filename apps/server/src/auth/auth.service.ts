@@ -9,6 +9,13 @@ import { RegisterDto } from './dto/register.dto';
 import { Logger } from '../common/logger/logger.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: Record<string, unknown>;
+  requires2FA: boolean;
+}
+
 @Injectable()
 export class AuthService {
   private readonly auditLogger = new NestLogger('AuthAudit');
@@ -41,7 +48,7 @@ export class AuthService {
     return copy as Omit<User, 'password' | 'refreshToken'>;
   }
 
-  async login(user: User | Omit<User, 'password' | 'refreshToken'>) {
+  async login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<LoginResponse> {
     const payload = { email: user.email, sub: user.id, role: user.role };
     const refreshToken = this.generateRefreshToken(payload);
 
@@ -65,7 +72,7 @@ export class AuthService {
     // Check if user has 2FA enabled - if so, require verification before granting full access
     const twoFactorEnabled = user.two_factor_enabled === true;
 
-    const response: any = {
+    const response: LoginResponse = {
       accessToken: this.jwtService.sign(payload),
       refreshToken,
       user: this.stripSensitiveFields(user),
@@ -75,7 +82,7 @@ export class AuthService {
     return response;
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto): Promise<LoginResponse> {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new BadRequestException('User with this email already exists');

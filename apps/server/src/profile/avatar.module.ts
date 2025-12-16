@@ -32,4 +32,5 @@ import { StorageMonitoringService } from '../common/services/storage-monitoring.
   ],
   exports: [AvatarService],
 })
-export class AvatarModule {}
+export class AvatarModule { }
+

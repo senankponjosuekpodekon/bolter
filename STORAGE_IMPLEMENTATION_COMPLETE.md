@@ -16,6 +16,7 @@ Completed comprehensive file storage management system for Bolter with security,
 **Status**: ✅ Complete (72 server tests + 36 client tests passing)
 
 ### Backend
+
 - **Endpoint**: `POST /profile/avatar` - Upload with Sharp resizing
 - **Endpoint**: `GET /profile/avatar` - Fetch latest avatar with signed URL
 - **Endpoint**: `DELETE /profile/avatar` - Delete all user avatars
@@ -32,6 +33,7 @@ Completed comprehensive file storage management system for Bolter with security,
 - **Audit**: All uploads/deletes logged with user/IP/user-agent
 
 ### Frontend
+
 - **Component**: `ProfileAvatar.tsx` - Upload/preview/delete UI
 - **Integration**: Profile page with dedicated avatar section
 - **Tests**: 5 vitest cases covering MIME validation, size limits, upload/fetch/delete
@@ -44,12 +46,14 @@ Completed comprehensive file storage management system for Bolter with security,
 **Status**: ✅ Complete
 
 ### Database
+
 - **Migration**: `0005_add_soft_delete_accounts.sql`
   - Added `deleted_at` and `deletion_reason` columns to accounts/users
   - Indexes for soft-delete queries
   - Idempotent migration pattern
 
 ### Backend
+
 - **Endpoint**: `DELETE /accounts/:id` - User-initiated account deletion
 - **Soft-Delete Pattern**:
   - Marks account as `DELETED` with timestamp
@@ -71,6 +75,7 @@ Completed comprehensive file storage management system for Bolter with security,
   - Option to contact support to cancel
 
 ### Compliance Features
+
 - ✅ Right to be forgotten (deletion endpoint)
 - ✅ Data retention policy (90 days)
 - ✅ Audit trail (all deletions logged)
@@ -85,6 +90,7 @@ Completed comprehensive file storage management system for Bolter with security,
 **Status**: ✅ Complete (7 unit tests)
 
 ### Implementation
+
 - **Service**: `UploadRateLimitService`
   - Tracks per-user upload counts in-memory
   - 10 uploads per hour limit
@@ -92,6 +98,7 @@ Completed comprehensive file storage management system for Bolter with security,
   - Admin reset capability
 
 ### Integration
+
 - **Avatar Endpoint**: `POST /profile/avatar`
   - Checks limit before upload
   - Returns remaining upload count in response
@@ -103,16 +110,18 @@ Completed comprehensive file storage management system for Bolter with security,
 - **Endpoint-Specific**: 5 requests/minute on avatar POST/DELETE
 
 ### Response
+
 ```json
 {
   "url": "...",
   "path": "...",
-  "remaining": 9,  // uploads remaining in current hour
-  "resetAt": "2024-12-15T15:30:00Z"  // when counter resets
+  "remaining": 9, // uploads remaining in current hour
+  "resetAt": "2024-12-15T15:30:00Z" // when counter resets
 }
 ```
 
 ### Audit Logging
+
 - Upload count tracked in audit logs
 - Includes remaining uploads count
 - Failed uploads logged separately
@@ -124,6 +133,7 @@ Completed comprehensive file storage management system for Bolter with security,
 **Status**: ✅ Complete
 
 ### Service: StorageMonitoringService
+
 - **Bucket Stats**: Tracks size, file count, quota usage per bucket
 - **User Stats**: Per-user storage usage aggregation
 - **Quota Alerts**: Warnings at 80%, critical at 95%
@@ -131,23 +141,25 @@ Completed comprehensive file storage management system for Bolter with security,
 - **Metrics**: Total storage used, file counts, quota percentages
 
 ### Admin Endpoints
+
 - **GET `/admin/storage/metrics`** - All storage metrics (dashboard view)
+
   ```json
   {
     "buckets": [
       {
         "bucketName": "profile-avatars",
-        "totalSize": 524288000,  // 500 MB
+        "totalSize": 524288000, // 500 MB
         "fileCount": 1000,
-        "quotaLimit": 1073741824,  // 1 GB
+        "quotaLimit": 1073741824, // 1 GB
         "quotaUsagePercent": 48.8,
         "lastUpdated": "2024-12-15T10:30:00Z"
       },
       {
         "bucketName": "kyc-documents",
-        "totalSize": 2147483648,  // 2 GB
+        "totalSize": 2147483648, // 2 GB
         "fileCount": 500,
-        "quotaLimit": 10737418240,  // 10 GB
+        "quotaLimit": 10737418240, // 10 GB
         "quotaUsagePercent": 20.0
       }
     ],
@@ -162,11 +174,13 @@ Completed comprehensive file storage management system for Bolter with security,
 - **GET `/admin/storage/quota-check`** - Quota alerts only
 
 ### Bucket Configuration
+
 - `profile-avatars`: 1 GB quota
 - `kyc-documents`: 10 GB quota
 - Extensible for new buckets
 
 ### Upload Logging
+
 - Logs all upload attempts (success and failure)
 - Includes file size, bucket, error message
 - Integrated with audit trail
@@ -177,6 +191,7 @@ Completed comprehensive file storage management system for Bolter with security,
 ## Files Created/Modified
 
 ### New Files
+
 1. `apps/server/migrations/0005_add_soft_delete_accounts.sql` - Soft delete migration
 2. `apps/server/src/accounts/dto/delete-account.dto.ts` - Deletion request DTO
 3. `apps/server/src/common/services/data-cleanup.service.ts` - File cleanup service
@@ -187,6 +202,7 @@ Completed comprehensive file storage management system for Bolter with security,
 8. `apps/server/src/admin/storage-monitoring.controller.ts` - Admin monitoring endpoints
 
 ### Modified Files
+
 - `apps/server/src/accounts/accounts.controller.ts` - Added DELETE endpoint
 - `apps/server/src/accounts/accounts.service.ts` - Added delete() method
 - `apps/server/src/accounts/accounts.module.ts` - Wired dependencies
@@ -202,17 +218,20 @@ Completed comprehensive file storage management system for Bolter with security,
 ## Testing Status
 
 ### Server Tests
+
 - **Total**: 72 tests passing
 - **Avatar service**: 7 tests (74.28% coverage)
 - **Rate limiting**: 7 tests
 - **All tests**: Green ✅
 
 ### Client Tests
+
 - **Total**: 36 tests passing
 - **ProfileAvatar component**: 5 tests
 - **All tests**: Green ✅
 
 ### Coverage
+
 - Server: 13.43% overall (avatar.service at 74.28%)
 - Client: Ready for coverage run
 - No TypeScript compilation errors
@@ -222,18 +241,21 @@ Completed comprehensive file storage management system for Bolter with security,
 ## Configuration & Deployment
 
 ### No Additional Environment Variables Required
+
 - Default quotas: 1GB avatars, 10GB KYC
 - Default rate limit: 10 uploads/hour per user
 - Default cron: Daily purge at 2 AM UTC
 - Default alerts: 80% warning, 95% critical
 
 ### To Deploy
+
 1. Run migration `0005_add_soft_delete_accounts.sql` on production database
 2. Deploy new backend code
 3. Cron job automatically starts with server
 4. Admin endpoints available immediately
 
 ### To Manually Trigger Cleanup
+
 ```typescript
 // In admin controller or scheduled task
 const result = await this.cleanupTaskService.runPurgeNow();
@@ -273,17 +295,20 @@ const result = await this.cleanupTaskService.runPurgeNow();
 ## Completion Status
 
 **Phase 1 - File Storage**: ✅ 100% Complete
+
 - Avatar storage: Done
 - RGPD compliance: Done
 - Rate limiting: Done
 - Monitoring: Done
 
 **Phase 2 - Security Enhancements** (upcoming):
+
 - WebAuthn / Fingerprint
 - Backup codes
 - Transaction security
 
 **Phase 3 - Features** (upcoming):
+
 - Tontine (ROSCA)
 - Analytics dashboard
 - Backup/archival
@@ -293,6 +318,7 @@ const result = await this.cleanupTaskService.runPurgeNow();
 ## Summary
 
 Successfully implemented a production-grade file storage system with:
+
 - **Secure uploads** (validation, size limits, MIME checks)
 - **Compliance** (RGPD soft-delete, 90-day retention, automated purge)
 - **Scalability** (monitoring, quota alerts, per-user rate limiting)

@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
-import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { SupabaseService } from '../../supabase/supabase.service';
+import { AuditLogsService } from '../../audit-logs/audit-logs.service';
 
-interface BucketStats {
+export interface BucketStats {
   bucketName: string;
   totalSize: number; // in bytes
   fileCount: number;
@@ -11,7 +11,7 @@ interface BucketStats {
   lastUpdated: Date;
 }
 
-interface UserStorageStats {
+export interface UserStorageStats {
   userId: string;
   totalSize: number;
   fileCount: number;
@@ -53,7 +53,7 @@ export class StorageMonitoringService {
   async getBucketStats(bucketName: string): Promise<BucketStats> {
     try {
       const client = this.supabase.getAdminClient();
-      const { data: files, error } = await client.storage.from(bucketName).list('', {
+      const { error } = await client.storage.from(bucketName).list('', {
         limit: 10000,
       });
 

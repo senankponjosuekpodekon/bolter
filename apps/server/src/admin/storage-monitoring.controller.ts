@@ -1,6 +1,6 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { StorageMonitoringService } from '../common/services/storage-monitoring.service';
+import { StorageMonitoringService, BucketStats, UserStorageStats } from '../common/services/storage-monitoring.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -21,7 +21,7 @@ export class StorageMonitoringController {
    */
   @Get('metrics')
   @ApiOperation({ summary: 'Get all storage metrics (admin only)' })
-  async getMetrics() {
+  async getMetrics(): Promise<Record<string, unknown>> {
     return this.storageMonitoring.getAllStorageMetrics();
   }
 
@@ -30,7 +30,7 @@ export class StorageMonitoringController {
    */
   @Get('buckets/:bucketName')
   @ApiOperation({ summary: 'Get bucket statistics (admin only)' })
-  async getBucketStats(@Param('bucketName') bucketName: string) {
+  async getBucketStats(@Param('bucketName') bucketName: string): Promise<BucketStats> {
     return this.storageMonitoring.getBucketStats(bucketName);
   }
 
@@ -39,7 +39,7 @@ export class StorageMonitoringController {
    */
   @Get('users/:userId')
   @ApiOperation({ summary: 'Get user storage usage (admin only)' })
-  async getUserStorage(@Param('userId') userId: string) {
+  async getUserStorage(@Param('userId') userId: string): Promise<UserStorageStats> {
     return this.storageMonitoring.getUserStorageStats(userId);
   }
 
@@ -48,7 +48,7 @@ export class StorageMonitoringController {
    */
   @Get('quota-check')
   @ApiOperation({ summary: 'Check bucket quotas and get alerts (admin only)' })
-  async checkQuotas() {
+  async checkQuotas(): Promise<Array<{ bucket: string; usagePercent: number; alert: string }>> {
     return this.storageMonitoring.checkBucketQuotas();
   }
 }

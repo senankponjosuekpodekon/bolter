@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, UseInterceptors, UploadedFile, Req, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller, Post, Get, Delete, UseInterceptors, UploadedFile, Req, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AvatarService } from './avatar.service';
@@ -6,6 +6,10 @@ import { JwtVerifiedGuard } from '../auth/guards/jwt-verified.guard';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { UploadRateLimitService } from '../common/services/upload-rate-limit.service';
 import { StorageMonitoringService } from '../common/services/storage-monitoring.service';
+import { Request } from 'express';
+
+type AuthRequest = Request & { user?: { id?: string; sub?: string }; id?: string };
+type UploadedImageFile = { mimetype: string; size: number; buffer: Buffer };
 
 @Controller('profile/avatar')
 export class AvatarController {
@@ -14,13 +18,13 @@ export class AvatarController {
     private readonly auditLogs: AuditLogsService,
     private readonly uploadRateLimit: UploadRateLimitService,
     private readonly storageMonitoring: StorageMonitoringService,
-  ) {}
+  ) { }
 
   @Post()
   @UseGuards(JwtVerifiedGuard)
   @Throttle({ avatar: { limit: 5, ttl: 60_000 } })
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@Req() req: any, @UploadedFile() file: any) {
+  async upload(@Req() req: AuthRequest, @UploadedFile() file: UploadedImageFile) {
     const userId = req.user?.id || req.user?.sub;
 
     // Check per-user upload rate limit (10 uploads/hour)
@@ -61,7 +65,7 @@ export class AvatarController {
 
   @Get()
   @UseGuards(JwtVerifiedGuard)
-  async get(@Req() req: any) {
+  async get(@Req() req: AuthRequest) {
     const userId = req.user?.id || req.user?.sub;
     return { url: await this.avatarService.get(userId) };
   }
@@ -69,7 +73,7 @@ export class AvatarController {
   @Delete()
   @UseGuards(JwtVerifiedGuard)
   @Throttle({ avatar: { limit: 5, ttl: 60_000 } })
-  async remove(@Req() req: any) {
+  async remove(@Req() req: AuthRequest) {
     const userId = req.user?.id || req.user?.sub;
     await this.avatarService.delete(userId);
     await this.auditLogs.log({

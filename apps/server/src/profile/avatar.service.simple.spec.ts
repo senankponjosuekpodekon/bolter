@@ -1,4 +1,5 @@
 import { AvatarService } from './avatar.service';
+import { SupabaseService } from '../supabase/supabase.service';
 
 const mockStorage = {
   from: jest.fn().mockReturnThis(),
@@ -8,9 +9,9 @@ const mockStorage = {
   createSignedUrl: jest.fn(),
 };
 
-const mockSupabaseService: any = {
+const mockSupabaseService = {
   getClient: jest.fn(() => ({ storage: mockStorage })),
-};
+} as unknown as SupabaseService;
 
 function makeService() {
   return new AvatarService(mockSupabaseService);
@@ -37,7 +38,7 @@ describe('AvatarService (simple)', () => {
         mimetype: 'application/pdf',
         size: 10,
         buffer: Buffer.from('x'),
-      } as any)
+      } as unknown as { mimetype: string; size: number; buffer: Buffer })
     ).rejects.toThrow('Unsupported file type');
   });
 
@@ -48,7 +49,7 @@ describe('AvatarService (simple)', () => {
         mimetype: 'image/png',
         size: 3 * 1024 * 1024,
         buffer: Buffer.alloc(10),
-      } as any)
+      } as unknown as { mimetype: string; size: number; buffer: Buffer })
     ).rejects.toThrow('File too large');
   });
 
@@ -61,7 +62,7 @@ describe('AvatarService (simple)', () => {
       mimetype: 'image/png',
       size: 1024,
       buffer: Buffer.from('binary'),
-    } as any);
+    } as unknown as { mimetype: string; size: number; buffer: Buffer });
 
     expect(mockStorage.upload).toHaveBeenCalled();
     expect(res.url).toBe('https://signed');

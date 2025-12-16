@@ -298,7 +298,7 @@ export default function KYC() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                {documents.map((doc: any, idx: number) => {
+                {documents.map((doc: any) => {
                   const StatusIcon = getStatusIcon(doc.status);
                   return (
                     <tr

@@ -16,6 +16,7 @@ import { ExchangeModule } from './exchange/exchange.module';
 import { AdminModule } from './admin/admin.module';
 import { LocalizationModule } from './localization/localization.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { TontinesModule } from './tontines/tontines.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -40,6 +41,7 @@ import configuration from './config/configuration';
     ExchangeModule,
     AdminModule,
     LocalizationModule,
+    TontinesModule,
   ],
 })
 export class AppModule { }

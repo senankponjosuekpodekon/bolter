@@ -7,10 +7,10 @@ Implemented RGPD-compliant account deletion with soft-delete pattern and cascadi
 ## Features Implemented
 
 ### 1. Account Soft-Delete (Compliance)
+
 - **Migration**: `0005_add_soft_delete_accounts.sql`
   - Added `deleted_at` and `deletion_reason` columns to `accounts` and `users` tables
   - Created indexes for fast queries on soft-deleted and active records
-  
 - **Endpoint**: `DELETE /accounts/:id`
   - User can delete their own accounts
   - Marks account as `DELETED` with soft-delete timestamp
@@ -22,6 +22,7 @@ Implemented RGPD-compliant account deletion with soft-delete pattern and cascadi
   - `permanent`: Force immediate permanent deletion (vs. 90-day soft-delete)
 
 ### 2. Cascading File Cleanup
+
 - **Service**: `DataCleanupService` (`src/common/services/data-cleanup.service.ts`)
   - `deleteUserFiles(userId)`: Delete all user files (avatars, KYC documents) from Supabase Storage
   - `deleteAvatars(userId)`: Delete profile avatar files from `profile-avatars` bucket
@@ -35,6 +36,7 @@ Implemented RGPD-compliant account deletion with soft-delete pattern and cascadi
   4. Cascade: When purging user record → delete all remaining files first
 
 ### 3. Scheduled Cleanup Task (RGPD)
+
 - **Service**: `CleanupTaskService` (`src/common/tasks/cleanup.task.ts`)
   - `@Cron(EVERY_DAY_AT_2AM)` decorator
   - Automatically purges soft-deleted records older than 90 days
@@ -43,12 +45,14 @@ Implemented RGPD-compliant account deletion with soft-delete pattern and cascadi
   - Can be manually triggered via `runPurgeNow()` method
 
 ### 4. Notifications
+
 - **New Method**: `notifyAccountDeleted(userId, accountNumber)` in `NotificationsService`
   - Sends WebSocket notification to user
   - Sends email with RGPD retention notice
   - Explains 90-day retention and option to contact support
 
 ### 5. Audit Logging
+
 - Account deletion action logged with:
   - `action: 'ACCOUNT_DELETED'` or `'ACCOUNT_PERMANENTLY_DELETED'`
   - Metadata: reason, retention period, cascading deletion flag
@@ -57,12 +61,14 @@ Implemented RGPD-compliant account deletion with soft-delete pattern and cascadi
 ## Files Modified/Created
 
 ### New Files
+
 - `apps/server/migrations/0005_add_soft_delete_accounts.sql`
 - `apps/server/src/accounts/dto/delete-account.dto.ts`
 - `apps/server/src/common/services/data-cleanup.service.ts`
 - `apps/server/src/common/tasks/cleanup.task.ts`
 
 ### Modified Files
+
 - `apps/server/src/accounts/accounts.controller.ts` (added DELETE endpoint)
 - `apps/server/src/accounts/accounts.service.ts` (added delete method with cleanup)
 - `apps/server/src/accounts/accounts.module.ts` (added imports for cleanup + notifications)
@@ -73,10 +79,13 @@ Implemented RGPD-compliant account deletion with soft-delete pattern and cascadi
 No additional environment variables needed. The cron job runs daily at 2 AM UTC.
 
 To manually trigger cleanup:
+
 ```typescript
 // In admin controller or scheduled task
 const result = await this.cleanupTaskService.runPurgeNow();
-console.log(`Purged: ${result.accountsPurged} accounts, ${result.usersPurged} users`);
+console.log(
+  `Purged: ${result.accountsPurged} accounts, ${result.usersPurged} users`
+);
 ```
 
 ## RGPD Compliance

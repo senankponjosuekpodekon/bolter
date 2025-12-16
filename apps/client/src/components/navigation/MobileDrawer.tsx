@@ -62,6 +62,13 @@ export default function MobileDrawer({ open, onClose }: Props) {
           >
             Loans
           </Link>
+          <Link
+            to="/tontines"
+            onClick={onClose}
+            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+          >
+            Tontines
+          </Link>
           {/* KYC moved into Profile page */}
           <Link
             to="/profile"

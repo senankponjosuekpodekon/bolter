@@ -6,14 +6,6 @@ import TwoFactorSettings from "../TwoFactorSettings";
 import api from "../../services/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-interface ApiClient {
-  get?: (url: string) => Promise<Record<string, unknown>>;
-  post?: (
-    url: string,
-    data: Record<string, unknown>
-  ) => Promise<Record<string, unknown>>;
-}
-
 vi.mock("../../services/api", () => ({
   default: {
     get: vi.fn(),
@@ -26,40 +18,34 @@ const q = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 describe("TwoFactorSettings", () => {
   beforeEach(() => {
     // reset mocks
-    (api as unknown as ApiClient).get?.mockReset?.();
-    (api as unknown as ApiClient).post?.mockReset?.();
+    vi.mocked(api.get).mockReset();
+    vi.mocked(api.post).mockReset();
   });
 
   it("renders setup and allows enabling/disabling 2FA", async () => {
     // Mock GET calls for profile and 2FA setup
     let twoFactorEnabled = false; // Track state across calls
-    const getApiMock = vi.fn();
-    (api as unknown as ApiClient).get = getApiMock.mockImplementation(
-      (path) => {
-        if (path === "/auth/profile") {
-          return Promise.resolve({
-            data: { two_factor_enabled: twoFactorEnabled },
-          });
-        }
-        if (path === "/auth/2fa/setup") {
-          return Promise.resolve({
-            data: { qrCodeUrl: "http://example/qrcode.png", secret: "ABC123" },
-          });
-        }
-        return Promise.resolve({ data: {} });
+    vi.mocked(api.get).mockImplementation((path) => {
+      if (path === "/auth/profile") {
+        return Promise.resolve({
+          data: { two_factor_enabled: twoFactorEnabled },
+        });
       }
-    );
-    const postApiMock = vi.fn();
-    (api as unknown as ApiClient).post = postApiMock.mockImplementation(
-      (path) => {
-        if (path === "/auth/2fa/enable") {
-          twoFactorEnabled = true; // Update state on enable
-        } else if (path === "/auth/2fa/disable") {
-          twoFactorEnabled = false; // Update state on disable
-        }
-        return Promise.resolve({});
+      if (path === "/auth/2fa/setup") {
+        return Promise.resolve({
+          data: { qrCodeUrl: "http://example/qrcode.png", secret: "ABC123" },
+        });
       }
-    );
+      return Promise.resolve({ data: {} });
+    });
+    vi.mocked(api.post).mockImplementation((path) => {
+      if (path === "/auth/2fa/enable") {
+        twoFactorEnabled = true; // Update state on enable
+      } else if (path === "/auth/2fa/disable") {
+        twoFactorEnabled = false; // Update state on disable
+      }
+      return Promise.resolve({});
+    });
 
     render(
       <QueryClientProvider client={q}>
@@ -68,7 +54,9 @@ describe("TwoFactorSettings", () => {
     );
 
     // Wait for profile to load, then click Setup 2FA
-    await screen.findByText(/double authentification n'est pas encore activée/i);
+    await screen.findByText(
+      /double authentification n'est pas encore activée/i
+    );
     const setupBtn = screen.getByRole("button", { name: /Activer la 2FA/i });
     fireEvent.click(setupBtn);
 
@@ -83,7 +71,7 @@ describe("TwoFactorSettings", () => {
     fireEvent.click(enableBtn);
 
     await waitFor(() =>
-      expect(postApiMock).toHaveBeenCalledWith("/auth/2fa/enable", {
+      expect(api.post).toHaveBeenCalledWith("/auth/2fa/enable", {
         token: "000000",
       })
     );
@@ -108,7 +96,7 @@ describe("TwoFactorSettings", () => {
     fireEvent.click(disableBtn);
 
     await waitFor(() =>
-      expect(postApiMock).toHaveBeenCalledWith("/auth/2fa/disable", {
+      expect(api.post).toHaveBeenCalledWith("/auth/2fa/disable", {
         token: "111111",
       })
     );

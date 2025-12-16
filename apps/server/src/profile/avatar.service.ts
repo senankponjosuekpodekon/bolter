@@ -13,7 +13,7 @@ export class AvatarService {
   private readonly maxBytes = 2 * 1024 * 1024; // 2MB
   private readonly allowedMime = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-  constructor(private readonly supabase: SupabaseService) {}
+  constructor(private readonly supabase: SupabaseService) { }
 
   async upload(
     userId: string,
@@ -42,8 +42,10 @@ export class AvatarService {
     }
 
     // Resize to standard and thumbnail sizes
-    const standardBuffer = await sharp(file.buffer).resize(512, 512, { fit: 'cover' }).toFormat(ext).toBuffer();
-    const thumbBuffer = await sharp(file.buffer).resize(128, 128, { fit: 'cover' }).toFormat(ext).toBuffer();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const standardBuffer = await (sharp as any)(file.buffer).resize(512, 512, { fit: 'cover' }).toFormat(ext).toBuffer();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const thumbBuffer = await (sharp as any)(file.buffer).resize(128, 128, { fit: 'cover' }).toFormat(ext).toBuffer();
 
     const uploads = [
       { path: standardPath, buffer: standardBuffer },
@@ -100,11 +102,11 @@ export class AvatarService {
     return 'bin';
   }
 
-  private tryLoadSharp(): any | null {
+  private tryLoadSharp(): NodeRequire | null {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
       return require('sharp');
-    } catch (e) {
+    } catch {
       return null;
     }
   }

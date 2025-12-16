@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
-import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { SupabaseService } from '../../supabase/supabase.service';
+import { AuditLogsService } from '../../audit-logs/audit-logs.service';
 
 /**
  * DataCleanupService handles cascading deletion and soft-delete cleanup

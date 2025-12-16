@@ -6,11 +6,6 @@ import KYC from "../KYC";
 import api from "../../services/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-interface ApiClient {
-  get?: (url: string) => Promise<{ data: unknown }>;
-  post?: (url: string, data: unknown) => Promise<{ data: unknown }>;
-}
-
 vi.mock("../../services/api", () => ({
   default: {
     get: vi.fn(),
@@ -23,12 +18,12 @@ const q = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 describe("KYC page", () => {
   beforeEach(() => {
     // reset mocks
-    (api as unknown as ApiClient).get?.mockReset?.();
-    (api as unknown as ApiClient).post?.mockReset?.();
+    vi.mocked(api.get).mockReset();
+    vi.mocked(api.post).mockReset();
   });
 
   it("shows uploaded documents when api returns a list", async () => {
-    (api as unknown as ApiClient).get = vi.fn().mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       data: [
         {
           id: "d1",
@@ -46,15 +41,15 @@ describe("KYC page", () => {
       </QueryClientProvider>
     );
 
-    expect(await screen.findByText(/Historique des documents/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Historique des documents/i)
+    ).toBeInTheDocument();
     expect(screen.getByText(/ID_CARD/)).toBeInTheDocument();
   });
 
   it("uploads a file through api.post when user picks a file", async () => {
-    (api as unknown as ApiClient).get = vi.fn().mockResolvedValue({ data: [] });
-    (api as unknown as ApiClient).post = vi
-      .fn()
-      .mockResolvedValue({ data: { id: "uploaded" } });
+    vi.mocked(api.get).mockResolvedValue({ data: [] });
+    vi.mocked(api.post).mockResolvedValue({ data: { id: "uploaded" } });
 
     render(
       <QueryClientProvider client={q}>
@@ -70,8 +65,6 @@ describe("KYC page", () => {
     const file = new File(["hello"], "hello.png", { type: "image/png" });
     fireEvent.change(inputs[0], { target: { files: [file] } });
 
-    await waitFor(() =>
-      expect((api as unknown as ApiClient).post).toHaveBeenCalled()
-    );
+    await waitFor(() => expect(api.post).toHaveBeenCalled());
   });
 });

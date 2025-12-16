@@ -21,6 +21,11 @@ import RouteLocaleLoader from "./components/i18n/RouteLocaleLoader";
 import AlertsSettings from "./pages/AlertsSettings";
 import ActivityHistory from "./pages/ActivityHistory";
 import { Notifications } from "./components/Notifications";
+import TontinesListPage from "./pages/TontinesListPage";
+import TontineCreatePage from "./pages/TontineCreatePage";
+import TontineDetailPage from "./pages/TontineDetailPage";
+import TontineMembersPage from "./pages/TontineMembersPage";
+import TontineInvitePage from "./pages/TontineInvitePage";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -41,6 +46,9 @@ function App() {
             !isAuthenticated ? <Register /> : <Navigate to="/dashboard" />
           }
         />
+
+        {/* Public invitation route */}
+        <Route path="/invite/:code" element={<TontineInvitePage />} />
 
         <Route
           path="/"
@@ -95,6 +103,10 @@ function App() {
           />
           <Route path="scheduled-transfers" element={<ScheduledTransfers />} />
           <Route path="alerts-settings" element={<AlertsSettings />} />
+          <Route path="tontines" element={<TontinesListPage />} />
+          <Route path="tontines/new" element={<TontineCreatePage />} />
+          <Route path="tontines/:id" element={<TontineDetailPage />} />
+          <Route path="tontines/:id/members" element={<TontineMembersPage />} />
           <Route
             path="/securite/2fa"
             element={<Navigate to="/profile#profile-2fa" replace />}

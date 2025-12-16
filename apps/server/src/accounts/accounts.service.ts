@@ -213,7 +213,7 @@ export class AccountsService {
       return account;
     }
 
-    const { data, error } = await this.supabase
+    const { data: updatedAccount, error } = await this.supabase
       .getAdminClient()
       .from('accounts')
       .update(updateData)
@@ -236,7 +236,7 @@ export class AccountsService {
       this.logger.warn(`Failed to persist audit log for account update (${accountId})`);
     }
 
-    return data as Account;
+    return updatedAccount as Account;
   }
 
   async delete(userId: string, accountId: string, deleteDto: DeleteAccountDto): Promise<{ message: string; deletedAt: string }> {
@@ -254,7 +254,7 @@ export class AccountsService {
       status: 'DELETED',
     };
 
-    const { data, error } = await this.supabase
+    const { error } = await this.supabase
       .getAdminClient()
       .from('accounts')
       .update(updateData)

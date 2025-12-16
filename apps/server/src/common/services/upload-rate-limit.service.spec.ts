@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { UploadRateLimitService } from './upload-rate-limit.service';
-import { SupabaseService } from '../supabase/supabase.service';
+import { SupabaseService } from '../../supabase/supabase.service';
 
 describe('UploadRateLimitService', () => {
   let service: UploadRateLimitService;
-  let supabaseService: SupabaseService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,7 +18,6 @@ describe('UploadRateLimitService', () => {
     }).compile();
 
     service = module.get<UploadRateLimitService>(UploadRateLimitService);
-    supabaseService = module.get<SupabaseService>(SupabaseService);
   });
 
   it('should be defined', () => {

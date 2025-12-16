@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { DataCleanupService } from '../common/services/data-cleanup.service';
+import { DataCleanupService } from '../services/data-cleanup.service';
 
 /**
  * CleanupTaskService handles scheduled cleanup tasks for RGPD compliance
