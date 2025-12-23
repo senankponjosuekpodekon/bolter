@@ -16,6 +16,14 @@ import {
 import api from "../services/api";
 import { useFormatting } from "../hooks";
 
+interface KycDocument {
+  id: string;
+  document_type: string;
+  status: 'APPROVED' | 'REJECTED' | 'PENDING';
+  reviewed_at?: string;
+  file_path?: string;
+}
+
 export default function KYC() {
   const { t } = useTranslation("kyc");
   const { date: dateFormatter } = useFormatting();
@@ -134,7 +142,7 @@ export default function KYC() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {requiredDocs.map((docType) => {
           const existing = documents?.find(
-            (d: any) => d.document_type === docType
+            (d: KycDocument) => d.document_type === docType
           );
           const DocIcon = getDocIcon(docType);
           const StatusIcon = existing ? getStatusIcon(existing.status) : Upload;
@@ -298,7 +306,7 @@ export default function KYC() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                {documents.map((doc: any) => {
+                {documents.map((doc: KycDocument) => {
                   const StatusIcon = getStatusIcon(doc.status);
                   return (
                     <tr

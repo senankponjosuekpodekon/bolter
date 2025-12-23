@@ -4,6 +4,7 @@ import { UsersService, User } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { Logger } from '../common/logger/logger.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { NotificationsService } from '../notifications/notifications.service';
 export interface LoginResponse {
     accessToken: string;
     refreshToken: string;
@@ -16,8 +17,9 @@ export declare class AuthService {
     private readonly configService;
     private readonly logger;
     private readonly auditLogsService;
+    private readonly notificationsService;
     private readonly auditLogger;
-    constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, logger: Logger, auditLogsService: AuditLogsService);
+    constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, logger: Logger, auditLogsService: AuditLogsService, notificationsService: NotificationsService);
     validateUser(email: string, password: string): Promise<Omit<User, 'password' | 'refreshToken'>>;
     login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<LoginResponse>;
     register(registerDto: RegisterDto): Promise<LoginResponse>;
@@ -49,4 +51,10 @@ export declare class AuthService {
         message: string;
     }>;
     verifyTwoFactor(userId: string, token: string): Promise<boolean>;
+    forgotPassword(email: string): Promise<{
+        message: string;
+    }>;
+    resetPassword(token: string, newPassword: string): Promise<{
+        message: string;
+    }>;
 }

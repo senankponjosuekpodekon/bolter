@@ -40,7 +40,7 @@ describe("ProfileAvatar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // jsdom does not implement createObjectURL; stub it for preview logic
-    (global as any).URL.createObjectURL = vi.fn(() => "blob:preview");
+    (global as unknown as { URL: typeof URL }).URL.createObjectURL = vi.fn(() => "blob:preview");
   });
 
   it("shows validation error for unsupported mime", async () => {

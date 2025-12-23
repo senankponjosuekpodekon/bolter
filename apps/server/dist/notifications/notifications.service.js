@@ -30,6 +30,7 @@ var NotificationEvent;
     NotificationEvent["LOAN_APPROVED"] = "loan.approved";
     NotificationEvent["LOAN_REJECTED"] = "loan.rejected";
     NotificationEvent["LOAN_REPAYMENT_POSTED"] = "loan.repayment.posted";
+    NotificationEvent["PASSWORD_RESET_REQUESTED"] = "password.reset.requested";
 })(NotificationEvent || (exports.NotificationEvent = NotificationEvent = {}));
 let NotificationsService = NotificationsService_1 = class NotificationsService {
     constructor(emailService, gateway, supabase, logger, config) {
@@ -297,6 +298,23 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
             subject: 'Paiement de votre prêt confirmé',
             html: this.renderHtmlTemplate(title, `${message}<br>${options.nextDueDate ? `Prochaine échéance le <strong>${new Date(options.nextDueDate).toLocaleDateString()}</strong>.` : 'Aucune échéance restante.'}`),
             text: `${message} ${options.nextDueDate ? `Prochaine échéance le ${new Date(options.nextDueDate).toLocaleDateString()}.` : 'Aucune échéance restante.'}`,
+        });
+    }
+    async notifyPasswordReset(options) {
+        const user = await this.getUserContact(options.userId);
+        if (!user) {
+            return;
+        }
+        const payload = this.buildPayload(NotificationEvent.PASSWORD_RESET_REQUESTED, {
+            title: 'Réinitialisation de mot de passe demandée',
+            message: `Une demande de réinitialisation de mot de passe a été initiée. Le lien est valide 1 heure.`,
+            userId: user.id,
+        });
+        this.gateway.emitToUser(user.id, payload);
+        await this.safeSendEmail(user, {
+            subject: 'Réinitialisation de votre mot de passe',
+            html: this.renderHtmlTemplate('Réinitialisation de mot de passe', `Bonjour ${this.formatName(user)},<br><br>Vous avez demandé la réinitialisation de votre mot de passe. Cliquez sur le lien ci-dessous pour continuer :<br><br><a href="${options.resetUrl}" style="display:inline-block;padding:10px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:5px;">Réinitialiser mon mot de passe</a><br><br>Ce lien expire dans <strong>1 heure</strong>. Si vous n'avez pas fait cette demande, veuillez ignorer cet email.`),
+            text: `Bonjour ${this.formatName(user)}, vous avez demandé la réinitialisation de votre mot de passe. Utilisez ce lien (valide 1 heure) : ${options.resetUrl}`,
         });
     }
     buildPayload(event, data) {

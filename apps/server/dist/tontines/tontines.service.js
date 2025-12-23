@@ -22,6 +22,7 @@ let TontinesService = TontinesService_1 = class TontinesService {
         this.logger = new common_1.Logger(TontinesService_1.name);
     }
     async createTontine(userId, dto) {
+        await this.ensureUserEligible(userId);
         if (dto.total_cycles < 1) {
             throw new common_1.BadRequestException('Total cycles must be at least 1');
         }
@@ -467,12 +468,16 @@ let TontinesService = TontinesService_1 = class TontinesService {
         return { tontine, invitation };
     }
     async applyToTontine(code, userId, dto) {
+        this.logger.warn(`[applyToTontine:START] code=${code}, userId=${userId}, message="${dto.message}"`);
+        await this.ensureUserEligible(userId);
         const { tontine, invitation } = await this.getTontineByInviteCode(code);
+        this.logger.warn(`[applyToTontine:FOUND_TONTINE] tontineId=${tontine.id}, status=${tontine.status}`);
         if (tontine.status !== tontines_types_1.TontineStatus.PENDING) {
             throw new common_1.BadRequestException('This tontine is not accepting applications');
         }
         const isMember = await this.isMember(tontine.id, userId);
         if (isMember) {
+            this.logger.warn(`[applyToTontine:ALREADY_MEMBER] userId=${userId} is already member of tontineId=${tontine.id}`);
             throw new common_1.BadRequestException('You are already a member of this tontine');
         }
         const { data: existing } = await this.supabase
@@ -483,6 +488,7 @@ let TontinesService = TontinesService_1 = class TontinesService {
             .eq('user_id', userId)
             .single();
         if (existing) {
+            this.logger.warn(`[applyToTontine:ALREADY_APPLIED] userId=${userId} already applied to tontineId=${tontine.id}, status=${existing.status}`);
             throw new common_1.BadRequestException('You have already applied to this tontine');
         }
         const { data, error } = await this.supabase
@@ -496,13 +502,17 @@ let TontinesService = TontinesService_1 = class TontinesService {
         })
             .select()
             .single();
-        if (error)
+        if (error) {
+            this.logger.error(`[applyToTontine:INSERT_FAIL] ${error.message}`);
             throw new common_1.BadRequestException(`Failed to submit application: ${error.message}`);
+        }
+        this.logger.warn(`[applyToTontine:CREATED] appId=${data.id}, tontineId=${tontine.id}, userId=${userId}`);
         await this.supabase
             .getAdminClient()
             .from('tontine_invitations')
             .update({ use_count: invitation.use_count + 1 })
             .eq('id', invitation.id);
+        this.logger.warn(`[applyToTontine:USE_COUNT_UPDATED] invitationId=${invitation.id}`);
         await this.auditLogs.log({
             action: 'tontine.application_submitted',
             resourceType: 'tontine_application',
@@ -510,6 +520,7 @@ let TontinesService = TontinesService_1 = class TontinesService {
             userId,
             metadata: { tontineId: tontine.id, invitationCode: code },
         });
+        this.logger.warn(`[applyToTontine:COMPLETE] Success, appId=${data.id}`);
         return data;
     }
     async getApplications(tontineId, userId) {
@@ -530,6 +541,7 @@ let TontinesService = TontinesService_1 = class TontinesService {
         return data || [];
     }
     async reviewApplication(tontineId, applicationId, userId, dto) {
+        this.logger.warn(`[reviewApplication:START] action=${dto.action}, appId=${applicationId}, tontineId=${tontineId}, reviewerId=${userId}`);
         const tontine = await this.getTontine(tontineId, userId);
         if (tontine.creator_id !== userId) {
             throw new common_1.ForbiddenException('Only the creator can review applications');
@@ -542,8 +554,10 @@ let TontinesService = TontinesService_1 = class TontinesService {
             .eq('tontine_id', tontineId)
             .single();
         if (appError || !application) {
+            this.logger.error(`[reviewApplication:NOT_FOUND] appId=${applicationId}, tontineId=${tontineId}`);
             throw new common_1.NotFoundException('Application not found');
         }
+        this.logger.warn(`[reviewApplication:FOUND] applicant=${application.user_id}, status=${application.status}`);
         if (application.status !== 'PENDING') {
             throw new common_1.BadRequestException('Application has already been reviewed');
         }
@@ -559,10 +573,21 @@ let TontinesService = TontinesService_1 = class TontinesService {
             .eq('id', applicationId)
             .select()
             .single();
-        if (error)
+        if (error) {
+            this.logger.error(`[reviewApplication:UPDATE_FAIL] ${error.message}`);
             throw new common_1.BadRequestException(`Failed to review application: ${error.message}`);
+        }
+        this.logger.warn(`[reviewApplication:UPDATED] newStatus=${newStatus}`);
         if (dto.action === 'approve') {
-            await this.addMember(tontineId, userId, { user_id: application.user_id });
+            try {
+                this.logger.warn(`[reviewApplication:ADDING_MEMBER] applicant=${application.user_id} to tontineId=${tontineId}`);
+                await this.addMember(tontineId, userId, { user_id: application.user_id });
+                this.logger.warn(`[reviewApplication:MEMBER_ADDED] Success`);
+            }
+            catch (memberError) {
+                this.logger.error(`[reviewApplication:MEMBER_ADD_FAIL] ${memberError}`);
+                throw memberError;
+            }
         }
         await this.auditLogs.log({
             action: `tontine.application_${newStatus.toLowerCase()}`,
@@ -571,7 +596,54 @@ let TontinesService = TontinesService_1 = class TontinesService {
             userId,
             metadata: { tontineId, applicantId: application.user_id },
         });
+        this.logger.warn(`[reviewApplication:COMPLETE] action=${dto.action} done`);
         return data;
+    }
+    async getUserApplications(userId) {
+        const client = this.supabase.getAdminClient();
+        try {
+            this.logger.warn(`[getUserApplications:START] Fetching applications for userId=${userId}`);
+            const { data: applications, error } = await client
+                .from('tontine_applications')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('status', 'PENDING')
+                .order('created_at', { ascending: false });
+            if (error) {
+                this.logger.error(`[getUserApplications:ERROR] Supabase error: code=${error.code}, msg=${error.message}`);
+                return [];
+            }
+            const appCount = applications?.length || 0;
+            this.logger.warn(`[getUserApplications:FOUND] Total=${appCount} pending applications`);
+            if (!applications || applications.length === 0) {
+                this.logger.warn(`[getUserApplications:EMPTY] No applications found for userId=${userId}`);
+                return [];
+            }
+            applications.forEach((app, idx) => {
+                this.logger.warn(`[getUserApplications:APP${idx}] id=${app.id}, tontine_id=${app.tontine_id}, status=${app.status}, created_at=${app.created_at}`);
+            });
+            try {
+                const tontineIds = [...new Set(applications.map(a => a.tontine_id))];
+                this.logger.warn(`[getUserApplications:ENRICH] Fetching ${tontineIds.length} tontines: ${tontineIds.join(',')}`);
+                const { data: tontines } = await client
+                    .from('tontines')
+                    .select('*')
+                    .in('id', tontineIds);
+                this.logger.warn(`[getUserApplications:SUCCESS] Enriched with ${tontines?.length || 0} tontines`);
+                return applications.map(app => ({
+                    ...app,
+                    tontines: tontines?.find(t => t.id === app.tontine_id) || null,
+                }));
+            }
+            catch (enrichError) {
+                this.logger.error(`[getUserApplications:ENRICH_FAIL] ${enrichError}`);
+                return applications;
+            }
+        }
+        catch (e) {
+            this.logger.error(`[getUserApplications:EXCEPTION] ${e}`);
+            return [];
+        }
     }
     generateInviteCode() {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -582,6 +654,25 @@ let TontinesService = TontinesService_1 = class TontinesService {
                 code += '-';
         }
         return code;
+    }
+    async ensureUserEligible(userId) {
+        const client = this.supabase.getAdminClient();
+        const { data, error } = await client
+            .from('users')
+            .select('id, kyc_status, email')
+            .eq('id', userId)
+            .maybeSingle();
+        if (error) {
+            this.logger.error(`Failed to verify user eligibility: ${error.message}`, undefined, { userId });
+            throw new common_1.BadRequestException(`Unable to verify user: ${error.message}`);
+        }
+        if (!data) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        if (data.kyc_status !== 'APPROVED') {
+            throw new common_1.BadRequestException('KYC verification must be approved before participating in tontines. Please complete your KYC verification in your profile.');
+        }
+        this.logger.log(`User ${data.email} (${userId}) KYC verified for tontine participation`, TontinesService_1.name);
     }
 };
 exports.TontinesService = TontinesService;

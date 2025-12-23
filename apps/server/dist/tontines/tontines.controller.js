@@ -34,6 +34,12 @@ let TontinesController = class TontinesController {
             throw new common_1.BadRequestException('User not authenticated');
         return this.tontinesService.getUserTontines(userId);
     }
+    async getUserApplications(req) {
+        const userId = req.user?.id;
+        if (!userId)
+            throw new common_1.BadRequestException('User not authenticated');
+        return this.tontinesService.getUserApplications(userId);
+    }
     async getTontine(req, tontineId) {
         const userId = req.user?.id;
         if (!userId)
@@ -128,6 +134,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], TontinesController.prototype, "getUserTontines", null);
+__decorate([
+    (0, common_1.Get)('user/applications/pending'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get pending applications for current user' }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], TontinesController.prototype, "getUserApplications", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get tontine details' }),

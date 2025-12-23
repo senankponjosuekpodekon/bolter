@@ -306,6 +306,49 @@ export class UsersService {
     }
   }
 
+  async setPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void> {
+    const { error } = await this.supabase.getAdminClient()
+      .from('users')
+      .update({
+        password_reset_token: token,
+        password_reset_expires: expiresAt.toISOString(),
+      })
+      .eq('id', userId);
+    
+    if (error) {
+      throw new BadRequestException(`Failed to set password reset token: ${error.message}`);
+    }
+  }
+
+  async findByPasswordResetToken(token: string): Promise<(User & { password_reset_expires?: string }) | null> {
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('users')
+      .select('*')
+      .eq('password_reset_token', token)
+      .maybeSingle();
+    
+    if (error) {
+      throw new BadRequestException(`Failed to find user by reset token: ${error.message}`);
+    }
+    
+    return data ? { ...this.mapUser(data, { includeSensitive: true }), password_reset_expires: data.password_reset_expires } : null;
+  }
+
+  async updatePasswordAndClearResetToken(userId: string, hashedPassword: string): Promise<void> {
+    const { error } = await this.supabase.getAdminClient()
+      .from('users')
+      .update({
+        password_hash: hashedPassword,
+        password_reset_token: null,
+        password_reset_expires: null,
+      })
+      .eq('id', userId);
+    
+    if (error) {
+      throw new BadRequestException(`Failed to update password: ${error.message}`);
+    }
+  }
+
   private async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(password, salt);

@@ -3,6 +3,23 @@ import { useParams, useNavigate } from "react-router-dom";
 import { tontinesService } from "../services/tontines.service";
 import { useAuthStore } from "../stores/authStore";
 
+interface Tontine {
+  id: string;
+  creator_id: string;
+  name: string;
+  status: 'PENDING' | 'ACTIVE' | 'COMPLETED';
+  contribution_amount: number;
+  [key: string]: unknown;
+}
+
+interface Member {
+  id: string;
+  user_id: string;
+  status: string;
+  distribution_order?: number;
+  [key: string]: unknown;
+}
+
 const badgeTone: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-800 ring-1 ring-amber-200",
   ACTIVE: "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200",
@@ -13,8 +30,8 @@ export default function TontineDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const [tontine, setTontine] = useState<any>(null);
-  const [members, setMembers] = useState<any[]>([]);
+  const [tontine, setTontine] = useState<Tontine | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [startState, setStartState] = useState<{
@@ -39,8 +56,9 @@ export default function TontineDetailPage() {
       ]);
       setTontine(t);
       setMembers(m || []);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || e.message);
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string } | null;
+      setError(error?.response?.data?.message || (error as { message?: string })?.message || 'Error loading tontine');
     } finally {
       if (withSpinner) setLoading(false);
     }
@@ -48,7 +66,6 @@ export default function TontineDetailPage() {
 
   useEffect(() => {
     fetchData(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const memberCount = members.length;
@@ -82,8 +99,9 @@ export default function TontineDetailPage() {
         success: "Tontine démarrée avec succès",
       });
       await fetchData(false);
-    } catch (e: any) {
-      const message = e?.response?.data?.message || e.message;
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string } | null;
+      const message = error?.response?.data?.message || (error as { message?: string })?.message || 'Error starting tontine';
       setStartState({ loading: false, error: message });
     }
   };
@@ -101,11 +119,12 @@ export default function TontineDetailPage() {
       await navigator.clipboard.writeText(inviteLink);
       setShareState({ copied: true, loading: false });
       setTimeout(() => setShareState({ copied: false }), 3000);
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string; } | null;
       const errorMsg =
-        e?.response?.data?.message ||
-        e?.message ||
-        "Échec de la génération du lien d'invitation";
+        error?.response?.data?.message ||
+        (error as { message?: string })?.message ||
+        "Échec de la génération du lien d&apos;invitation";
       console.error("[Share Error]", errorMsg, e);
       setShareState({ copied: false, loading: false, error: errorMsg });
     }
@@ -127,7 +146,7 @@ export default function TontineDetailPage() {
           <p className="font-semibold">Impossible de charger la tontine</p>
           <p className="text-sm mt-1">{error}</p>
           <p className="text-xs mt-2">
-            Vérifiez vos droits d'accès, l'application des migrations
+            Vérifiez vos droits d&apos;accès, l&apos;application des migrations
             (0009/0010/0011) et réessayez.
           </p>
         </div>
@@ -170,7 +189,7 @@ export default function TontineDetailPage() {
             Tontine introuvable
           </h3>
           <p className="mt-1 text-sm text-gray-500">
-            Cette tontine n'existe pas dans la base de données.
+            Cette tontine n&apos;existe pas dans la base de données.
           </p>
           <div className="mt-6">
             <button
@@ -270,7 +289,7 @@ export default function TontineDetailPage() {
                 <button
                   onClick={handleShare}
                   className="px-4 py-2.5 sm:py-2 rounded-lg border border-slate-200 text-slate-800 hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-sm"
-                  title="Copier le lien d'invitation"
+                  title="Copier le lien d&apos;invitation"
                   disabled={shareState.loading}
                 >
                   {shareState.loading ? (
@@ -355,7 +374,7 @@ export default function TontineDetailPage() {
             ))}
             {memberCount === 0 && (
               <p className="text-sm text-slate-600">
-                Aucun membre pour l'instant.
+                Aucun membre pour l&apos;instant.
               </p>
             )}
           </div>

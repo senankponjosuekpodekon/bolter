@@ -34,8 +34,9 @@ export default function ProfileAvatar(): JSX.Element {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setAvatarUrl(data?.url || null);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || "Erreur upload");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } } | null;
+      setError(error?.response?.data?.message || "Erreur upload");
     } finally {
       setLoading(false);
     }
@@ -47,8 +48,9 @@ export default function ProfileAvatar(): JSX.Element {
     try {
       const { data } = await axios.get("/profile/avatar");
       setAvatarUrl(data?.url || null);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || "Erreur récupération");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } } | null;
+      setError(error?.response?.data?.message || "Erreur récupération");
     } finally {
       setLoading(false);
     }
@@ -62,8 +64,9 @@ export default function ProfileAvatar(): JSX.Element {
       setAvatarUrl(null);
       setPreview(null);
       setFile(null);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || "Erreur suppression");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } } | null;
+      setError(error?.response?.data?.message || "Erreur suppression");
     } finally {
       setLoading(false);
     }

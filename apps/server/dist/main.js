@@ -49,8 +49,8 @@ async function bootstrap() {
     const useHttps = process.env.USE_HTTPS === 'true';
     let app;
     if (useHttps) {
-        const keyPath = path.join(__dirname, '../cert/192.168.1.199-key.pem');
-        const certPath = path.join(__dirname, '../cert/192.168.1.199.pem');
+        const keyPath = path.join(__dirname, '../cert/192.168.1.198-key.pem');
+        const certPath = path.join(__dirname, '../cert/192.168.1.198.pem');
         if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
             console.warn('[startup] USE_HTTPS=true but cert files not found at', keyPath, certPath, '; falling back to HTTP');
             app = await core_1.NestFactory.create(app_module_1.AppModule, {

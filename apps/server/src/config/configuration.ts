@@ -24,4 +24,7 @@ export default () => ({
     ttl: parseInt(process.env.THROTTLE_TTL, 10) || 60,
     limit: parseInt(process.env.THROTTLE_LIMIT, 10) || 10,
   },
+  frontend: {
+    url: process.env.FRONTEND_URL || process.env.APP_URL || 'http://localhost:5173',
+  },
 });

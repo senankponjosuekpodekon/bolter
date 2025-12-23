@@ -55,7 +55,7 @@ export default function Verify2FAModal({
     } catch (err) {
       let message = "Verification failed";
       if (typeof err === "object" && err !== null && "response" in err) {
-        const axiosError = err as any;
+        const axiosError = err as { response?: { status?: number; data?: { message?: string } } };
         const status = axiosError.response?.status;
         if (status === 429) {
           message =

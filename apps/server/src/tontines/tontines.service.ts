@@ -33,6 +33,9 @@ export class TontinesService {
    * Create a new tontine
    */
   async createTontine(userId: string, dto: CreateTontineDto): Promise<Tontine> {
+    // Verify user KYC status before allowing tontine creation
+    await this.ensureUserEligible(userId);
+
     if (dto.total_cycles < 1) {
       throw new BadRequestException('Total cycles must be at least 1');
     }
@@ -620,7 +623,13 @@ export class TontinesService {
    * Apply to join tontine via invitation
    */
   async applyToTontine(code: string, userId: string, dto: ApplyToTontineDto): Promise<TontineApplication> {
+    this.logger.warn(`[applyToTontine:START] code=${code}, userId=${userId}, message="${dto.message}"`);
+    
+    // Verify user KYC status before allowing application
+    await this.ensureUserEligible(userId);
+    
     const { tontine, invitation } = await this.getTontineByInviteCode(code);
+    this.logger.warn(`[applyToTontine:FOUND_TONTINE] tontineId=${tontine.id}, status=${tontine.status}`);
 
     if (tontine.status !== TontineStatus.PENDING) {
       throw new BadRequestException('This tontine is not accepting applications');
@@ -629,6 +638,7 @@ export class TontinesService {
     // Check if already a member
     const isMember = await this.isMember(tontine.id, userId);
     if (isMember) {
+      this.logger.warn(`[applyToTontine:ALREADY_MEMBER] userId=${userId} is already member of tontineId=${tontine.id}`);
       throw new BadRequestException('You are already a member of this tontine');
     }
 
@@ -642,6 +652,7 @@ export class TontinesService {
       .single();
 
     if (existing) {
+      this.logger.warn(`[applyToTontine:ALREADY_APPLIED] userId=${userId} already applied to tontineId=${tontine.id}, status=${existing.status}`);
       throw new BadRequestException('You have already applied to this tontine');
     }
 
@@ -657,7 +668,12 @@ export class TontinesService {
       .select()
       .single();
 
-    if (error) throw new BadRequestException(`Failed to submit application: ${error.message}`);
+    if (error) {
+      this.logger.error(`[applyToTontine:INSERT_FAIL] ${error.message}`);
+      throw new BadRequestException(`Failed to submit application: ${error.message}`);
+    }
+
+    this.logger.warn(`[applyToTontine:CREATED] appId=${data.id}, tontineId=${tontine.id}, userId=${userId}`);
 
     // Increment invitation use count
     await this.supabase
@@ -666,6 +682,8 @@ export class TontinesService {
       .update({ use_count: invitation.use_count + 1 })
       .eq('id', invitation.id);
 
+    this.logger.warn(`[applyToTontine:USE_COUNT_UPDATED] invitationId=${invitation.id}`);
+
     await this.auditLogs.log({
       action: 'tontine.application_submitted',
       resourceType: 'tontine_application',
@@ -673,6 +691,8 @@ export class TontinesService {
       userId,
       metadata: { tontineId: tontine.id, invitationCode: code },
     });
+
+    this.logger.warn(`[applyToTontine:COMPLETE] Success, appId=${data.id}`);
 
     return data;
   }
@@ -711,6 +731,8 @@ export class TontinesService {
     userId: string,
     dto: ReviewApplicationDto,
   ): Promise<TontineApplication> {
+    this.logger.warn(`[reviewApplication:START] action=${dto.action}, appId=${applicationId}, tontineId=${tontineId}, reviewerId=${userId}`);
+    
     const tontine = await this.getTontine(tontineId, userId);
 
     if (tontine.creator_id !== userId) {
@@ -726,8 +748,11 @@ export class TontinesService {
       .single();
 
     if (appError || !application) {
+      this.logger.error(`[reviewApplication:NOT_FOUND] appId=${applicationId}, tontineId=${tontineId}`);
       throw new NotFoundException('Application not found');
     }
+
+    this.logger.warn(`[reviewApplication:FOUND] applicant=${application.user_id}, status=${application.status}`);
 
     if (application.status !== 'PENDING') {
       throw new BadRequestException('Application has already been reviewed');
@@ -747,11 +772,23 @@ export class TontinesService {
       .select()
       .single();
 
-    if (error) throw new BadRequestException(`Failed to review application: ${error.message}`);
+    if (error) {
+      this.logger.error(`[reviewApplication:UPDATE_FAIL] ${error.message}`);
+      throw new BadRequestException(`Failed to review application: ${error.message}`);
+    }
+
+    this.logger.warn(`[reviewApplication:UPDATED] newStatus=${newStatus}`);
 
     // If approved, add as member
     if (dto.action === 'approve') {
-      await this.addMember(tontineId, userId, { user_id: application.user_id });
+      try {
+        this.logger.warn(`[reviewApplication:ADDING_MEMBER] applicant=${application.user_id} to tontineId=${tontineId}`);
+        await this.addMember(tontineId, userId, { user_id: application.user_id });
+        this.logger.warn(`[reviewApplication:MEMBER_ADDED] Success`);
+      } catch (memberError) {
+        this.logger.error(`[reviewApplication:MEMBER_ADD_FAIL] ${memberError}`);
+        throw memberError;
+      }
     }
 
     await this.auditLogs.log({
@@ -762,12 +799,77 @@ export class TontinesService {
       metadata: { tontineId, applicantId: application.user_id },
     });
 
+    this.logger.warn(`[reviewApplication:COMPLETE] action=${dto.action} done`);
+
     return data;
   }
 
   /**
    * Generate secure random invitation code
    */
+  /**
+   * Get user's pending applications across all tontines
+   * Note: RLS policies may cause issues with nested relations, so we return empty on error
+   */
+  async getUserApplications(userId: string) {
+    // Use adminClient to bypass RLS and avoid recursion issues
+    const client = this.supabase.getAdminClient();
+
+    try {
+      this.logger.warn(`[getUserApplications:START] Fetching applications for userId=${userId}`);
+      
+      // Simple query without relations - avoid RLS policy recursion
+      const { data: applications, error } = await client
+        .from('tontine_applications')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'PENDING')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        this.logger.error(`[getUserApplications:ERROR] Supabase error: code=${error.code}, msg=${error.message}`);
+        return [];
+      }
+
+      const appCount = applications?.length || 0;
+      this.logger.warn(`[getUserApplications:FOUND] Total=${appCount} pending applications`);
+
+      if (!applications || applications.length === 0) {
+        this.logger.warn(`[getUserApplications:EMPTY] No applications found for userId=${userId}`);
+        return [];
+      }
+
+      // Log each application
+      applications.forEach((app, idx) => {
+        this.logger.warn(`[getUserApplications:APP${idx}] id=${app.id}, tontine_id=${app.tontine_id}, status=${app.status}, created_at=${app.created_at}`);
+      });
+
+      // Try to enrich with tontine data, but don't fail if it doesn't work
+      try {
+        const tontineIds = [...new Set(applications.map(a => a.tontine_id))];
+        this.logger.warn(`[getUserApplications:ENRICH] Fetching ${tontineIds.length} tontines: ${tontineIds.join(',')}`);
+        
+        const { data: tontines } = await client
+          .from('tontines')
+          .select('*')
+          .in('id', tontineIds);
+
+        this.logger.warn(`[getUserApplications:SUCCESS] Enriched with ${tontines?.length || 0} tontines`);
+
+        return applications.map(app => ({
+          ...app,
+          tontines: tontines?.find(t => t.id === app.tontine_id) || null,
+        }));
+      } catch (enrichError) {
+        this.logger.error(`[getUserApplications:ENRICH_FAIL] ${enrichError}`);
+        return applications;
+      }
+    } catch (e) {
+      this.logger.error(`[getUserApplications:EXCEPTION] ${e}`);
+      return [];
+    }
+  }
+
   private generateInviteCode(): string {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous chars
     let code = '';
@@ -776,6 +878,37 @@ export class TontinesService {
       if ((i + 1) % 4 === 0 && i < 11) code += '-';
     }
     return code;
+  }
+
+  /**
+   * Ensure user is eligible to participate in tontines
+   * Requires APPROVED KYC status
+   */
+  private async ensureUserEligible(userId: string): Promise<void> {
+    const client = this.supabase.getAdminClient();
+
+    const { data, error } = await client
+      .from('users')
+      .select('id, kyc_status, email')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) {
+      this.logger.error(`Failed to verify user eligibility: ${error.message}`, undefined, { userId });
+      throw new BadRequestException(`Unable to verify user: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (data.kyc_status !== 'APPROVED') {
+      throw new BadRequestException(
+        'KYC verification must be approved before participating in tontines. Please complete your KYC verification in your profile.',
+      );
+    }
+
+    this.logger.log(`User ${data.email} (${userId}) KYC verified for tontine participation`, TontinesService.name);
   }
 }
 

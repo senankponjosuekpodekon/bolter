@@ -50,8 +50,9 @@ export default function TontineCreatePage() {
     try {
       const res = await tontinesService.create(form);
       window.location.href = `/tontines/${res.id}`;
-    } catch (e: any) {
-      setError(e?.response?.data?.message || e.message);
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string } | null;
+      setError(error?.response?.data?.message || (error as { message?: string })?.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -178,7 +179,7 @@ export default function TontineCreatePage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm mb-1">
-              Durée d'un cycle (jours)
+              Durée d&apos;un cycle (jours)
             </label>
             <input
               name="cycle_duration_days"

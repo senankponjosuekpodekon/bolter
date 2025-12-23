@@ -15,8 +15,8 @@ async function bootstrap() {
 
   let app;
   if (useHttps) {
-    const keyPath = path.join(__dirname, '../cert/192.168.1.199-key.pem');
-    const certPath = path.join(__dirname, '../cert/192.168.1.199.pem');
+    const keyPath = path.join(__dirname, '../cert/192.168.1.198-key.pem');
+    const certPath = path.join(__dirname, '../cert/192.168.1.198.pem');
 
     if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
       // eslint-disable-next-line no-console

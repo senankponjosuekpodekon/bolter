@@ -45,12 +45,10 @@ ALTER TABLE tontine_applications ENABLE ROW LEVEL SECURITY;
 CREATE POLICY tontine_invitations_creator_all ON tontine_invitations
   FOR ALL USING (created_by = auth.uid());
 
--- Applications: applicant and creator can view
+-- Applications: applicant can view their own applications
+-- NOTE: Creator view is handled in service via adminClient to avoid RLS recursion
 CREATE POLICY tontine_applications_select ON tontine_applications
-  FOR SELECT USING (
-    user_id = auth.uid() 
-    OR tontine_id IN (SELECT id FROM tontines WHERE creator_id = auth.uid())
-  );
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY tontine_applications_insert ON tontine_applications
   FOR INSERT WITH CHECK (user_id = auth.uid());

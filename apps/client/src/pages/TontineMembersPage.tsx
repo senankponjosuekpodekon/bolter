@@ -27,8 +27,9 @@ export default function TontineMembersPage() {
     try {
       const data = await tontinesService.members(id);
       setMembers(data || []);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || e.message);
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string } | null;
+      setError(error?.response?.data?.message || (error as { message?: string })?.message || 'Error loading members');
     } finally {
       setLoading(false);
     }
@@ -36,7 +37,6 @@ export default function TontineMembersPage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const addMember = async () => {
@@ -46,8 +46,9 @@ export default function TontineMembersPage() {
       await tontinesService.addMember(id, form);
       setForm({ user_id: "" });
       await load();
-    } catch (e: any) {
-      alert(e?.response?.data?.message || e.message);
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string } | null;
+      alert(error?.response?.data?.message || (error as { message?: string })?.message || 'Error adding member');
     } finally {
       setSubmitting(false);
     }
@@ -66,7 +67,7 @@ export default function TontineMembersPage() {
               className="border rounded px-3 py-2"
               value={form.user_id}
               onChange={(e) => setForm({ ...form, user_id: e.target.value })}
-              placeholder="uuid de l'utilisateur"
+              placeholder="uuid de l&apos;utilisateur"
               required
             />
           </label>
@@ -163,7 +164,7 @@ export default function TontineMembersPage() {
               {!members.length && (
                 <tr>
                   <td className="p-2" colSpan={5}>
-                    Aucun membre pour l'instant.
+                    Aucun membre pour l&apos;instant.
                   </td>
                 </tr>
               )}

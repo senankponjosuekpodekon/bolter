@@ -47,18 +47,21 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const bcrypt = __importStar(require("bcrypt"));
+const crypto = __importStar(require("crypto"));
 const speakeasy = __importStar(require("speakeasy"));
 const qrcode = __importStar(require("qrcode"));
 const users_service_1 = require("../users/users.service");
 const logger_service_1 = require("../common/logger/logger.service");
 const audit_logs_service_1 = require("../audit-logs/audit-logs.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 let AuthService = class AuthService {
-    constructor(usersService, jwtService, configService, logger, auditLogsService) {
+    constructor(usersService, jwtService, configService, logger, auditLogsService, notificationsService) {
         this.usersService = usersService;
         this.jwtService = jwtService;
         this.configService = configService;
         this.logger = logger;
         this.auditLogsService = auditLogsService;
+        this.notificationsService = notificationsService;
         this.auditLogger = new common_1.Logger('AuthAudit');
     }
     async validateUser(email, password) {
@@ -289,6 +292,52 @@ let AuthService = class AuthService {
         }
         return true;
     }
+    async forgotPassword(email) {
+        const user = await this.usersService.findByEmail(email);
+        if (!user) {
+            this.logger.warn(`Password reset requested for non-existent email: ${email}`, 'AuthService');
+            return { message: 'If the email exists, a reset link has been sent' };
+        }
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+        await this.usersService.setPasswordResetToken(user.id, resetToken, expiresAt);
+        const resetUrl = `${this.configService.get('frontend.url', 'http://localhost:5173')}/reset-password?token=${resetToken}`;
+        await this.auditLogsService.log({
+            userId: user.id,
+            performedBy: user.id,
+            action: 'PASSWORD_RESET_REQUESTED',
+            resourceType: 'auth',
+            resourceId: user.id,
+            metadata: { email },
+        });
+        await this.notificationsService.notifyPasswordReset({
+            userId: user.id,
+            resetUrl,
+        });
+        this.logger.log(`Password reset requested for ${email}. Reset link sent via email.`, 'AuthService');
+        return { message: 'If the email exists, a reset link has been sent' };
+    }
+    async resetPassword(token, newPassword) {
+        const user = await this.usersService.findByPasswordResetToken(token);
+        if (!user) {
+            throw new common_1.BadRequestException('Invalid or expired reset token');
+        }
+        if (user.password_reset_expires && new Date(user.password_reset_expires) < new Date()) {
+            throw new common_1.BadRequestException('Reset token has expired');
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await this.usersService.updatePasswordAndClearResetToken(user.id, hashedPassword);
+        await this.usersService.removeRefreshToken(user.id);
+        await this.auditLogsService.log({
+            userId: user.id,
+            performedBy: user.id,
+            action: 'PASSWORD_RESET_COMPLETED',
+            resourceType: 'auth',
+            resourceId: user.id,
+        });
+        this.logger.log(`Password reset completed for user ${user.email}`, 'AuthService');
+        return { message: 'Password reset successful' };
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
@@ -297,6 +346,7 @@ exports.AuthService = AuthService = __decorate([
         jwt_1.JwtService,
         config_1.ConfigService,
         logger_service_1.Logger,
-        audit_logs_service_1.AuditLogsService])
+        audit_logs_service_1.AuditLogsService,
+        notifications_service_1.NotificationsService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

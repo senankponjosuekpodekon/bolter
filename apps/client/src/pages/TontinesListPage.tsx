@@ -10,6 +10,20 @@ import {
   CreateTontineDto,
 } from "../services/tontines.service";
 
+interface Tontine {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'PENDING' | 'ACTIVE' | 'COMPLETED';
+  contribution_amount: number;
+  currency: string;
+  frequency: string;
+  current_cycle?: number;
+  total_cycles: number;
+  created_at: string;
+  [key: string]: unknown;
+}
+
 const frequencies = [
   "DAILY",
   "WEEKLY",
@@ -52,7 +66,7 @@ const StatusBadge = ({ value }: { value?: string }) => (
 type CreateModalProps = {
   open: boolean;
   onClose: () => void;
-  onCreated: (tontine: any) => void;
+  onCreated: (tontine: Tontine) => void;
 };
 
 const CreateTontineModal = ({ open, onClose, onCreated }: CreateModalProps) => {
@@ -122,8 +136,9 @@ const CreateTontineModal = ({ open, onClose, onCreated }: CreateModalProps) => {
       const res = await tontinesService.create(payload);
       onCreated(res);
       onClose();
-    } catch (e: any) {
-      setError(e?.response?.data?.message || e.message);
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string } | null;
+      setError(error?.response?.data?.message || (error as { message?: string })?.message || 'Error creating tontine');
     } finally {
       setSubmitting(false);
     }
@@ -244,7 +259,7 @@ const CreateTontineModal = ({ open, onClose, onCreated }: CreateModalProps) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             <div className="space-y-1">
               <label className="text-sm text-slate-700">
-                Durée d'un cycle (jours)
+                Durée d&apos;un cycle (jours)
               </label>
               <input
                 name="cycle_duration_days"
@@ -280,7 +295,7 @@ const CreateTontineModal = ({ open, onClose, onCreated }: CreateModalProps) => {
               Ajouter un premier membre (optionnel)
             </p>
             <p className="text-xs text-slate-600 mb-2 sm:mb-3">
-              Indiquez l'identifiant utilisateur si vous souhaitez pré-ajouter
+              Indiquez l&apos;identifiant utilisateur si vous souhaitez pré-ajouter
               un participant.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
@@ -300,7 +315,7 @@ const CreateTontineModal = ({ open, onClose, onCreated }: CreateModalProps) => {
                 </label>
                 <input
                   name="distribution_order"
-                  value={firstMember.distribution_order as any}
+                  value={firstMember.distribution_order === '' ? '' : firstMember.distribution_order}
                   onChange={onChangeFirstMember}
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-base focus:ring-2 focus:ring-blue-500"
                   placeholder="1, 2, 3…"
@@ -332,7 +347,7 @@ const CreateTontineModal = ({ open, onClose, onCreated }: CreateModalProps) => {
 };
 
 export default function TontinesListPage() {
-  const [tontines, setTontines] = useState<any[]>([]);
+  const [tontines, setTontines] = useState<Tontine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -344,8 +359,9 @@ export default function TontinesListPage() {
     try {
       const data = await tontinesService.list();
       setTontines(data);
-    } catch (e: any) {
-      const msg = e?.response?.data?.message || e.message;
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } }; message?: string } | null;
+      const msg = error?.response?.data?.message || (error as { message?: string })?.message || 'Error loading tontines';
       setError(msg);
     } finally {
       setLoading(false);
@@ -376,7 +392,7 @@ export default function TontinesListPage() {
                 ROSCA / Tontines
               </p>
               <h1 className="text-2xl md:text-3xl font-semibold text-slate-900">
-                Vos tontines, en un coup d'œil
+                Vos tontines, en un coup d&apos;oeil
               </h1>
               <p className="text-slate-600 max-w-2xl">
                 Suivez vos groupes, démarrez des cycles et enregistrez les
@@ -439,7 +455,7 @@ export default function TontinesListPage() {
               </p>
               <p className="text-sm mt-1">{error}</p>
               <p className="text-xs mt-2 text-red-700">
-                Vérifiez que votre jeton est encore valide et que l'API répond
+                Vérifiez que votre jeton est encore valide et que l&apos;API répond
                 sur le port 3000.
               </p>
               <div className="mt-3">
@@ -466,7 +482,7 @@ export default function TontinesListPage() {
                 ＋
               </div>
               <h3 className="mt-3 text-lg font-semibold text-slate-900">
-                Aucune tontine pour l'instant
+                Aucune tontine pour l&apos;instant
               </h3>
               <p className="mt-1 text-slate-600">
                 Créez-en une et invitez vos membres en deux clics.

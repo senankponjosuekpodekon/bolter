@@ -6,10 +6,16 @@ import { loadLocale } from "../i18n";
 import api from "../services/api";
 import Verify2FAModal from "../components/auth/Verify2FAModal";
 
+interface User {
+  id: string;
+  email: string;
+  [key: string]: unknown;
+}
+
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: any;
+  user: User;
   requires2FA?: boolean;
 }
 
@@ -20,7 +26,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [tempToken, setTempToken] = useState<string | null>(null);
-  const [tempUser, setTempUser] = useState<any>(null);
+  const [tempUser, setTempUser] = useState<User | null>(null);
   const [tempRefreshToken, setTempRefreshToken] = useState<string | null>(null);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();

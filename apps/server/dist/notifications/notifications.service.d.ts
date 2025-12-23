@@ -13,7 +13,8 @@ export declare enum NotificationEvent {
     LOAN_CREATED = "loan.created",
     LOAN_APPROVED = "loan.approved",
     LOAN_REJECTED = "loan.rejected",
-    LOAN_REPAYMENT_POSTED = "loan.repayment.posted"
+    LOAN_REPAYMENT_POSTED = "loan.repayment.posted",
+    PASSWORD_RESET_REQUESTED = "password.reset.requested"
 }
 export declare class NotificationsService {
     private readonly emailService;
@@ -80,6 +81,10 @@ export declare class NotificationsService {
         amount: number;
         remainingBalance: number;
         nextDueDate: string | null;
+    }): Promise<void>;
+    notifyPasswordReset(options: {
+        userId: string;
+        resetUrl: string;
     }): Promise<void>;
     private buildPayload;
     private getUserContact;

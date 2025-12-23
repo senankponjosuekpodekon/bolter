@@ -28,6 +28,7 @@ describe('TontinesService (unit)', () => {
         memberContributionsList?: any[];
         contributionSingle?: any;
         contributionError?: any;
+        userData?: any;
     }) => ({
         from: (table: string) => {
             if (table === 'tontines') {
@@ -165,6 +166,19 @@ describe('TontinesService (unit)', () => {
                 };
             }
 
+            if (table === 'users') {
+                return {
+                    select: () => ({
+                        eq: () => ({
+                            maybeSingle: jest.fn().mockResolvedValue({
+                                data: config.userData ?? null,
+                                error: config.userData ? null : { message: 'User not found' },
+                            }),
+                        }),
+                    }),
+                };
+            }
+
             return { select: () => ({}) };
         },
     });
@@ -184,7 +198,7 @@ describe('TontinesService (unit)', () => {
     };
 
     it('throws when total_cycles < 1', async () => {
-        const supabase = buildSupabase(buildAdminClient({}));
+        const supabase = buildSupabase(buildAdminClient({ userData: { id: 'user-1', kyc_status: 'APPROVED', email: 'test@test.com' } }));
         const service = new TontinesService(supabase as any, auditLogs as any);
 
         await expect(
@@ -193,7 +207,7 @@ describe('TontinesService (unit)', () => {
     });
 
     it('throws when contribution_amount <= 0', async () => {
-        const supabase = buildSupabase(buildAdminClient({}));
+        const supabase = buildSupabase(buildAdminClient({ userData: { id: 'user-1', kyc_status: 'APPROVED', email: 'test@test.com' } }));
         const service = new TontinesService(supabase as any, auditLogs as any);
 
         await expect(
@@ -234,7 +248,10 @@ describe('TontinesService (unit)', () => {
     });
 
     it('creates tontine successfully with valid payload', async () => {
-        const supabase = buildSupabase(buildAdminClient({ insertResult: { id: 't-created' } }));
+        const supabase = buildSupabase(buildAdminClient({ 
+            insertResult: { id: 't-created' },
+            userData: { id: 'user-1', kyc_status: 'APPROVED', email: 'test@test.com' } 
+        }));
         const service = new TontinesService(supabase as any, auditLogs as any);
 
         const created = await service.createTontine('user-1', baseDto);
@@ -245,6 +262,7 @@ describe('TontinesService (unit)', () => {
     it('addMember rejects if already member', async () => {
         const supabase = buildSupabase(
             buildAdminClient({
+                userData: { id: 'user-1', kyc_status: 'APPROVED', email: 'test@test.com' },
                 tontineData: { id: 't-1', creator_id: 'user-1', contribution_amount: 10, total_cycles: 2 },
                 memberData: { id: 'm-1' }, // existing member
             }),

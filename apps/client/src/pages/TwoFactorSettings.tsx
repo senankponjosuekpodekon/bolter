@@ -161,7 +161,7 @@ export default function TwoFactorSettings() {
           </div>
           <div className="p-4 sm:p-6">
             <p className="text-gray-600 dark:text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
-              La double authentification n'est pas encore activée. Protégez
+              La double authentification n&apos;est pas encore activée. Protégez
               votre compte en ajoutant une couche de sécurité supplémentaire.
             </p>
             <button
@@ -206,7 +206,7 @@ export default function TwoFactorSettings() {
             <div className="flex items-center gap-2 sm:gap-3">
               <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
               <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Configurer l'authentificateur
+                Configurer l&apos;authentificateur
               </h2>
             </div>
           </div>
@@ -215,7 +215,7 @@ export default function TwoFactorSettings() {
             {/* QR Code Section */}
             <div className="text-center">
               <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 sm:mb-4">
-                Scannez ce QR code avec votre application d'authentification
+                Scannez ce QR code avec votre application d&apos;authentification
               </p>
               <div className="inline-block p-3 sm:p-4 bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl shadow-xl border-2 sm:border-4 border-gray-100 dark:border-slate-600">
                 <img

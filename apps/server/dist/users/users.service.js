@@ -315,6 +315,42 @@ let UsersService = UsersService_1 = class UsersService {
             console.warn('Failed to clear temp 2FA secret:', err);
         }
     }
+    async setPasswordResetToken(userId, token, expiresAt) {
+        const { error } = await this.supabase.getAdminClient()
+            .from('users')
+            .update({
+            password_reset_token: token,
+            password_reset_expires: expiresAt.toISOString(),
+        })
+            .eq('id', userId);
+        if (error) {
+            throw new common_1.BadRequestException(`Failed to set password reset token: ${error.message}`);
+        }
+    }
+    async findByPasswordResetToken(token) {
+        const { data, error } = await this.supabase.getAdminClient()
+            .from('users')
+            .select('*')
+            .eq('password_reset_token', token)
+            .maybeSingle();
+        if (error) {
+            throw new common_1.BadRequestException(`Failed to find user by reset token: ${error.message}`);
+        }
+        return data ? { ...this.mapUser(data, { includeSensitive: true }), password_reset_expires: data.password_reset_expires } : null;
+    }
+    async updatePasswordAndClearResetToken(userId, hashedPassword) {
+        const { error } = await this.supabase.getAdminClient()
+            .from('users')
+            .update({
+            password_hash: hashedPassword,
+            password_reset_token: null,
+            password_reset_expires: null,
+        })
+            .eq('id', userId);
+        if (error) {
+            throw new common_1.BadRequestException(`Failed to update password: ${error.message}`);
+        }
+    }
     async hashPassword(password) {
         const salt = await bcrypt.genSalt(10);
         return bcrypt.hash(password, salt);

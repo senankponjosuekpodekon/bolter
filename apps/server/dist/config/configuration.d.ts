@@ -24,5 +24,8 @@ declare const _default: () => {
         ttl: number;
         limit: number;
     };
+    frontend: {
+        url: string;
+    };
 };
 export default _default;

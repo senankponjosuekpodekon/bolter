@@ -43,6 +43,17 @@ export class TontinesController {
   }
 
   /**
+   * Get user's pending applications
+   */
+  @Get('user/applications/pending')
+  @ApiOperation({ summary: 'Get pending applications for current user' })
+  async getUserApplications(@Req() req: Record<string, unknown>) {
+    const userId = (req.user as Record<string, unknown>)?.id as string;
+    if (!userId) throw new BadRequestException('User not authenticated');
+    return this.tontinesService.getUserApplications(userId);
+  }
+
+  /**
    * Get tontine by ID
    */
   @Get(':id')

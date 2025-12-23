@@ -62,6 +62,11 @@ export declare class UsersService {
     getTempTwoFactorSecret(userId: string): Promise<string | null>;
     clearTwoFactorSecret(userId: string): Promise<void>;
     clearTempTwoFactorSecret(userId: string): Promise<void>;
+    setPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void>;
+    findByPasswordResetToken(token: string): Promise<(User & {
+        password_reset_expires?: string;
+    }) | null>;
+    updatePasswordAndClearResetToken(userId: string, hashedPassword: string): Promise<void>;
     private hashPassword;
     private mapUser;
 }

@@ -25,5 +25,7 @@ export declare class TontinesService {
     applyToTontine(code: string, userId: string, dto: ApplyToTontineDto): Promise<TontineApplication>;
     getApplications(tontineId: string, userId: string): Promise<TontineApplication[]>;
     reviewApplication(tontineId: string, applicationId: string, userId: string, dto: ReviewApplicationDto): Promise<TontineApplication>;
+    getUserApplications(userId: string): Promise<any[]>;
     private generateInviteCode;
+    private ensureUserEligible;
 }

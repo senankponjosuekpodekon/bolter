@@ -5,6 +5,7 @@ export declare class TontinesController {
     constructor(tontinesService: TontinesService);
     create(req: Record<string, unknown>, dto: CreateTontineDto): Promise<import("./tontines.types").Tontine>;
     getUserTontines(req: Record<string, unknown>): Promise<import("./tontines.types").Tontine[]>;
+    getUserApplications(req: Record<string, unknown>): Promise<any[]>;
     getTontine(req: Record<string, unknown>, tontineId: string): Promise<import("./tontines.types").Tontine>;
     updateTontine(req: Record<string, unknown>, tontineId: string, dto: UpdateTontineDto): Promise<import("./tontines.types").Tontine>;
     startTontine(req: Record<string, unknown>, tontineId: string): Promise<import("./tontines.types").TontineCycle>;

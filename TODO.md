@@ -145,8 +145,8 @@
 
 ### Backend : Sécurité & Pénalités
 
-- [ ] Ajouter `JwtVerifiedGuard` sur endpoints paiement/distribution (force 2FA)
-- [ ] Vérifier KYC requis avant create/join tontine
+- [x] Ajouter `JwtVerifiedGuard` sur endpoints paiement/distribution (force 2FA) ✅ **DONE** (vérification KYC ajoutée pour création et adhésion à tontines, similaire aux prêts)
+- [x] Vérifier KYC requis avant create/join tontine ✅ **DONE** (méthode `ensureUserEligible()` ajoutée dans TontinesService)
 - [ ] Cron job : détecter paiements en retard, appliquer pénalité (frais fixe ou %)
 - [ ] Logs d'audit : chaque paiement, distribution, pénalité, membre ajouté
 - [ ] Notifications temps réel (WebSocket) : paiement reçu, tour attribué, retard détecté, pénalité appliquée
@@ -254,3 +254,24 @@
 
 Admin doit pouvoir délivré un borderau de virement, régistre interne pour tracer les mouvements
 Systeme de compensation simulé si plusieurs banque existe dans votre plateforme, Preuve de transaction pour la transparence
+
+
+
+
+
+
+
+
+Avant de lancer une tontine, il faut essentiellement le kyc, comme le cas des prets.
+
+~~Est ce qu'on a implementer le cas de mot de passe oublié?~~ ✅ **DONE** (endpoints backend `/auth/forgot-password` et `/auth/reset-password`, pages frontend connectées, notifications email configurées, migration DB pour tokens)
+
+Run lint
+
+create, update and test tests
+
+splash, login, signup page, Landing page
+
+Docker and test
+
+Comment vendre cette saas bancaire en marque blanche a plusieurs banque, peut etre que c'est via des licences qui peuvent s'expirer ou non et eux il pourront personaliser à leur des choses pour etre spéciale dans la proposition à leur client. La génération d'une licence doit suivre des normes en fonction des besoins du client b2b, peut etre il veut l'appli mais ne veut pas tontine ou il veut certains fonctionnalité uniquement et ne veut pas d'autre.

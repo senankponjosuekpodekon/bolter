@@ -39,7 +39,7 @@ export const BottomNav = () => (
       <Item to="/dashboard" label="Accueil" icon={Home} />
       <Item to="/accounts" label="Comptes" icon={CreditCard} />
       <Item to="/loans" label="Prêts" icon={DollarSign} />
-      <Item to="/tontines" label="Tontines" icon={Group as any} />
+      <Item to="/tontines" label="Tontines" icon={Group as unknown as typeof Group} />
       <Item to="/profile" label="Profil" icon={User} />
     </div>
   </nav>
