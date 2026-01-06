@@ -7,7 +7,7 @@ import { LicensingService } from '../licensing.service';
  * Usage: @RequireFeature('loans')
  */
 export const RequireFeature = (feature: string) => {
-  return (target: any, key?: string, descriptor?: PropertyDescriptor) => {
+  return (target: Record<string, unknown>, key?: string, descriptor?: PropertyDescriptor) => {
     Reflect.defineMetadata('requireFeature', feature, descriptor?.value || target);
   };
 };

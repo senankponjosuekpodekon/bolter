@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { LicensingService } from '../licensing.service';
-import { SupabaseService } from '../../database/supabase.service';
+import { LicensingService } from './licensing.service';
+import { SupabaseService } from '../supabase/supabase.service';
 
 /**
  * Scheduled tasks for license management
@@ -58,7 +58,7 @@ export class LicenseScheduler {
       const { data: expiringLicenses, error } = await this.supabase
         .getAdminClient()
         .from('licenses')
-        .select('l:*, t:tenants(*)')
+        .select('*, tenants(*)')
         .eq('status', 'ACTIVE')
         .lte('expires_at', sevenDaysFromNow.toISOString())
         .gt('expires_at', new Date().toISOString());
@@ -121,31 +121,33 @@ export class LicenseScheduler {
       this.logger.log('Checking for expired tenants to suspend...');
 
       // Get tenants with expired licenses
-      const { data: expiredTenants, error } = await this.supabase
+      const { data: expiredLicenses, error } = await this.supabase
         .getAdminClient()
         .from('licenses')
         .select('tenant_id')
         .eq('status', 'EXPIRED')
-        .lt('expires_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()) // Expired 7+ days ago
-        .distinct();
+        .lt('expires_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()); // Expired 7+ days ago
 
       if (error) {
         this.logger.error(`Failed to fetch expired tenants: ${error.message}`);
         return;
       }
 
-      for (const record of expiredTenants || []) {
+      // Get unique tenant IDs
+      const uniqueTenantIds = [...new Set((expiredLicenses || []).map(l => l.tenant_id))];
+
+      for (const tenantId of uniqueTenantIds) {
         // Update tenant status to SUSPENDED
         const { error: updateError } = await this.supabase
           .getAdminClient()
           .from('tenants')
           .update({ status: 'SUSPENDED' })
-          .eq('id', record.tenant_id);
+          .eq('id', tenantId);
 
         if (updateError) {
-          this.logger.error(`Failed to suspend tenant ${record.tenant_id}: ${updateError.message}`);
+          this.logger.error(`Failed to suspend tenant ${tenantId}: ${updateError.message}`);
         } else {
-          this.logger.log(`Suspended tenant ${record.tenant_id} due to expired license`);
+          this.logger.log(`Suspended tenant ${tenantId} due to expired license`);
         }
       }
 

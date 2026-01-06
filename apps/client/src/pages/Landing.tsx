@@ -444,7 +444,7 @@ export default function Landing() {
                     />
                   ))}
                 </div>
-                <p className="text-slate-300 mb-6 italic">"{testimonial.text}"</p>
+                <p className="text-slate-300 mb-6 italic">&quot;{testimonial.text}&quot;</p>
                 <div className="flex items-center gap-4">
                   <div className="text-3xl">{testimonial.avatar}</div>
                   <div>

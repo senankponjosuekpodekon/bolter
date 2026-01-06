@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
-import { SupabaseService } from '../database/supabase.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 export enum LicenseTier {
@@ -283,7 +283,6 @@ export class LicensingService {
       'UPGRADED',
       currentLicense.tier,
       newTier,
-      upgradedBy,
     );
 
     // Create new license
@@ -315,10 +314,10 @@ export class LicensingService {
     // Audit log
     await this.auditLogs.log({
       action: 'LICENSE_UPGRADE',
-      entity_type: 'LICENSE',
-      entity_id: newLicense.id,
-      performed_by: upgradedBy,
-      description: `Upgraded license from ${currentLicense.tier} to ${newTier}`,
+      resourceType: 'LICENSE',
+      resourceId: newLicense.id,
+      performedBy: upgradedBy,
+      metadata: { description: `Upgraded license from ${currentLicense.tier} to ${newTier}` },
     });
 
     return newLicense as License;
@@ -333,7 +332,6 @@ export class LicensingService {
     action: string,
     oldTier: string,
     newTier: string,
-    performedBy: string,
   ): Promise<void> {
     const { error } = await this.supabase
       .getAdminClient()

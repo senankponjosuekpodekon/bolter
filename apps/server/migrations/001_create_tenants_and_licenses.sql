@@ -25,8 +25,7 @@ CREATE TABLE IF NOT EXISTS licenses (
   limits JSONB DEFAULT '{"monthly_transactions": 10000, "api_calls": 100000, "storage_gb": 10, "active_users": 50}',
   status VARCHAR(50) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'EXPIRED', 'CANCELLED')),
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
-  CONSTRAINT unique_active_license_per_tenant UNIQUE (tenant_id, status) WHERE status = 'ACTIVE'
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- 3. Create license_history table for auditing
@@ -72,6 +71,8 @@ ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenant
 CREATE INDEX IF NOT EXISTS idx_licenses_tenant_id ON licenses(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_licenses_expires_at ON licenses(expires_at);
 CREATE INDEX IF NOT EXISTS idx_licenses_status ON licenses(status);
+-- Partial index to enforce unique active license per tenant
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_license_per_tenant ON licenses(tenant_id) WHERE status = 'ACTIVE';
 CREATE INDEX IF NOT EXISTS idx_license_history_tenant_id ON license_history(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_usage_tracking_tenant_month ON usage_tracking(tenant_id, year_month);
 

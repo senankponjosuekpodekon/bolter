@@ -3,6 +3,14 @@ import { Request, Response, NextFunction } from 'express';
 import { TenantsService } from '../tenants/tenants.service';
 
 /**
+ * Extended Request interface with tenant information
+ */
+interface TenantRequest extends Request {
+  tenantId?: string;
+  tenantSlug?: string;
+}
+
+/**
  * Middleware to detect and extract tenant from request
  * Supports multiple methods:
  * 1. Subdomain: api.tenant-slug.platform.com
@@ -52,14 +60,14 @@ export class TenantMiddleware implements NestMiddleware {
         try {
           const tenant = await this.tenantsService.getBySlug(tenantSlug);
           tenantId = tenant.id;
-        } catch (err) {
+        } catch {
           this.logger.warn(`Failed to resolve tenant slug: ${tenantSlug}`);
         }
       }
 
       // Attach to request
-      (req as any).tenantId = tenantId;
-      (req as any).tenantSlug = tenantSlug;
+      (req as TenantRequest).tenantId = tenantId;
+      (req as TenantRequest).tenantSlug = tenantSlug;
 
       this.logger.debug(`Tenant detected: ID=${tenantId}, Slug=${tenantSlug}`);
     } catch (error) {

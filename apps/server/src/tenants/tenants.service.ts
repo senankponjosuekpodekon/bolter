@@ -1,5 +1,5 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
-import { SupabaseService } from '../database/supabase.service';
+import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import { SupabaseService } from '../supabase/supabase.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { CreateTenantDto, UpdateTenantDto, Tenant, TenantStatus } from './dto/create-tenant.dto';
 
@@ -60,10 +60,10 @@ export class TenantsService {
     // Audit log
     await this.auditLogs.log({
       action: 'CREATE',
-      entity_type: 'TENANT',
-      entity_id: tenant.id,
-      performed_by: createdBy,
-      description: `Created tenant: ${tenant.name}`,
+      resourceType: 'TENANT',
+      resourceId: tenant.id,
+      performedBy: createdBy,
+      metadata: { description: `Created tenant: ${tenant.name}` },
     });
 
     return tenant as Tenant;
@@ -148,7 +148,7 @@ export class TenantsService {
   async update(id: string, dto: UpdateTenantDto, updatedBy: string): Promise<Tenant> {
     const tenant = await this.getById(id);
 
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     if (dto.name) updateData.name = dto.name;
     if (dto.contact_email) updateData.contact_email = dto.contact_email;
     if (dto.status) updateData.status = dto.status;
@@ -169,10 +169,10 @@ export class TenantsService {
     // Audit log
     await this.auditLogs.log({
       action: 'UPDATE',
-      entity_type: 'TENANT',
-      entity_id: id,
-      performed_by: updatedBy,
-      description: `Updated tenant: ${tenant.name}`,
+      resourceType: 'TENANT',
+      resourceId: id,
+      performedBy: updatedBy,
+      metadata: { description: `Updated tenant: ${tenant.name}` },
     });
 
     return updated as Tenant;
