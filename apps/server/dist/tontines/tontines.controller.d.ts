@@ -1,5 +1,6 @@
 import { TontinesService } from './tontines.service';
 import { CreateTontineDto, UpdateTontineDto, AddMemberDto, RecordContributionDto, CreateInvitationDto, ApplyToTontineDto, ReviewApplicationDto } from './tontines.types';
+import { PayTontineDto } from './dto/pay-tontine.dto';
 export declare class TontinesController {
     private readonly tontinesService;
     constructor(tontinesService: TontinesService);
@@ -11,6 +12,7 @@ export declare class TontinesController {
     startTontine(req: Record<string, unknown>, tontineId: string): Promise<import("./tontines.types").TontineCycle>;
     addMember(req: Record<string, unknown>, tontineId: string, dto: AddMemberDto): Promise<import("./tontines.types").TontineMember>;
     getMembers(req: Record<string, unknown>, tontineId: string): Promise<import("./tontines.types").TontineMember[]>;
+    payTontine(req: Record<string, unknown>, tontineId: string, dto: PayTontineDto): Promise<import("./tontines.types").TontineContribution>;
     recordContribution(req: Record<string, unknown>, tontineId: string, dto: RecordContributionDto): Promise<import("./tontines.types").TontineContribution>;
     getStatistics(req: Record<string, unknown>, tontineId: string): Promise<Record<string, unknown>>;
     getMemberStatistics(req: Record<string, unknown>, tontineId: string, memberId: string): Promise<import("./tontines.types").MemberStatistics>;

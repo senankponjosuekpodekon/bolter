@@ -43,6 +43,7 @@ const swagger_1 = require("@nestjs/swagger");
 const helmet_1 = __importDefault(require("helmet"));
 const config_1 = require("@nestjs/config");
 const logger_service_1 = require("./common/logger/logger.service");
+const throttler_1 = require("@nestjs/throttler");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 async function bootstrap() {
@@ -94,6 +95,8 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
+    const throttlerGuard = app.get(throttler_1.ThrottlerGuard);
+    app.useGlobalGuards(throttlerGuard);
     const swaggerConfig = new swagger_1.DocumentBuilder()
         .setTitle('Banking Platform API')
         .setDescription('Complete banking platform with KYC, transactions, and admin validation')

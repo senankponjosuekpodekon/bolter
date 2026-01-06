@@ -2,13 +2,23 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { tontinesService } from "../services/tontines.service";
 import { useAuthStore } from "../stores/authStore";
+import PayTontineModal from "../components/modals/PayTontineModal";
 
 interface Tontine {
   id: string;
   creator_id: string;
   name: string;
+  description?: string;
   status: 'PENDING' | 'ACTIVE' | 'COMPLETED';
   contribution_amount: number;
+  currency: string;
+  frequency: string;
+  total_cycles: number;
+  current_cycle: number;
+  cycle_duration_days: number;
+  distribution_method: string;
+  created_at: string;
+  current_cycle_id?: string;
   [key: string]: unknown;
 }
 
@@ -44,6 +54,7 @@ export default function TontineDetailPage() {
     loading?: boolean;
     error?: string | null;
   }>({ copied: false, loading: false });
+  const [payModalOpen, setPayModalOpen] = useState(false);
 
   const fetchData = async (withSpinner = true) => {
     if (!id) return;
@@ -79,6 +90,11 @@ export default function TontineDetailPage() {
       return false;
     return memberCount >= 2;
   }, [tontine, memberCount]);
+
+  const isMember = useMemo(() => {
+    if (!user?.id) return false;
+    return members.some((m) => m.user_id === user.id);
+  }, [members, user]);
 
   const startHint = useMemo(() => {
     if (!tontine) return "";
@@ -229,7 +245,7 @@ export default function TontineDetailPage() {
           <div className="flex flex-col items-end gap-2 text-sm text-slate-500">
             <span className="text-xs">ID {tontine.id}</span>
             <span>
-              Créée le {new Date(tontine.created_at).toLocaleDateString()}
+              Créée le {new Date(tontine.created_at as string).toLocaleDateString()}
             </span>
           </div>
         </div>
@@ -238,17 +254,17 @@ export default function TontineDetailPage() {
           <div className="rounded-2xl bg-white border border-slate-100 p-4 shadow-sm">
             <p className="text-xs text-slate-500">Contribution</p>
             <p className="text-xl font-semibold text-slate-900">
-              {tontine.contribution_amount} {tontine.currency}
+              {(tontine.contribution_amount as number)} {(tontine.currency as string)}
             </p>
-            <p className="text-xs text-slate-500">{tontine.frequency}</p>
+            <p className="text-xs text-slate-500">{(tontine.frequency as string)}</p>
           </div>
           <div className="rounded-2xl bg-white border border-slate-100 p-4 shadow-sm">
             <p className="text-xs text-slate-500">Cycles</p>
             <p className="text-xl font-semibold text-slate-900">
-              {tontine.current_cycle || 0} / {tontine.total_cycles}
+              {(tontine.current_cycle as number) || 0} / {(tontine.total_cycles as number)}
             </p>
             <p className="text-xs text-slate-500">
-              Durée {tontine.cycle_duration_days} j
+              Durée {(tontine.cycle_duration_days as number)} j
             </p>
           </div>
           <div className="rounded-2xl bg-white border border-slate-100 p-4 shadow-sm">
@@ -261,7 +277,7 @@ export default function TontineDetailPage() {
           <div className="rounded-2xl bg-white border border-slate-100 p-4 shadow-sm">
             <p className="text-xs text-slate-500">Distribution</p>
             <p className="text-xl font-semibold text-slate-900">
-              {tontine.distribution_method}
+              {(tontine.distribution_method as string)}
             </p>
             <p className="text-xs text-slate-500">
               Ordre/lotterie selon config
@@ -285,6 +301,14 @@ export default function TontineDetailPage() {
               >
                 Gérer les membres
               </a>
+              {isMember && tontine.status === "ACTIVE" && (
+                <button
+                  onClick={() => setPayModalOpen(true)}
+                  className="px-4 py-2.5 sm:py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 text-center text-base sm:text-sm"
+                >
+                  💳 Payer ma contribution
+                </button>
+              )}
               {isCreator && tontine.status === "PENDING" && (
                 <button
                   onClick={handleShare}
@@ -380,6 +404,17 @@ export default function TontineDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      <PayTontineModal
+        isOpen={payModalOpen}
+        onClose={() => setPayModalOpen(false)}
+        tontineId={tontine.id}
+        tontineName={tontine.name}
+        contributionAmount={tontine.contribution_amount}
+        currency={tontine.currency}
+        cycleId={(tontine.current_cycle_id as string) || ""}
+      />
     </div>
   );
 }

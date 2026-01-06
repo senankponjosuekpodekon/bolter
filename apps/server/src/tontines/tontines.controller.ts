@@ -12,6 +12,7 @@ import {
   ApplyToTontineDto,
   ReviewApplicationDto,
 } from './tontines.types';
+import { PayTontineDto } from './dto/pay-tontine.dto';
 
 @ApiTags('tontines')
 @Controller('tontines')
@@ -122,10 +123,26 @@ export class TontinesController {
   }
 
   /**
-   * Record contribution payment
+   * Pay tontine contribution (member payment)
+   */
+  @Post(':id/pay')
+  @ApiOperation({ summary: 'Pay tontine contribution as a member' })
+  @ApiParam({ name: 'id', description: 'Tontine ID' })
+  async payTontine(
+    @Req() req: Record<string, unknown>,
+    @Param('id') tontineId: string,
+    @Body() dto: PayTontineDto,
+  ) {
+    const userId = (req.user as Record<string, unknown>)?.id as string;
+    if (!userId) throw new BadRequestException('User not authenticated');
+    return this.tontinesService.payTontine(tontineId, userId, dto);
+  }
+
+  /**
+   * Record contribution payment (admin/creator only)
    */
   @Post(':id/contributions')
-  @ApiOperation({ summary: 'Record a contribution payment' })
+  @ApiOperation({ summary: 'Record a contribution payment (admin/creator only)' })
   @ApiParam({ name: 'id', description: 'Tontine ID' })
   async recordContribution(
     @Req() req: Record<string, unknown>,

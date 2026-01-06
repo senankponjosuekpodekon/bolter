@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -25,6 +26,23 @@ import configuration from './config/configuration';
       isGlobal: true,
       load: [configuration],
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000, // 1 second
+        limit: 10, // 10 requests per second
+      },
+      {
+        name: 'medium',
+        ttl: 10000, // 10 seconds
+        limit: 50, // 50 requests per 10 seconds
+      },
+      {
+        name: 'long',
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
+    ]),
     ScheduleModule.forRoot(),
     LoggerModule,
     SupabaseModule,

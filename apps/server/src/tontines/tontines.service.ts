@@ -19,6 +19,7 @@ import {
   ApplyToTontineDto,
   ReviewApplicationDto,
 } from './tontines.types';
+import { PayTontineDto } from './dto/pay-tontine.dto';
 
 @Injectable()
 export class TontinesService {
@@ -381,7 +382,112 @@ export class TontinesService {
   }
 
   /**
-   * Record a contribution payment
+   * Pay tontine contribution (by member)
+   */
+  async payTontine(tontineId: string, userId: string, dto: PayTontineDto): Promise<TontineContribution> {
+    const tontine = await this.getTontine(tontineId, userId);
+
+    // Verify user is a member
+    const isMember = await this.isMember(tontineId, userId);
+    if (!isMember) {
+      throw new ForbiddenException('You must be a member of this tontine to make payments');
+    }
+
+    // Get member record
+    const { data: member, error: memberError } = await this.supabase
+      .getAdminClient()
+      .from('tontine_members')
+      .select()
+      .eq('tontine_id', tontineId)
+      .eq('user_id', userId)
+      .single();
+
+    if (memberError || !member) {
+      throw new NotFoundException('Member record not found');
+    }
+
+    // Verify member is active
+    if (member.status !== 'ACTIVE') {
+      throw new ForbiddenException('Your membership is not active');
+    }
+
+    // Get contribution record for this cycle
+    const { data: contribution, error: getError } = await this.supabase
+      .getAdminClient()
+      .from('tontine_contributions')
+      .select()
+      .eq('tontine_id', tontineId)
+      .eq('member_id', member.id)
+      .eq('cycle_id', dto.cycle_id)
+      .single();
+
+    if (getError || !contribution) {
+      throw new NotFoundException('Contribution record not found for this cycle');
+    }
+
+    // Check if already paid
+    if (contribution.status === 'PAID') {
+      throw new BadRequestException('This contribution has already been paid');
+    }
+
+    // Validate amount matches expected contribution
+    if (dto.amount !== tontine.contribution_amount) {
+      throw new BadRequestException(`Payment amount must be exactly ${tontine.contribution_amount} ${tontine.currency}`);
+    }
+
+    // TODO: Integrate with actual payment gateway (Stripe, etc.)
+    // For now, we'll mark it as PAID immediately
+    // In production, this would be PENDING until payment confirmation
+
+    const now = new Date();
+    const { data, error } = await this.supabase
+      .getAdminClient()
+      .from('tontine_contributions')
+      .update({
+        amount: dto.amount,
+        status: 'PAID',
+        paid_at: now.toISOString(),
+        payment_method: dto.payment_method,
+        payment_reference: dto.payment_reference,
+        proof: dto.proof,
+      })
+      .eq('id', contribution.id)
+      .select()
+      .single();
+
+    if (error) throw new BadRequestException(`Failed to process payment: ${error.message}`);
+
+    // Update member's total contributed
+    await this.supabase
+      .getAdminClient()
+      .from('tontine_members')
+      .update({
+        total_contributed: member.total_contributed + dto.amount,
+      })
+      .eq('id', member.id);
+
+    // Log payment
+    await this.auditLogs.log({
+      action: 'tontine.payment_made',
+      resourceType: 'tontine_contribution',
+      resourceId: data.id,
+      userId,
+      metadata: { 
+        amount: dto.amount, 
+        tontineId,
+        cycleId: dto.cycle_id,
+        paymentMethod: dto.payment_method,
+      },
+    });
+
+    // TODO: Send WebSocket notification to other members
+    // websocketService.emitToRoom(`tontine:${tontineId}`, 'payment_received', { ... })
+
+    return data;
+  }
+
+  /**
+   * Record a contribution payment (admin/creator only)
    */
   async recordContribution(tontineId: string, userId: string, dto: RecordContributionDto): Promise<TontineContribution> {
     const tontine = await this.getTontine(tontineId, userId);

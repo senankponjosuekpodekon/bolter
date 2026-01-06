@@ -1,6 +1,7 @@
 import { SupabaseService } from '../supabase/supabase.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { Tontine, TontineMember, TontineCycle, TontineContribution, CreateTontineDto, UpdateTontineDto, AddMemberDto, RecordContributionDto, MemberStatistics, TontineInvitation, TontineApplication, CreateInvitationDto, ApplyToTontineDto, ReviewApplicationDto } from './tontines.types';
+import { PayTontineDto } from './dto/pay-tontine.dto';
 export declare class TontinesService {
     private supabase;
     private auditLogs;
@@ -13,6 +14,7 @@ export declare class TontinesService {
     addMember(tontineId: string, userId: string, dto: AddMemberDto): Promise<TontineMember>;
     getMembers(tontineId: string, userId: string): Promise<TontineMember[]>;
     startTontine(tontineId: string, userId: string): Promise<TontineCycle>;
+    payTontine(tontineId: string, userId: string, dto: PayTontineDto): Promise<TontineContribution>;
     recordContribution(tontineId: string, userId: string, dto: RecordContributionDto): Promise<TontineContribution>;
     getTontineStatistics(tontineId: string, userId: string): Promise<Record<string, unknown>>;
     getMemberStatistics(tontineId: string, memberId: string, userId: string): Promise<MemberStatistics>;

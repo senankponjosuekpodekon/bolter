@@ -18,6 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const tontines_service_1 = require("./tontines.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const optional_jwt_auth_guard_1 = require("../auth/guards/optional-jwt-auth.guard");
+const pay_tontine_dto_1 = require("./dto/pay-tontine.dto");
 let TontinesController = class TontinesController {
     constructor(tontinesService) {
         this.tontinesService = tontinesService;
@@ -69,6 +70,12 @@ let TontinesController = class TontinesController {
         if (!userId)
             throw new common_1.BadRequestException('User not authenticated');
         return this.tontinesService.getMembers(tontineId, userId);
+    }
+    async payTontine(req, tontineId, dto) {
+        const userId = req.user?.id;
+        if (!userId)
+            throw new common_1.BadRequestException('User not authenticated');
+        return this.tontinesService.payTontine(tontineId, userId, dto);
     }
     async recordContribution(req, tontineId, dto) {
         const userId = req.user?.id;
@@ -195,8 +202,19 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TontinesController.prototype, "getMembers", null);
 __decorate([
+    (0, common_1.Post)(':id/pay'),
+    (0, swagger_1.ApiOperation)({ summary: 'Pay tontine contribution as a member' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Tontine ID' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, pay_tontine_dto_1.PayTontineDto]),
+    __metadata("design:returntype", Promise)
+], TontinesController.prototype, "payTontine", null);
+__decorate([
     (0, common_1.Post)(':id/contributions'),
-    (0, swagger_1.ApiOperation)({ summary: 'Record a contribution payment' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Record a contribution payment (admin/creator only)' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Tontine ID' }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('id')),

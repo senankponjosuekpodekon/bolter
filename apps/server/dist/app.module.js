@@ -13,6 +13,7 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const schedule_1 = require("@nestjs/schedule");
+const throttler_1 = require("@nestjs/throttler");
 const supabase_module_1 = require("./supabase/supabase.module");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
@@ -40,6 +41,23 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
                 load: [configuration_1.default],
             }),
+            throttler_1.ThrottlerModule.forRoot([
+                {
+                    name: 'short',
+                    ttl: 1000,
+                    limit: 10,
+                },
+                {
+                    name: 'medium',
+                    ttl: 10000,
+                    limit: 50,
+                },
+                {
+                    name: 'long',
+                    ttl: 60000,
+                    limit: 100,
+                },
+            ]),
             schedule_1.ScheduleModule.forRoot(),
             logger_module_1.LoggerModule,
             supabase_module_1.SupabaseModule,
