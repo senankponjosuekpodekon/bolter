@@ -26,6 +26,7 @@ import TontineCreatePage from "./pages/TontineCreatePage";
 import TontineDetailPage from "./pages/TontineDetailPage";
 import TontineMembersPage from "./pages/TontineMembersPage";
 import TontineInvitePage from "./pages/TontineInvitePage";
+import Landing from "./pages/Landing";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -36,6 +37,7 @@ function App() {
   return (
     <>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route
           path="/login"
           element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />}

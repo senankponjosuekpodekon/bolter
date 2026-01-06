@@ -474,4 +474,12 @@ describe('TontinesService (unit)', () => {
             expect(auditLogs.log).toHaveBeenCalled();
         });
     });
+
+    describe('Payment System', () => {
+        it('payTontine method exists', () => {
+            const supabase = buildSupabase(buildAdminClient({}));
+            const service = new TontinesService(supabase as any, auditLogs as any);
+            expect(typeof service.payTontine).toBe('function');
+        });
+    });
 });
