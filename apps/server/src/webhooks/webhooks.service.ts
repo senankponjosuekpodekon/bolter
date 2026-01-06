@@ -287,4 +287,158 @@ export class WebhooksService {
     hmac.update(JSON.stringify(payload));
     return hmac.digest('hex');
   }
+
+  /**
+   * Test webhook delivery (Sprint III)
+   */
+  async testWebhook(webhookId: string): Promise<{ success: boolean; message: string; responseTime: number }> {
+    const webhook = await this.getWebhook(webhookId);
+    if (!webhook) {
+      throw new Error('Webhook not found');
+    }
+
+    const testPayload = {
+      event: 'webhook.test',
+      timestamp: new Date().toISOString(),
+      webhookId: webhook.id,
+      test: true,
+    };
+
+    const signature = this.generateSignature(webhook.secret, testPayload);
+    const startTime = Date.now();
+
+    try {
+      const response = await axios.post(webhook.url, testPayload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Webhook-Signature': signature,
+          'X-Webhook-Event': 'webhook.test',
+          'X-Webhook-ID': webhook.id,
+        },
+        timeout: 5000,
+      });
+
+      const responseTime = Date.now() - startTime;
+      this.logger.log(`Webhook test successful for ${webhookId} (${responseTime}ms)`, WebhooksService.name);
+      return {
+        success: response.status >= 200 && response.status < 300,
+        message: `Webhook responded with status ${response.status}`,
+        responseTime,
+      };
+    } catch (err) {
+      const axiosError = err as AxiosError;
+      const responseTime = Date.now() - startTime;
+      this.logger.error(`Webhook test failed for ${webhookId}: ${axiosError.message}`, WebhooksService.name);
+      return {
+        success: false,
+        message: axiosError.message || 'Webhook delivery failed',
+        responseTime,
+      };
+    }
+  }
+
+  /**
+   * Retry failed webhook delivery
+   */
+  async retryDelivery(deliveryId: string): Promise<WebhookDelivery | null> {
+    const { data: delivery, error: getError } = await this.supabase.supabaseClient
+      .from('webhook_deliveries')
+      .select('*, webhooks(*)')
+      .eq('id', deliveryId)
+      .single();
+
+    if (getError || !delivery) {
+      this.logger.error(`Delivery not found: ${deliveryId}`, WebhooksService.name);
+      return null;
+    }
+
+    const webhook = delivery.webhooks;
+    const maxAttempts = 5;
+
+    if (delivery.attempts >= maxAttempts) {
+      this.logger.warn(`Max retry attempts reached for delivery ${deliveryId}`, WebhooksService.name);
+      return null;
+    }
+
+    try {
+      const signature = this.generateSignature(webhook.secret, delivery.payload);
+      const response = await axios.post(webhook.url, delivery.payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Webhook-Signature': signature,
+          'X-Webhook-Event': delivery.event_type,
+          'X-Webhook-ID': webhook.id,
+        },
+        timeout: 5000,
+      });
+
+      const { data: updated } = await this.supabase.supabaseClient
+        .from('webhook_deliveries')
+        .update({
+          status: 'success',
+          response_code: response.status,
+          attempts: delivery.attempts + 1,
+          delivered_at: new Date().toISOString(),
+        })
+        .eq('id', deliveryId)
+        .select()
+        .single();
+
+      return updated;
+    } catch (err) {
+      const axiosError = err as AxiosError;
+      const { data: updated } = await this.supabase.supabaseClient
+        .from('webhook_deliveries')
+        .update({
+          status: 'failed',
+          error_message: axiosError.message,
+          attempts: delivery.attempts + 1,
+        })
+        .eq('id', deliveryId)
+        .select()
+        .single();
+
+      return updated;
+    }
+  }
+
+  /**
+   * Get webhook statistics
+   */
+  async getWebhookStats(webhookId: string): Promise<Record<string, any>> {
+    const { data: deliveries } = await this.supabase.supabaseClient
+      .from('webhook_deliveries')
+      .select('status, created_at')
+      .eq('webhook_id', webhookId);
+
+    if (!deliveries) {
+      return {
+        totalDeliveries: 0,
+        successCount: 0,
+        failureCount: 0,
+        pendingCount: 0,
+        successRate: 0,
+        avgResponseTime: 0,
+      };
+    }
+
+    const successCount = deliveries.filter((d) => d.status === 'success').length;
+    const failureCount = deliveries.filter((d) => d.status === 'failed').length;
+    const pendingCount = deliveries.filter((d) => d.status === 'pending').length;
+    const total = deliveries.length;
+
+    return {
+      totalDeliveries: total,
+      successCount,
+      failureCount,
+      pendingCount,
+      successRate: total > 0 ? (successCount / total) * 100 : 0,
+      last7days: deliveries.filter((d) => {
+        const created = new Date(d.created_at);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return created > sevenDaysAgo;
+      }).length,
+    };
+  }
 }

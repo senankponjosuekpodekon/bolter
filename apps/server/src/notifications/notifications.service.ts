@@ -512,4 +512,171 @@ export class NotificationsService {
     }
     return parts.join(' ');
   }
+
+  /**
+   * Get notification preferences for user (Sprint III)
+   */
+  async getNotificationPreferences(userId: string, tenantId: string): Promise<Record<string, any>> {
+    const { data, error } = await this.supabase.supabaseClient
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('tenant_id', tenantId)
+      .single();
+
+    if (error || !data) {
+      return this.getDefaultPreferences();
+    }
+
+    return {
+      transactionNotifications: data.transaction_notifications ?? true,
+      transactionChannels: data.transaction_channels || ['email', 'in-app'],
+      kycNotifications: data.kyc_notifications ?? true,
+      kycChannels: data.kyc_channels || ['email', 'in-app'],
+      loanNotifications: data.loan_notifications ?? true,
+      loanChannels: data.loan_channels || ['email', 'in-app'],
+      systemNotifications: data.system_notifications ?? true,
+      systemChannels: data.system_channels || ['in-app'],
+      quietHoursStart: data.quiet_hours_start,
+      quietHoursEnd: data.quiet_hours_end,
+      unsubscribeAll: data.unsubscribe_all ?? false,
+    };
+  }
+
+  /**
+   * Update notification preferences
+   */
+  async updateNotificationPreferences(
+    userId: string,
+    tenantId: string,
+    preferences: Record<string, any>,
+  ): Promise<Record<string, any>> {
+    const { data, error } = await this.supabase.supabaseClient
+      .from('notification_preferences')
+      .upsert({
+        user_id: userId,
+        tenant_id: tenantId,
+        transaction_notifications: preferences.transactionNotifications,
+        transaction_channels: preferences.transactionChannels,
+        kyc_notifications: preferences.kycNotifications,
+        kyc_channels: preferences.kycChannels,
+        loan_notifications: preferences.loanNotifications,
+        loan_channels: preferences.loanChannels,
+        system_notifications: preferences.systemNotifications,
+        system_channels: preferences.systemChannels,
+        quiet_hours_start: preferences.quietHoursStart,
+        quiet_hours_end: preferences.quietHoursEnd,
+        unsubscribe_all: preferences.unsubscribeAll,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      this.logger.error(`Failed to update notification preferences: ${error.message}`, NotificationsService.name);
+      return this.getDefaultPreferences();
+    }
+
+    return this.getNotificationPreferences(userId, tenantId);
+  }
+
+  /**
+   * Get default notification preferences
+   */
+  private getDefaultPreferences(): Record<string, any> {
+    return {
+      transactionNotifications: true,
+      transactionChannels: ['email', 'in-app'],
+      kycNotifications: true,
+      kycChannels: ['email', 'in-app'],
+      loanNotifications: true,
+      loanChannels: ['email', 'in-app'],
+      systemNotifications: true,
+      systemChannels: ['in-app'],
+      quietHoursStart: undefined,
+      quietHoursEnd: undefined,
+      unsubscribeAll: false,
+    };
+  }
+
+  /**
+   * Get user notifications (Sprint III - pagination support)
+   */
+  async getUserNotifications(
+    userId: string,
+    tenantId: string,
+    limit: number = 20,
+    offset: number = 0,
+  ): Promise<Record<string, any>[]> {
+    const { data, error } = await this.supabase.supabaseClient
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('tenant_id', tenantId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      this.logger.error(`Failed to fetch notifications: ${error.message}`, NotificationsService.name);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  /**
+   * Get unread notification count
+   */
+  async getUnreadCount(userId: string, tenantId: string): Promise<number> {
+    const { count, error } = await this.supabase.supabaseClient
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('tenant_id', tenantId)
+      .eq('read', false);
+
+    if (error) {
+      this.logger.error(`Failed to get unread count: ${error.message}`, NotificationsService.name);
+      return 0;
+    }
+
+    return count || 0;
+  }
+
+  /**
+   * Mark notification as read
+   */
+  async markAsRead(notificationId: string, userId: string, tenantId: string): Promise<boolean> {
+    const { error } = await this.supabase.supabaseClient
+      .from('notifications')
+      .update({ read: true })
+      .eq('id', notificationId)
+      .eq('user_id', userId)
+      .eq('tenant_id', tenantId);
+
+    if (error) {
+      this.logger.error(`Failed to mark notification as read: ${error.message}`, NotificationsService.name);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Delete notification
+   */
+  async deleteNotification(notificationId: string, userId: string, tenantId: string): Promise<boolean> {
+    const { error } = await this.supabase.supabaseClient
+      .from('notifications')
+      .delete()
+      .eq('id', notificationId)
+      .eq('user_id', userId)
+      .eq('tenant_id', tenantId);
+
+    if (error) {
+      this.logger.error(`Failed to delete notification: ${error.message}`, NotificationsService.name);
+      return false;
+    }
+
+    return true;
+  }
 }
