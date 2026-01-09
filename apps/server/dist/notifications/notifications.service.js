@@ -398,6 +398,168 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         }
         return parts.join(' ');
     }
+    async getNotificationPreferences(userId, tenantId) {
+        const baseQuery = this.supabase.supabaseClient.from('notification_preferences');
+        if (!baseQuery || typeof baseQuery.select !== 'function') {
+            this.logger.warn('Supabase client not available for notification_preferences', NotificationsService_1.name);
+            return this.getDefaultPreferences();
+        }
+        const selection = baseQuery.select('*');
+        if (!selection || typeof selection.eq !== 'function') {
+            this.logger.warn('Supabase query builder missing filters', NotificationsService_1.name);
+            return this.getDefaultPreferences();
+        }
+        const filtered = selection.eq('user_id', userId).eq('tenant_id', tenantId);
+        const response = typeof filtered.single === 'function'
+            ? await filtered.single()
+            : typeof filtered.then === 'function'
+                ? await filtered.then()
+                : await filtered;
+        const { data, error } = (response || {});
+        if (error || !data) {
+            return this.getDefaultPreferences();
+        }
+        return {
+            transactionNotifications: data.transaction_notifications ?? true,
+            transactionChannels: data.transaction_channels || ['email', 'in-app'],
+            kycNotifications: data.kyc_notifications ?? true,
+            kycChannels: data.kyc_channels || ['email', 'in-app'],
+            loanNotifications: data.loan_notifications ?? true,
+            loanChannels: data.loan_channels || ['email', 'in-app'],
+            systemNotifications: data.system_notifications ?? true,
+            systemChannels: data.system_channels || ['in-app'],
+            quietHoursStart: data.quiet_hours_start,
+            quietHoursEnd: data.quiet_hours_end,
+            unsubscribeAll: data.unsubscribe_all ?? false,
+        };
+    }
+    async updateNotificationPreferences(userId, tenantId, preferences) {
+        const builder = this.supabase.supabaseClient.from('notification_preferences');
+        if (!builder || typeof builder.upsert !== 'function') {
+            this.logger.warn('Supabase client not available for updating notification preferences', NotificationsService_1.name);
+            return this.getDefaultPreferences();
+        }
+        const upserted = builder
+            .upsert({
+            user_id: userId,
+            tenant_id: tenantId,
+            transaction_notifications: preferences.transactionNotifications,
+            transaction_channels: preferences.transactionChannels,
+            kyc_notifications: preferences.kycNotifications,
+            kyc_channels: preferences.kycChannels,
+            loan_notifications: preferences.loanNotifications,
+            loan_channels: preferences.loanChannels,
+            system_notifications: preferences.systemNotifications,
+            system_channels: preferences.systemChannels,
+            quiet_hours_start: preferences.quietHoursStart,
+            quiet_hours_end: preferences.quietHoursEnd,
+            unsubscribe_all: preferences.unsubscribeAll,
+        })
+            .select();
+        const response = typeof upserted.single === 'function'
+            ? await upserted.single()
+            : typeof upserted.then === 'function'
+                ? await upserted.then()
+                : await upserted;
+        const { error } = (response || {});
+        if (error) {
+            this.logger.error(`Failed to update notification preferences: ${error.message}`, NotificationsService_1.name);
+            return this.getDefaultPreferences();
+        }
+        return this.getNotificationPreferences(userId, tenantId);
+    }
+    getDefaultPreferences() {
+        return {
+            transactionNotifications: true,
+            transactionChannels: ['email', 'in-app'],
+            kycNotifications: true,
+            kycChannels: ['email', 'in-app'],
+            loanNotifications: true,
+            loanChannels: ['email', 'in-app'],
+            systemNotifications: true,
+            systemChannels: ['in-app'],
+            quietHoursStart: undefined,
+            quietHoursEnd: undefined,
+            unsubscribeAll: false,
+        };
+    }
+    async getUserNotifications(userId, tenantId, limit = 20, offset = 0) {
+        const { data, error } = await this.supabase.supabaseClient
+            .from('notifications')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('tenant_id', tenantId)
+            .order('created_at', { ascending: false })
+            .range(offset, offset + limit - 1);
+        if (error) {
+            this.logger.error(`Failed to fetch notifications: ${error.message}`, NotificationsService_1.name);
+            return [];
+        }
+        return data || [];
+    }
+    async getUnreadCount(userId, tenantId) {
+        const builder = this.supabase.supabaseClient.from('notifications');
+        if (!builder || typeof builder.select !== 'function') {
+            this.logger.warn('Supabase client not available for notifications count', NotificationsService_1.name);
+            return 0;
+        }
+        const filtered = builder
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('tenant_id', tenantId)
+            .eq('read', false);
+        const response = typeof filtered.then === 'function'
+            ? await filtered.then()
+            : await filtered;
+        const { count, error } = (response || {});
+        if (error) {
+            this.logger.error(`Failed to get unread count: ${error.message}`, NotificationsService_1.name);
+            return 0;
+        }
+        return count || 0;
+    }
+    async markAsRead(notificationId, userId, tenantId) {
+        const builder = this.supabase.supabaseClient.from('notifications');
+        if (!builder || typeof builder.update !== 'function') {
+            this.logger.warn('Supabase client not available for markAsRead', NotificationsService_1.name);
+            return false;
+        }
+        const updateQuery = builder
+            .update({ read: true })
+            .eq('id', notificationId)
+            .eq('user_id', userId)
+            .eq('tenant_id', tenantId);
+        const response = typeof updateQuery.then === 'function'
+            ? await updateQuery.then()
+            : await updateQuery;
+        const { error } = (response || {});
+        if (error) {
+            this.logger.error(`Failed to mark notification as read: ${error.message}`, NotificationsService_1.name);
+            return false;
+        }
+        return true;
+    }
+    async deleteNotification(notificationId, userId, tenantId) {
+        const builder = this.supabase.supabaseClient.from('notifications');
+        if (!builder || typeof builder.delete !== 'function') {
+            this.logger.warn('Supabase client not available for deleteNotification', NotificationsService_1.name);
+            throw new Error('Failed to delete notification');
+        }
+        const deletion = builder
+            .delete()
+            .eq('id', notificationId)
+            .eq('user_id', userId)
+            .eq('tenant_id', tenantId);
+        const response = typeof deletion.then === 'function'
+            ? await deletion.then()
+            : await deletion;
+        const { error } = (response || {});
+        if (error) {
+            this.logger.error(`Failed to delete notification: ${error.message}`, NotificationsService_1.name);
+            throw new Error('Failed to delete notification');
+        }
+        return true;
+    }
 };
 exports.NotificationsService = NotificationsService;
 exports.NotificationsService = NotificationsService = NotificationsService_1 = __decorate([

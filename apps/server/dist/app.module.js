@@ -11,9 +11,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const core_1 = require("@nestjs/core");
+const throttler_1 = require("@nestjs/throttler");
 const config_1 = require("@nestjs/config");
 const schedule_1 = require("@nestjs/schedule");
-const throttler_1 = require("@nestjs/throttler");
 const supabase_module_1 = require("./supabase/supabase.module");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
@@ -75,6 +76,12 @@ exports.AppModule = AppModule = __decorate([
             admin_module_1.AdminModule,
             localization_module_1.LocalizationModule,
             tontines_module_1.TontinesModule,
+        ],
+        providers: [
+            {
+                provide: core_1.APP_GUARD,
+                useClass: throttler_1.ThrottlerGuard,
+            },
         ],
     })
 ], AppModule);

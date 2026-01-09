@@ -225,7 +225,7 @@ export class PerformanceService {
   /**
    * Get performance dashboard data
    */
-  getDashboardData(tenantId: string, hours: number = 24): Record<string, any> {
+  getDashboardData(tenantId: string, hours: number = 24): Record<string, unknown> {
     const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
     const relevantMetrics = this.metrics.filter(
       (m) => m.tenantId === tenantId && m.timestamp > cutoff,
@@ -259,8 +259,8 @@ export class PerformanceService {
   /**
    * Get performance alerts
    */
-  getPerformanceAlerts(tenantId: string, hours: number = 1): Array<Record<string, any>> {
-    const alerts: Array<Record<string, any>> = [];
+  getPerformanceAlerts(tenantId: string, hours: number = 1): Array<Record<string, unknown>> {
+    const alerts: Array<Record<string, unknown>> = [];
     const stats = this.getAllEndpointStats(hours);
 
     // Alert on slow endpoints

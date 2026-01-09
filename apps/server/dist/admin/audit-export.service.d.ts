@@ -11,7 +11,7 @@ export interface AuditExportFilter {
 export declare class AuditExportService {
     private supabase;
     constructor(supabase: SupabaseService);
-    getAuditLogs(filters: AuditExportFilter): Promise<any[]>;
+    getAuditLogs(filters: AuditExportFilter): Promise<Record<string, any>[]>;
     private escapeCSV;
     exportToCSV(filters: AuditExportFilter): Promise<string>;
     exportToJSON(filters: AuditExportFilter): Promise<string>;

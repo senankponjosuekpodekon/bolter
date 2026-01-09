@@ -85,17 +85,89 @@ CREATE INDEX IF NOT EXISTS idx_kyc_documents_tenant_id ON kyc_documents(tenant_i
 -- 7. Enable RLS on all multi-tenant tables
 ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE licenses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE license_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE usage_tracking ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tontines ENABLE ROW LEVEL SECURITY;
 
--- 8. RLS Policies: Example for tenants table
+-- 8. RLS Policies: Example for tenants table (idempotent)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'tenants' AND policyname = 'tenants_owner_access'
+  ) THEN
+    DROP POLICY tenants_owner_access ON tenants;
+  END IF;
+END;
+$$;
+
 CREATE POLICY tenants_owner_access ON tenants
   USING (id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1))
   WITH CHECK (id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1));
 
+-- RLS Policies: licenses table (idempotent)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'licenses' AND policyname = 'licenses_tenant_isolation'
+  ) THEN
+    DROP POLICY licenses_tenant_isolation ON licenses;
+  END IF;
+END;
+$$;
+
+CREATE POLICY licenses_tenant_isolation ON licenses
+  USING (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1))
+  WITH CHECK (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1));
+
+-- RLS Policies: license_history table
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'license_history' AND policyname = 'license_history_tenant_isolation'
+  ) THEN
+    DROP POLICY license_history_tenant_isolation ON license_history;
+  END IF;
+END;
+$$;
+
+CREATE POLICY license_history_tenant_isolation ON license_history
+  USING (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1))
+  WITH CHECK (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1));
+
+-- RLS Policies: usage_tracking table
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'usage_tracking' AND policyname = 'usage_tracking_tenant_isolation'
+  ) THEN
+    DROP POLICY usage_tracking_tenant_isolation ON usage_tracking;
+  END IF;
+END;
+$$;
+
+CREATE POLICY usage_tracking_tenant_isolation ON usage_tracking
+  USING (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1))
+  WITH CHECK (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1));
+
 -- 9. RLS Policies: Users table
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'users' AND policyname = 'users_tenant_isolation'
+  ) THEN
+    DROP POLICY users_tenant_isolation ON users;
+  END IF;
+END;
+$$;
+
 CREATE POLICY users_tenant_isolation ON users
   USING (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1))
   WITH CHECK (tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid() LIMIT 1));
@@ -107,7 +179,11 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
+
+DROP TRIGGER IF EXISTS update_tenants_updated_at ON tenants;
+DROP TRIGGER IF EXISTS update_licenses_updated_at ON licenses;
+DROP TRIGGER IF EXISTS update_usage_tracking_updated_at ON usage_tracking;
 
 CREATE TRIGGER update_tenants_updated_at BEFORE UPDATE ON tenants
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -139,3 +215,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON tenants TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON licenses TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON license_history TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON usage_tracking TO authenticated;
+GRANT USAGE ON SCHEMA public TO authenticated;

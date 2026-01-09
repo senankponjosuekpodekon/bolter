@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '../config/api.config';
+import { useAuthStore } from '../stores/authStore';
 
 export interface Webhook {
   id: string;
@@ -38,8 +39,9 @@ export interface UpdateWebhookPayload {
 
 class WebhookService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const token = useAuthStore.getState().accessToken;
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -49,47 +51,60 @@ class WebhookService {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' }));
-      throw new Error(error.message || 'Request failed');
+      const text = await response.text().catch(() => '');
+      let message = 'Request failed';
+      try {
+        const json = JSON.parse(text);
+        message = json.message || message;
+      } catch {
+        message = text || message;
+      }
+      throw new Error(`${response.status} ${response.statusText} — ${message}`);
     }
 
     return response.json();
   }
 
   async createWebhook(payload: CreateWebhookPayload): Promise<{ success: boolean; webhook: Webhook }> {
-    return this.request('/webhooks', {
+    return this.request('/api/webhooks', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   }
 
   async getUserWebhooks(): Promise<{ success: boolean; webhooks: Webhook[] }> {
-    return this.request('/webhooks');
+    return this.request('/api/webhooks');
   }
 
   async getWebhook(webhookId: string): Promise<{ success: boolean; webhook: Webhook }> {
-    return this.request(`/webhooks/${webhookId}`);
+    return this.request(`/api/webhooks/${webhookId}`);
   }
 
   async updateWebhook(webhookId: string, payload: UpdateWebhookPayload): Promise<{ success: boolean; webhook: Webhook }> {
-    return this.request(`/webhooks/${webhookId}`, {
+    return this.request(`/api/webhooks/${webhookId}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
     });
   }
 
   async deleteWebhook(webhookId: string): Promise<{ success: boolean }> {
-    return this.request(`/webhooks/${webhookId}`, {
+    return this.request(`/api/webhooks/${webhookId}`, {
       method: 'DELETE',
     });
   }
 
   async getWebhookDeliveries(webhookId: string): Promise<{ success: boolean; deliveries: WebhookDelivery[] }> {
-    return this.request(`/webhooks/${webhookId}/deliveries`);
+    return this.request(`/api/webhooks/${webhookId}/deliveries`);
   }
 
   async retryDelivery(deliveryId: string): Promise<{ success: boolean }> {
-    return this.request(`/webhooks/deliveries/${deliveryId}/retry`, {
+    return this.request(`/api/webhooks/deliveries/${deliveryId}/retry`, {
+      method: 'POST',
+    });
+  }
+
+  async testWebhook(webhookId: string): Promise<{ success: boolean; message: string; responseTime: number }> {
+    return this.request(`/api/webhooks/${webhookId}/test`, {
       method: 'POST',
     });
   }

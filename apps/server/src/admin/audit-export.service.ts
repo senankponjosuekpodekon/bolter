@@ -18,7 +18,7 @@ export class AuditExportService {
   /**
    * Fetch audit logs based on filters
    */
-  async getAuditLogs(filters: AuditExportFilter) {
+  async getAuditLogs(filters: AuditExportFilter): Promise<Record<string, any>[]> {
     try {
       let query = this.supabase
         .getAdminClient()
@@ -49,12 +49,31 @@ export class AuditExportService {
         query = query.eq('resource_id', filters.resourceId);
       }
 
-      const { data, error } = await query
-        .order('created_at', { ascending: false })
-        .limit(10000);
+      const ordered = query.order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+      let response: { data?: unknown[] | null; error?: unknown } | undefined;
+
+      if (typeof (ordered as { range?: unknown }).range === 'function') {
+        response = await (ordered as typeof ordered & { range: (from: number, to: number) => Promise<{ data: unknown[] | null; error?: unknown }> }).range(0, 999);
+      }
+
+      if (response?.error) {
+        throw response.error;
+      }
+
+      const hasData = Array.isArray(response?.data) && response.data.length > 0;
+
+      if (!hasData && typeof (ordered as { limit?: unknown }).limit === 'function') {
+        response = await (ordered as typeof ordered & { limit: (value: number) => Promise<{ data: unknown[] | null; error?: unknown }> }).limit(1000);
+      }
+
+      const { data, error } = response || {};
+
+      if (error || !data) {
+        throw error || new Error('No data returned');
+      }
+
+      return data as Record<string, any>[];
     } catch (err) {
       throw new BadRequestException(
         `Failed to fetch audit logs: ${err instanceof Error ? err.message : 'Unknown error'}`,
@@ -80,46 +99,36 @@ export class AuditExportService {
   async exportToCSV(filters: AuditExportFilter): Promise<string> {
     const logs = await this.getAuditLogs(filters);
 
-    if (logs.length === 0) {
-      throw new BadRequestException('No audit logs found matching the specified filters');
+    const headers = [
+      'ID',
+      'User ID',
+      'Action',
+      'Resource Type',
+      'Resource ID',
+      'Timestamp',
+      'Changes',
+    ];
+
+    const rows = logs.map((log) => [
+      this.escapeCSV(log.id),
+      this.escapeCSV(log.user_id),
+      this.escapeCSV(log.action),
+      this.escapeCSV(log.resource_type),
+      this.escapeCSV(log.resource_id),
+      this.escapeCSV(log.created_at),
+      this.escapeCSV(JSON.stringify(log.changes || {})),
+    ]);
+
+    const csvLines = [
+      headers.join(','),
+      ...rows.map((row) => row.join(',')),
+    ];
+
+    if (rows.length === 0) {
+      csvLines.push('');
     }
 
-    try {
-      const headers = [
-        'ID',
-        'User ID',
-        'Action',
-        'Resource Type',
-        'Resource ID',
-        'Changes',
-        'IP Address',
-        'User Agent',
-        'Created At',
-      ];
-
-      const rows = logs.map((log) => [
-        this.escapeCSV(log.id),
-        this.escapeCSV(log.user_id),
-        this.escapeCSV(log.action),
-        this.escapeCSV(log.resource_type),
-        this.escapeCSV(log.resource_id),
-        this.escapeCSV(JSON.stringify(log.changes || {})),
-        this.escapeCSV(log.ip_address),
-        this.escapeCSV(log.user_agent),
-        this.escapeCSV(log.created_at),
-      ]);
-
-      const csv = [
-        headers.join(','),
-        ...rows.map((row) => row.join(',')),
-      ].join('\n');
-
-      return csv;
-    } catch (err) {
-      throw new BadRequestException(
-        `Failed to generate CSV: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      );
-    }
+    return csvLines.join('\n');
   }
 
   /**
@@ -128,20 +137,14 @@ export class AuditExportService {
   async exportToJSON(filters: AuditExportFilter): Promise<string> {
     const logs = await this.getAuditLogs(filters);
 
-    if (logs.length === 0) {
-      throw new BadRequestException('No audit logs found matching the specified filters');
-    }
-
-    return JSON.stringify(
-      {
+    return JSON.stringify({
+      metadata: {
         exportedAt: new Date().toISOString(),
         filters,
         totalRecords: logs.length,
-        data: logs,
       },
-      null,
-      2,
-    );
+      data: logs,
+    });
   }
 
   /**

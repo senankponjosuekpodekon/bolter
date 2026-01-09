@@ -92,12 +92,22 @@ export const AdminWebhooks: React.FC = () => {
 
   const handleToggleWebhook = async (webhookId: string, isActive: boolean) => {
     try {
+      // Optimistic update: update local state immediately
+      setWebhooks((prev) =>
+        prev.map((w) => (w.id === webhookId ? { ...w, is_active: !w.is_active } : w))
+      );
+
+      // Call server
       await webhookService.updateWebhook(webhookId, { is_active: !isActive });
       toast.success(isActive ? "Webhook disabled" : "Webhook enabled");
-      loadWebhooks();
+
+      // Refresh after a small delay to ensure server state is consistent
+      setTimeout(() => loadWebhooks(), 300);
     } catch (error) {
       console.error("Failed to update webhook", error);
       toast.error("Failed to update webhook");
+      // Revert on error: reload fresh state from server
+      loadWebhooks();
     }
   };
 
@@ -107,15 +117,23 @@ export const AdminWebhooks: React.FC = () => {
     }
 
     try {
-      await webhookService.deleteWebhook(webhookId);
-      toast.success("Webhook deleted");
-      loadWebhooks();
+      // Optimistic update: remove from local state immediately
+      setWebhooks((prev) => prev.filter((w) => w.id !== webhookId));
       if (selectedWebhook === webhookId) {
         setSelectedWebhook(null);
       }
+
+      // Call server
+      await webhookService.deleteWebhook(webhookId);
+      toast.success("Webhook deleted");
+
+      // Refresh after a small delay to ensure server state is consistent
+      setTimeout(() => loadWebhooks(), 300);
     } catch (error) {
       console.error("Failed to delete webhook", error);
       toast.error("Failed to delete webhook");
+      // Revert on error: reload fresh state from server
+      loadWebhooks();
     }
   };
 
@@ -124,11 +142,29 @@ export const AdminWebhooks: React.FC = () => {
       await webhookService.retryDelivery(deliveryId);
       toast.success("Delivery retried");
       if (selectedWebhook) {
-        loadDeliveries(selectedWebhook);
+        // Refresh deliveries after a small delay to ensure server state is consistent
+        setTimeout(() => loadDeliveries(selectedWebhook), 300);
       }
     } catch (error) {
       console.error("Failed to retry delivery", error);
       toast.error("Failed to retry delivery");
+    }
+  };
+
+  const handleTestWebhook = async (webhookId: string) => {
+    try {
+      setSelectedWebhook(webhookId);
+      const result = await webhookService.testWebhook(webhookId);
+      if (result.success) {
+        toast.success(`Test succeeded (${result.responseTime}ms)`);
+      } else {
+        toast.error(result.message || "Test failed");
+      }
+      // Refresh deliveries after a small delay to ensure server state is consistent
+      setTimeout(() => loadDeliveries(webhookId), 300);
+    } catch (error) {
+      console.error("Failed to test webhook", error);
+      toast.error("Failed to test webhook");
     }
   };
 
@@ -197,6 +233,15 @@ export const AdminWebhooks: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          handleTestWebhook(webhook.id);
+                        }}
+                        className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-800"
+                      >
+                        Test
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           handleToggleWebhook(webhook.id, webhook.is_active);
                         }}
                         className={`px-2 py-1 text-xs rounded ${
@@ -232,6 +277,9 @@ export const AdminWebhooks: React.FC = () => {
                         +{webhook.events.length - 3} more
                       </span>
                     )}
+                    <div className="w-full text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      Secret: <span className="font-mono break-all">{webhook.secret}</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -380,3 +428,5 @@ export const AdminWebhooks: React.FC = () => {
     </div>
   );
 };
+
+export default AdminWebhooks;

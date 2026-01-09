@@ -1,11 +1,11 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 export interface ReportQuery {
   type: 'transactions' | 'users' | 'kyc' | 'loans' | 'accounts';
   startDate: Date;
   endDate: Date;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   groupBy?: string[];
   aggregation?: 'sum' | 'avg' | 'count' | 'min' | 'max';
   tenantId: string;
@@ -16,7 +16,7 @@ export interface AnalyticsData {
   segment: string;
   value: number;
   trend?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ReportResult {
@@ -33,9 +33,14 @@ export interface ReportResult {
   };
 }
 
+interface AggregatedResult {
+  data: AnalyticsData[];
+  rawCount: number;
+}
+
 @Injectable()
 export class AnalyticsService {
-  private readonly cacheMap = new Map<string, { data: any; expiresAt: number }>();
+  private readonly cacheMap = new Map<string, { data: ReportResult; expiresAt: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor(private supabaseService: SupabaseService) {}
@@ -59,22 +64,23 @@ export class AnalyticsService {
     }
 
     let data: AnalyticsData[] = [];
+    let rawCount = 0;
 
     switch (query.type) {
       case 'transactions':
-        data = await this.getTransactionAnalytics(query);
+        ({ data, rawCount } = await this.getTransactionAnalytics(query));
         break;
       case 'users':
-        data = await this.getUserAnalytics(query);
+        ({ data, rawCount } = await this.getUserAnalytics(query));
         break;
       case 'kyc':
-        data = await this.getKycAnalytics(query);
+        ({ data, rawCount } = await this.getKycAnalytics(query));
         break;
       case 'loans':
-        data = await this.getLoanAnalytics(query);
+        ({ data, rawCount } = await this.getLoanAnalytics(query));
         break;
       case 'accounts':
-        data = await this.getAccountAnalytics(query);
+        ({ data, rawCount } = await this.getAccountAnalytics(query));
         break;
       default:
         throw new BadRequestException(`Unknown report type: ${query.type}`);
@@ -87,7 +93,7 @@ export class AnalyticsService {
       generatedAt: new Date(),
       data,
       summary: {
-        totalRecords: data.length,
+        totalRecords: rawCount,
         startDate: query.startDate,
         endDate: query.endDate,
         segments: new Set(data.map((d) => d.segment)).size,
@@ -101,7 +107,7 @@ export class AnalyticsService {
   /**
    * Get transaction analytics with aggregations
    */
-  private async getTransactionAnalytics(query: ReportQuery): Promise<AnalyticsData[]> {
+  private async getTransactionAnalytics(query: ReportQuery): Promise<AggregatedResult> {
     const supabaseClient = this.supabaseService.getClient();
     let queryBuilder = supabaseClient
       .from('transactions')
@@ -116,14 +122,14 @@ export class AnalyticsService {
 
     const { data, error } = await queryBuilder;
     if (error) throw new BadRequestException(`Failed to fetch transaction data: ${error.message}`);
-
-    return this.aggregateData(data || [], query.groupBy || ['status'], query.aggregation || 'sum');
+    const aggregated = this.aggregateData(data || [], query.groupBy || ['status'], query.aggregation || 'sum');
+    return { data: aggregated, rawCount: data?.length || 0 };
   }
 
   /**
    * Get user analytics with growth trends
    */
-  private async getUserAnalytics(query: ReportQuery): Promise<AnalyticsData[]> {
+  private async getUserAnalytics(query: ReportQuery): Promise<AggregatedResult> {
     const supabaseClient = this.supabaseService.getClient();
 
     const { data, error } = await supabaseClient
@@ -134,14 +140,14 @@ export class AnalyticsService {
       .lte('created_at', query.endDate.toISOString());
 
     if (error) throw new BadRequestException(`Failed to fetch user data: ${error.message}`);
-
-    return this.aggregateData(data || [], query.groupBy || ['status'], 'count');
+    const aggregated = this.aggregateData(data || [], query.groupBy || ['status'], 'count');
+    return { data: aggregated, rawCount: data?.length || 0 };
   }
 
   /**
    * Get KYC analytics with approval rates
    */
-  private async getKycAnalytics(query: ReportQuery): Promise<AnalyticsData[]> {
+  private async getKycAnalytics(query: ReportQuery): Promise<AggregatedResult> {
     const supabaseClient = this.supabaseService.getClient();
 
     const { data, error } = await supabaseClient
@@ -152,14 +158,14 @@ export class AnalyticsService {
       .lte('created_at', query.endDate.toISOString());
 
     if (error) throw new BadRequestException(`Failed to fetch KYC data: ${error.message}`);
-
-    return this.aggregateData(data || [], query.groupBy || ['status'], 'count');
+    const aggregated = this.aggregateData(data || [], query.groupBy || ['status'], 'count');
+    return { data: aggregated, rawCount: data?.length || 0 };
   }
 
   /**
    * Get loan analytics with disbursement trends
    */
-  private async getLoanAnalytics(query: ReportQuery): Promise<AnalyticsData[]> {
+  private async getLoanAnalytics(query: ReportQuery): Promise<AggregatedResult> {
     const supabaseClient = this.supabaseService.getClient();
 
     const { data, error } = await supabaseClient
@@ -170,14 +176,14 @@ export class AnalyticsService {
       .lte('created_at', query.endDate.toISOString());
 
     if (error) throw new BadRequestException(`Failed to fetch loan data: ${error.message}`);
-
-    return this.aggregateData(data || [], query.groupBy || ['status'], query.aggregation || 'sum');
+    const aggregated = this.aggregateData(data || [], query.groupBy || ['status'], query.aggregation || 'sum');
+    return { data: aggregated, rawCount: data?.length || 0 };
   }
 
   /**
    * Get account analytics with balance trends
    */
-  private async getAccountAnalytics(query: ReportQuery): Promise<AnalyticsData[]> {
+  private async getAccountAnalytics(query: ReportQuery): Promise<AggregatedResult> {
     const supabaseClient = this.supabaseService.getClient();
 
     const { data, error } = await supabaseClient
@@ -188,32 +194,32 @@ export class AnalyticsService {
       .lte('created_at', query.endDate.toISOString());
 
     if (error) throw new BadRequestException(`Failed to fetch account data: ${error.message}`);
-
-    return this.aggregateData(data || [], query.groupBy || ['account_type'], query.aggregation || 'sum');
+    const aggregated = this.aggregateData(data || [], query.groupBy || ['account_type'], query.aggregation || 'sum');
+    return { data: aggregated, rawCount: data?.length || 0 };
   }
 
   /**
    * Aggregate data by segments
    */
-  private aggregateData(data: any[], groupByFields: string[], aggregation: string): AnalyticsData[] {
-    const aggregated: Record<string, any> = {};
+  private aggregateData(data: Record<string, unknown>[], groupByFields: string[], aggregation: string): AnalyticsData[] {
+    const aggregated: Record<string, { segment: string; records: Record<string, unknown>[]; timestamp: Date }> = {};
 
-    data.forEach((record) => {
+    data.forEach((record: Record<string, unknown>) => {
       const key = groupByFields.map((field) => record[field]).join('_');
 
       if (!aggregated[key]) {
         aggregated[key] = {
           segment: key,
           records: [],
-          timestamp: new Date(record.created_at || record.updated_at || new Date()),
+          timestamp: new Date((record.created_at as string) || (record.updated_at as string) || new Date()),
         };
       }
 
-      aggregated[key].records.push(record);
+      aggregated[key].records = [...aggregated[key].records, record];
     });
 
     return Object.values(aggregated).map((group) => ({
-      timestamp: group.timestamp,
+      timestamp: new Date(group.timestamp),
       segment: group.segment,
       value: this.performAggregation(group.records, aggregation),
     }));
@@ -222,9 +228,9 @@ export class AnalyticsService {
   /**
    * Perform aggregation on numeric values
    */
-  private performAggregation(records: any[], aggregation: string): number {
+  private performAggregation(records: Record<string, unknown>[], aggregation: string): number {
     const values = records
-      .map((r) => r.amount || r.balance || 1)
+      .map((r) => (r.amount as number) || (r.balance as number) || 1)
       .filter((v) => typeof v === 'number');
 
     if (values.length === 0) return 0;
@@ -364,7 +370,7 @@ export class AnalyticsService {
   /**
    * Get cached data if valid
    */
-  private getCache(key: string): any {
+  private getCache(key: string): ReportResult | null {
     const cached = this.cacheMap.get(key);
     if (cached && cached.expiresAt > Date.now()) {
       return cached.data;
@@ -376,7 +382,7 @@ export class AnalyticsService {
   /**
    * Set cache with TTL
    */
-  private setCache(key: string, data: any): void {
+  private setCache(key: string, data: ReportResult): void {
     this.cacheMap.set(key, {
       data,
       expiresAt: Date.now() + this.CACHE_TTL,

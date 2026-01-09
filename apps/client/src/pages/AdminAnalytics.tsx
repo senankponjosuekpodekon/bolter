@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   LineChart,
   BarChart,
@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { Download, RefreshCw, Filter, Settings } from 'lucide-react';
+import { Download, RefreshCw, Filter } from 'lucide-react';
 
 interface ReportData {
   id: string;
@@ -30,13 +30,6 @@ interface ReportData {
   };
 }
 
-interface ChartConfig {
-  type: 'line' | 'bar' | 'pie';
-  dataKey: string;
-  xAxisKey?: string;
-  color?: string;
-}
-
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
 export default function AnalyticsDashboard() {
@@ -47,7 +40,6 @@ export default function AnalyticsDashboard() {
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [reportType, setReportType] = useState('transactions');
   const [loading, setLoading] = useState(false);
-  const [groupBy, setGroupBy] = useState('day');
 
   // Aggregate data by segment
   const aggregatedData = useMemo(() => {
@@ -93,7 +85,7 @@ export default function AnalyticsDashboard() {
     }
 
     const chartProps = {
-      width: '100%',
+      width: 100,
       height: 400,
       data: aggregatedData,
     };
@@ -169,14 +161,19 @@ export default function AnalyticsDashboard() {
     downloadFile(content, filename, format);
   };
 
-  const convertToCSV = (data: any[]) => {
-    const headers = Object.keys(data[0] || {});
+  const convertToCSV = (data: Record<string, unknown>[]) => {
+    if (data.length === 0) return '';
+
+    const headers = Object.keys(data[0]);
     const rows = [headers.join(',')];
 
     data.forEach((row) => {
       const values = headers.map((header) => {
-        const value = row[header];
-        return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
+        const rawValue = row[header];
+        const normalized = typeof rawValue === 'string' || typeof rawValue === 'number'
+          ? String(rawValue)
+          : '';
+        return normalized.includes(',') ? `"${normalized}"` : normalized;
       });
       rows.push(values.join(','));
     });
@@ -396,7 +393,7 @@ function generateMockReportData(type: string, startDate: string, endDate: string
             ? ['disbursed', 'pending', 'rejected']
             : ['checking', 'savings', 'investment'];
 
-  let current = new Date(start);
+  const current = new Date(start);
   while (current < end) {
     segments.forEach((segment) => {
       data.push({

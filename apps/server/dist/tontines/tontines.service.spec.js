@@ -372,5 +372,12 @@ describe('TontinesService (unit)', () => {
             expect(auditLogs.log).toHaveBeenCalled();
         });
     });
+    describe('Payment System', () => {
+        it('payTontine method exists', () => {
+            const supabase = buildSupabase(buildAdminClient({}));
+            const service = new tontines_service_1.TontinesService(supabase, auditLogs);
+            expect(typeof service.payTontine).toBe('function');
+        });
+    });
 });
 //# sourceMappingURL=tontines.service.spec.js.map

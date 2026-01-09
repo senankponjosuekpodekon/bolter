@@ -16,5 +16,5 @@ export declare class AuditExportController {
             latest: any;
         };
     }>;
-    getLogs(filters: AuditExportFilter): Promise<any[]>;
+    getLogs(filters: AuditExportFilter): Promise<Record<string, any>[]>;
 }

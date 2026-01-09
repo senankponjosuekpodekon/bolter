@@ -6,11 +6,40 @@ export interface Notification {
   type: 'transaction' | 'kyc' | 'loan' | 'system' | 'report';
   title: string;
   message: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   read: boolean;
   createdAt: string;
   userId: string;
 }
+
+type TransactionEventPayload = {
+  transactionId?: string;
+  userId?: string;
+  amount?: number;
+  currency?: string;
+  reason?: string;
+} & Record<string, unknown>;
+
+type KycEventPayload = {
+  userId?: string;
+} & Record<string, unknown>;
+
+type LoanEventPayload = {
+  userId?: string;
+  amount?: number;
+  currency?: string;
+  reason?: string;
+} & Record<string, unknown>;
+
+type SystemAlertPayload = {
+  message?: string;
+  userId?: string;
+} & Record<string, unknown>;
+
+type ReportEventPayload = {
+  userId?: string;
+  reportType?: string;
+} & Record<string, unknown>;
 
 interface UseNotificationsReturn {
   notifications: Notification[];
@@ -69,7 +98,7 @@ export const useNotifications = (): UseNotificationsReturn => {
       setIsConnected(false);
     });
 
-    socketRef.current.on('connect_error', (error) => {
+    socketRef.current.on('connect_error', (error: unknown) => {
       console.error('[WebSocket] Connection error:', error);
       reconnectAttemptsRef.current++;
     });
@@ -83,9 +112,7 @@ export const useNotifications = (): UseNotificationsReturn => {
     socketRef.current.on('notification:read', (data: { notificationId: string }) => {
       console.log('[WebSocket] Notification marked as read');
       setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === data.notificationId ? { ...n, read: true } : n
-        )
+        prev.map((n) => (n.id === data.notificationId ? { ...n, read: true } : n))
       );
     });
 
@@ -100,118 +127,118 @@ export const useNotifications = (): UseNotificationsReturn => {
     });
 
     // Transaction events
-    socketRef.current.on('transaction:approved', (data: any) => {
+    socketRef.current.on('transaction:approved', (data: TransactionEventPayload) => {
       const notification: Notification = {
         id: `trans_${Date.now()}`,
         type: 'transaction',
         title: 'Transaction Approved',
-        message: `Transaction ${data.transactionId} has been approved`,
+        message: `Transaction ${data.transactionId ?? 'unknown'} has been approved`,
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });
 
-    socketRef.current.on('transaction:rejected', (data: any) => {
+    socketRef.current.on('transaction:rejected', (data: TransactionEventPayload) => {
       const notification: Notification = {
         id: `trans_${Date.now()}`,
         type: 'transaction',
         title: 'Transaction Rejected',
-        message: `Transaction ${data.transactionId} has been rejected`,
+        message: `Transaction ${data.transactionId ?? 'unknown'} has been rejected`,
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });
 
     // KYC events
-    socketRef.current.on('kyc:approved', (data: any) => {
+    socketRef.current.on('kyc:approved', (data: KycEventPayload) => {
       const notification: Notification = {
         id: `kyc_${Date.now()}`,
         type: 'kyc',
         title: 'KYC Approved',
-        message: `KYC verification for ${data.userId} has been approved`,
+        message: `KYC verification for ${data.userId ?? 'unknown'} has been approved`,
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });
 
-    socketRef.current.on('kyc:rejected', (data: any) => {
+    socketRef.current.on('kyc:rejected', (data: KycEventPayload) => {
       const notification: Notification = {
         id: `kyc_${Date.now()}`,
         type: 'kyc',
         title: 'KYC Rejected',
-        message: `KYC verification for ${data.userId} has been rejected`,
+        message: `KYC verification for ${data.userId ?? 'unknown'} has been rejected`,
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });
 
     // Loan events
-    socketRef.current.on('loan:approved', (data: any) => {
+    socketRef.current.on('loan:approved', (data: LoanEventPayload) => {
       const notification: Notification = {
         id: `loan_${Date.now()}`,
         type: 'loan',
         title: 'Loan Approved',
-        message: `Loan application has been approved for ${data.amount} ${data.currency}`,
+        message: `Loan application has been approved for ${data.amount ?? 0} ${data.currency ?? ''}`.trim(),
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });
 
-    socketRef.current.on('loan:rejected', (data: any) => {
+    socketRef.current.on('loan:rejected', (data: LoanEventPayload) => {
       const notification: Notification = {
         id: `loan_${Date.now()}`,
         type: 'loan',
         title: 'Loan Rejected',
-        message: `Loan application has been rejected: ${data.reason}`,
+        message: `Loan application has been rejected: ${data.reason ?? 'unspecified'}`,
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });
 
     // System events
-    socketRef.current.on('system:alert', (data: any) => {
+    socketRef.current.on('system:alert', (data: SystemAlertPayload) => {
       const notification: Notification = {
         id: `sys_${Date.now()}`,
         type: 'system',
         title: 'System Alert',
-        message: data.message,
+        message: data.message ?? 'System alert',
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });
 
     // Report events
-    socketRef.current.on('report:ready', (data: any) => {
+    socketRef.current.on('report:ready', (data: ReportEventPayload) => {
       const notification: Notification = {
         id: `rep_${Date.now()}`,
         type: 'report',
         title: 'Report Ready',
-        message: `Your ${data.reportType} report is ready for download`,
+        message: `Your ${data.reportType ?? 'analytics'} report is ready for download`,
         data,
         read: false,
         createdAt: new Date().toISOString(),
-        userId: data.userId,
+        userId: data.userId ?? 'unknown',
       };
       setNotifications((prev) => [notification, ...prev]);
     });

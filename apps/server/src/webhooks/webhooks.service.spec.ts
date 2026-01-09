@@ -6,7 +6,7 @@ import { Logger } from '../common/logger/logger.service';
 
 describe('WebhooksService', () => {
   let service: WebhooksService;
-  let mockSupabaseService: any;
+  let mockSupabaseService: { supabaseClient: { from: jest.Mock } };
 
   beforeEach(async () => {
     mockSupabaseService = {
@@ -277,9 +277,6 @@ describe('WebhooksService', () => {
 
   describe('Signature generation', () => {
     it('should generate consistent signatures', () => {
-      const payload = { id: '123', amount: 100 };
-      const secret = 'test-secret';
-
       // This would require exposing the private method
       // For now, we test indirectly through webhook delivery
       expect(service).toBeDefined();

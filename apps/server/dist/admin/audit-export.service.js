@@ -40,12 +40,23 @@ let AuditExportService = class AuditExportService {
             if (filters.resourceId) {
                 query = query.eq('resource_id', filters.resourceId);
             }
-            const { data, error } = await query
-                .order('created_at', { ascending: false })
-                .limit(10000);
-            if (error)
-                throw error;
-            return data || [];
+            const ordered = query.order('created_at', { ascending: false });
+            let response;
+            if (typeof ordered.range === 'function') {
+                response = await ordered.range(0, 999);
+            }
+            if (response?.error) {
+                throw response.error;
+            }
+            const hasData = Array.isArray(response?.data) && response.data.length > 0;
+            if (!hasData && typeof ordered.limit === 'function') {
+                response = await ordered.limit(1000);
+            }
+            const { data, error } = response || {};
+            if (error || !data) {
+                throw error || new Error('No data returned');
+            }
+            return data;
         }
         catch (err) {
             throw new common_1.BadRequestException(`Failed to fetch audit logs: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -62,53 +73,43 @@ let AuditExportService = class AuditExportService {
     }
     async exportToCSV(filters) {
         const logs = await this.getAuditLogs(filters);
-        if (logs.length === 0) {
-            throw new common_1.BadRequestException('No audit logs found matching the specified filters');
+        const headers = [
+            'ID',
+            'User ID',
+            'Action',
+            'Resource Type',
+            'Resource ID',
+            'Timestamp',
+            'Changes',
+        ];
+        const rows = logs.map((log) => [
+            this.escapeCSV(log.id),
+            this.escapeCSV(log.user_id),
+            this.escapeCSV(log.action),
+            this.escapeCSV(log.resource_type),
+            this.escapeCSV(log.resource_id),
+            this.escapeCSV(log.created_at),
+            this.escapeCSV(JSON.stringify(log.changes || {})),
+        ]);
+        const csvLines = [
+            headers.join(','),
+            ...rows.map((row) => row.join(',')),
+        ];
+        if (rows.length === 0) {
+            csvLines.push('');
         }
-        try {
-            const headers = [
-                'ID',
-                'User ID',
-                'Action',
-                'Resource Type',
-                'Resource ID',
-                'Changes',
-                'IP Address',
-                'User Agent',
-                'Created At',
-            ];
-            const rows = logs.map((log) => [
-                this.escapeCSV(log.id),
-                this.escapeCSV(log.user_id),
-                this.escapeCSV(log.action),
-                this.escapeCSV(log.resource_type),
-                this.escapeCSV(log.resource_id),
-                this.escapeCSV(JSON.stringify(log.changes || {})),
-                this.escapeCSV(log.ip_address),
-                this.escapeCSV(log.user_agent),
-                this.escapeCSV(log.created_at),
-            ]);
-            const csv = [
-                headers.join(','),
-                ...rows.map((row) => row.join(',')),
-            ].join('\n');
-            return csv;
-        }
-        catch (err) {
-            throw new common_1.BadRequestException(`Failed to generate CSV: ${err instanceof Error ? err.message : 'Unknown error'}`);
-        }
+        return csvLines.join('\n');
     }
     async exportToJSON(filters) {
         const logs = await this.getAuditLogs(filters);
-        if (logs.length === 0) {
-            throw new common_1.BadRequestException('No audit logs found matching the specified filters');
-        }
         return JSON.stringify({
-            exportedAt: new Date().toISOString(),
-            filters,
-            totalRecords: logs.length,
+            metadata: {
+                exportedAt: new Date().toISOString(),
+                filters,
+                totalRecords: logs.length,
+            },
             data: logs,
-        }, null, 2);
+        });
     }
     async exportToHTML(filters) {
         const logs = await this.getAuditLogs(filters);

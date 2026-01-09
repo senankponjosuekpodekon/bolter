@@ -26,29 +26,43 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         this.config = config;
         this.logger = logger;
     }
+    getAdminDb() {
+        return typeof this.supabase.getAdminClient === 'function'
+            ? this.supabase.getAdminClient()
+            : this.supabase.supabaseClient;
+    }
     async createWebhook(userId, dto) {
         const secret = this.generateSecret();
-        const { data, error } = await this.supabase
-            .getAdminClient()
-            .from('webhooks')
-            .insert({
-            user_id: userId,
-            url: dto.url,
-            secret,
-            events: dto.events,
-            is_active: true,
-        })
-            .select()
-            .single();
-        if (error) {
-            this.logger.error(`Failed to create webhook: ${error.message}`, undefined, WebhooksService_1.name);
-            throw new Error('Failed to create webhook');
+        try {
+            const adminDb = this.getAdminDb();
+            if (!adminDb) {
+                throw new Error('Admin database client not initialized');
+            }
+            const { data, error } = await adminDb
+                .from('webhooks')
+                .insert({
+                user_id: userId,
+                url: dto.url,
+                secret,
+                events: dto.events,
+                is_active: true,
+            })
+                .select()
+                .single();
+            if (error) {
+                this.logger.error(`Failed to create webhook: ${error.message}`, undefined, WebhooksService_1.name);
+                throw new Error(error.message || 'Failed to create webhook');
+            }
+            return data;
         }
-        return data;
+        catch (err) {
+            const message = err?.message || 'Unknown error';
+            this.logger.error(`createWebhook error: ${message}`, undefined, WebhooksService_1.name);
+            throw err;
+        }
     }
     async getUserWebhooks(userId) {
-        const { data, error } = await this.supabase
-            .getAdminClient()
+        const { data, error } = await this.getAdminDb()
             .from('webhooks')
             .select('*')
             .eq('user_id', userId)
@@ -60,8 +74,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         return data || [];
     }
     async getWebhookById(userId, webhookId) {
-        const { data, error } = await this.supabase
-            .getAdminClient()
+        const { data, error } = await this.getAdminDb()
             .from('webhooks')
             .select('*')
             .eq('id', webhookId)
@@ -73,9 +86,27 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         }
         return data;
     }
+    async getWebhook(webhookId) {
+        const baseQuery = this.getAdminDb()
+            .from('webhooks')
+            .select('*')
+            .eq('id', webhookId);
+        const response = typeof baseQuery.maybeSingle === 'function'
+            ? await baseQuery.maybeSingle()
+            : typeof baseQuery.single === 'function'
+                ? await baseQuery.single()
+                : typeof baseQuery.then === 'function'
+                    ? await baseQuery.then()
+                    : await baseQuery;
+        const { data, error } = response;
+        if (error) {
+            this.logger.error(`Failed to fetch webhook: ${error.message}`, undefined, WebhooksService_1.name);
+            return null;
+        }
+        return data;
+    }
     async updateWebhook(userId, webhookId, dto) {
-        const { data, error } = await this.supabase
-            .getAdminClient()
+        const { data, error } = await this.getAdminDb()
             .from('webhooks')
             .update(dto)
             .eq('id', webhookId)
@@ -89,8 +120,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         return data;
     }
     async deleteWebhook(userId, webhookId) {
-        const { error } = await this.supabase
-            .getAdminClient()
+        const { error } = await this.getAdminDb()
             .from('webhooks')
             .delete()
             .eq('id', webhookId)
@@ -112,8 +142,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         if (!webhook) {
             return [];
         }
-        const { data, error } = await this.supabase
-            .getAdminClient()
+        const { data, error } = await this.getAdminDb()
             .from('webhook_deliveries')
             .select('*')
             .eq('webhook_id', webhookId)
@@ -126,8 +155,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         return data || [];
     }
     async retryWebhookDelivery(userId, deliveryId) {
-        const { data: delivery, error: fetchError } = await this.supabase
-            .getAdminClient()
+        const { data: delivery, error: fetchError } = await this.getAdminDb()
             .from('webhook_deliveries')
             .select('*, webhooks!inner(user_id, url, secret, is_active)')
             .eq('id', deliveryId)
@@ -144,8 +172,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         return true;
     }
     async getActiveWebhooksForEvent(userId, eventType) {
-        const { data, error } = await this.supabase
-            .getAdminClient()
+        const { data, error } = await this.getAdminDb()
             .from('webhooks')
             .select('*')
             .eq('user_id', userId)
@@ -166,8 +193,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         const signature = this.generateSignature(webhook.secret, deliveryPayload);
         let deliveryId = retryDeliveryId;
         if (!deliveryId) {
-            const { data: newDelivery } = await this.supabase
-                .getAdminClient()
+            const { data: newDelivery } = await this.getAdminDb()
                 .from('webhook_deliveries')
                 .insert({
                 webhook_id: webhook.id,
@@ -191,7 +217,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
                 validateStatus: () => true,
             });
             const isSuccess = response.status >= 200 && response.status < 300;
-            await this.supabase.getAdminClient().from('webhook_deliveries').update({
+            await this.getAdminDb().from('webhook_deliveries').update({
                 status: isSuccess ? 'success' : 'failed',
                 response_code: response.status,
                 response_body: JSON.stringify(response.data).substring(0, 1000),
@@ -204,7 +230,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         }
         catch (error) {
             const axiosError = error;
-            await this.supabase.getAdminClient().from('webhook_deliveries').update({
+            await this.getAdminDb().from('webhook_deliveries').update({
                 status: 'failed',
                 error_message: axiosError.message,
                 attempts: retryDeliveryId ? undefined : 1,
@@ -219,6 +245,140 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         const hmac = (0, crypto_1.createHmac)('sha256', secret);
         hmac.update(JSON.stringify(payload));
         return hmac.digest('hex');
+    }
+    async testWebhook(webhookId) {
+        const webhook = await this.getWebhook(webhookId);
+        if (!webhook) {
+            throw new Error('Webhook not found');
+        }
+        const testPayload = {
+            event: 'webhook.test',
+            timestamp: new Date().toISOString(),
+            webhookId: webhook.id,
+            test: true,
+        };
+        const signature = this.generateSignature(webhook.secret, testPayload);
+        const startTime = Date.now();
+        try {
+            const response = await axios_1.default.post(webhook.url, testPayload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Webhook-Signature': signature,
+                    'X-Webhook-Event': 'webhook.test',
+                    'X-Webhook-ID': webhook.id,
+                },
+                timeout: 5000,
+            });
+            const responseTime = Date.now() - startTime;
+            this.logger.log(`Webhook test successful for ${webhookId} (${responseTime}ms)`, WebhooksService_1.name);
+            return {
+                success: response.status >= 200 && response.status < 300,
+                message: `Webhook responded with status ${response.status}`,
+                responseTime,
+            };
+        }
+        catch (err) {
+            const axiosError = err;
+            const responseTime = Date.now() - startTime;
+            this.logger.error(`Webhook test failed for ${webhookId}: ${axiosError.message}`, WebhooksService_1.name);
+            return {
+                success: false,
+                message: axiosError.message || 'Webhook delivery failed',
+                responseTime,
+            };
+        }
+    }
+    async retryDelivery(deliveryId) {
+        const { data: delivery, error: getError } = await this.supabase.supabaseClient
+            .from('webhook_deliveries')
+            .select('*, webhooks(*)')
+            .eq('id', deliveryId)
+            .single();
+        if (getError || !delivery) {
+            this.logger.error(`Delivery not found: ${deliveryId}`, WebhooksService_1.name);
+            return null;
+        }
+        const webhook = delivery.webhooks;
+        const maxAttempts = 5;
+        if (delivery.attempts >= maxAttempts) {
+            this.logger.warn(`Max retry attempts reached for delivery ${deliveryId}`, WebhooksService_1.name);
+            return null;
+        }
+        try {
+            const signature = this.generateSignature(webhook.secret, delivery.payload);
+            const response = await axios_1.default.post(webhook.url, delivery.payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Webhook-Signature': signature,
+                    'X-Webhook-Event': delivery.event_type,
+                    'X-Webhook-ID': webhook.id,
+                },
+                timeout: 5000,
+            });
+            const { data: updated } = await this.supabase.supabaseClient
+                .from('webhook_deliveries')
+                .update({
+                status: 'success',
+                response_code: response.status,
+                attempts: delivery.attempts + 1,
+                delivered_at: new Date().toISOString(),
+            })
+                .eq('id', deliveryId)
+                .select()
+                .single();
+            return updated;
+        }
+        catch (err) {
+            const axiosError = err;
+            const { data: updated } = await this.supabase.supabaseClient
+                .from('webhook_deliveries')
+                .update({
+                status: 'failed',
+                error_message: axiosError.message,
+                attempts: delivery.attempts + 1,
+            })
+                .eq('id', deliveryId)
+                .select()
+                .single();
+            return updated;
+        }
+    }
+    async getWebhookStats(webhookId) {
+        const client = this.getAdminDb();
+        const builder = client
+            .from('webhook_deliveries')
+            .select('status, created_at')
+            .eq('webhook_id', webhookId);
+        const response = typeof builder.then === 'function' ? await builder.then() : await builder;
+        const deliveries = response?.data;
+        if (!deliveries) {
+            return {
+                totalDeliveries: 0,
+                successCount: 0,
+                failureCount: 0,
+                pendingCount: 0,
+                successRate: 0,
+                avgResponseTime: 0,
+            };
+        }
+        const successCount = deliveries.filter((d) => d.status === 'success').length;
+        const failureCount = deliveries.filter((d) => d.status === 'failed').length;
+        const pendingCount = deliveries.filter((d) => d.status === 'pending').length;
+        const total = deliveries.length;
+        return {
+            totalDeliveries: total,
+            successCount,
+            failureCount,
+            pendingCount,
+            successRate: total > 0 ? (successCount / total) * 100 : 0,
+            last7days: deliveries.filter((d) => {
+                const created = new Date(d.created_at);
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                sevenDaysAgo.setHours(0, 0, 0, 0);
+                return created >= sevenDaysAgo;
+            }).length,
+        };
     }
 };
 exports.WebhooksService = WebhooksService;

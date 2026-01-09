@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
@@ -6,6 +6,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 export class SupabaseService {
   private supabase: SupabaseClient;
   private supabaseAdmin: SupabaseClient;
+  private readonly logger = new Logger(SupabaseService.name);
 
   constructor(private configService: ConfigService) {
     const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
@@ -16,6 +17,8 @@ export class SupabaseService {
       throw new Error('Supabase credentials not found in environment variables');
     }
 
+    this.logger.log(`Initializing Supabase with URL: ${supabaseUrl}`);
+
     this.supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     if (supabaseServiceKey) {
@@ -25,6 +28,8 @@ export class SupabaseService {
           persistSession: false,
         },
       });
+    } else {
+      this.logger.warn('Supabase service role key not found, using anon client for admin operations');
     }
   }
 
@@ -33,6 +38,14 @@ export class SupabaseService {
   }
 
   getAdminClient(): SupabaseClient {
+    return this.supabaseAdmin || this.supabase;
+  }
+
+  get supabaseClient(): SupabaseClient {
+    return this.supabase;
+  }
+
+  get supabaseAdminClient(): SupabaseClient {
     return this.supabaseAdmin || this.supabase;
   }
 }

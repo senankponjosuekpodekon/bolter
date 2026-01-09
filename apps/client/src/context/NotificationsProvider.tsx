@@ -1,9 +1,5 @@
 import React, { ReactNode, useMemo } from 'react';
-import {
-  NotificationsContext,
-  useNotifications,
-  Notification,
-} from '../hooks/useNotifications';
+import { NotificationsContext, useNotifications } from '../hooks/useNotifications';
 
 interface NotificationsProviderProps {
   children: ReactNode;

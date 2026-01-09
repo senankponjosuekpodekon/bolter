@@ -11,6 +11,7 @@ type Props = {
 export default function MobileDrawer({ open, onClose }: Props) {
   const navigate = useNavigate();
   const logout = useAuthStore((s) => s.logout);
+  const user = useAuthStore((s) => s.user);
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -69,6 +70,15 @@ export default function MobileDrawer({ open, onClose }: Props) {
           >
             Tontines
           </Link>
+          {user?.role === "ADMIN" && (
+            <Link
+              to="/admin/webhooks"
+              onClick={onClose}
+              className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              Webhooks
+            </Link>
+          )}
           {/* KYC moved into Profile page */}
           <Link
             to="/profile"

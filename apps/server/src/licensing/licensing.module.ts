@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LicensingService } from './licensing.service';
 import { LicensingController } from './licensing.controller';
-import { SupabaseService } from '../database/supabase.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 @Module({

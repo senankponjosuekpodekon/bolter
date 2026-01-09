@@ -9,6 +9,7 @@ import { ToastContainer } from "./components/ui/ToastContainer";
 import { I18nDebugPanel } from "./components/I18nDebugPanel";
 import { useTheme } from "./hooks/useTheme";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AdminWebhooks = lazy(() => import("./pages/AdminWebhooks"));
 import Accounts from "./pages/Accounts";
 import Transactions from "./pages/Transactions";
 const Profile = lazy(() => import("./pages/Profile"));
@@ -105,6 +106,16 @@ function App() {
           />
           <Route path="scheduled-transfers" element={<ScheduledTransfers />} />
           <Route path="alerts-settings" element={<AlertsSettings />} />
+          <Route
+            path="admin/webhooks"
+            element={
+              <Suspense fallback={<SkeletonPage title="Webhooks" />}>
+                <RouteLocaleLoader>
+                  <AdminWebhooks />
+                </RouteLocaleLoader>
+              </Suspense>
+            }
+          />
           <Route path="tontines" element={<TontinesListPage />} />
           <Route path="tontines/new" element={<TontineCreatePage />} />
           <Route path="tontines/:id" element={<TontineDetailPage />} />

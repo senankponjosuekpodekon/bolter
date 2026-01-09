@@ -258,13 +258,22 @@ export class UsersService {
   }
 
   async getTwoFactorSecret(userId: string): Promise<string | null> {
-    const { data, error } = await this.supabase.getAdminClient()
-      .from('users')
-      .select('two_factor_secret')
-      .eq('id', userId)
-      .maybeSingle();
-    if (error) throw new BadRequestException(`Failed to get 2FA secret: ${error.message}`);
-    return data?.two_factor_secret || null;
+    try {
+      const { data, error } = await this.supabase.getAdminClient()
+        .from('users')
+        .select('two_factor_secret')
+        .eq('id', userId)
+        .maybeSingle();
+      if (error) {
+        this.logger.error(`Supabase error fetching 2FA secret for user ${userId}: ${error.message}`, error);
+        throw new BadRequestException(`Failed to get 2FA secret: ${error.message}`);
+      }
+      return data?.two_factor_secret || null;
+    } catch (err) {
+      this.logger.error(`Error in getTwoFactorSecret for user ${userId}:`, err);
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(`Failed to fetch user: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   async setTempTwoFactorSecret(userId: string, secret: string): Promise<void> {

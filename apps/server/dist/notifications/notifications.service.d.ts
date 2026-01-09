@@ -92,4 +92,11 @@ export declare class NotificationsService {
     private renderHtmlTemplate;
     private formatAmount;
     private formatName;
+    getNotificationPreferences(userId: string, tenantId: string): Promise<Record<string, unknown>>;
+    updateNotificationPreferences(userId: string, tenantId: string, preferences: Record<string, unknown>): Promise<Record<string, unknown>>;
+    private getDefaultPreferences;
+    getUserNotifications(userId: string, tenantId: string, limit?: number, offset?: number): Promise<Record<string, unknown>[]>;
+    getUnreadCount(userId: string, tenantId: string): Promise<number>;
+    markAsRead(notificationId: string, userId: string, tenantId: string): Promise<boolean>;
+    deleteNotification(notificationId: string, userId: string, tenantId: string): Promise<boolean>;
 }

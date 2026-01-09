@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { X, Bell, Trash2, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 export interface Notification {
@@ -8,7 +8,7 @@ export interface Notification {
   message: string;
   read: boolean;
   timestamp: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 interface NotificationCenterProps {
@@ -140,6 +140,7 @@ export default function NotificationCenter({
               {filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
+                  data-notification-type={notification.type}
                   className={`p-4 border-l-4 cursor-pointer transition-colors hover:bg-opacity-80 ${
                     notification.read ? 'opacity-60 bg-gray-50' : getNotificationColor(notification.type)
                   }`}

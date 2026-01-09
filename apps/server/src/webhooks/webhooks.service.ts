@@ -49,33 +49,48 @@ export class WebhooksService {
     private readonly logger: Logger,
   ) { }
 
+  private getAdminDb(): any {
+    return typeof (this.supabase as unknown as { getAdminClient?: () => unknown }).getAdminClient === 'function'
+      ? this.supabase.getAdminClient()
+      : (this.supabase as unknown as { supabaseClient?: unknown }).supabaseClient;
+  }
+
   async createWebhook(userId: string, dto: CreateWebhookDto): Promise<Webhook> {
     const secret = this.generateSecret();
 
-    const { data, error } = await this.supabase
-      .getAdminClient()
-      .from('webhooks')
-      .insert({
-        user_id: userId,
-        url: dto.url,
-        secret,
-        events: dto.events,
-        is_active: true,
-      })
-      .select()
-      .single();
+    try {
+      const adminDb = this.getAdminDb();
+      if (!adminDb) {
+        throw new Error('Admin database client not initialized');
+      }
 
-    if (error) {
-      this.logger.error(`Failed to create webhook: ${error.message}`, undefined, WebhooksService.name);
-      throw new Error('Failed to create webhook');
+      const { data, error } = await adminDb
+        .from('webhooks')
+        .insert({
+          user_id: userId,
+          url: dto.url,
+          secret,
+          events: dto.events,
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        this.logger.error(`Failed to create webhook: ${error.message}`, undefined, WebhooksService.name);
+        throw new Error(error.message || 'Failed to create webhook');
+      }
+
+      return data as Webhook;
+    } catch (err) {
+      const message = (err as Error)?.message || 'Unknown error';
+      this.logger.error(`createWebhook error: ${message}`, undefined, WebhooksService.name);
+      throw err;
     }
-
-    return data as Webhook;
   }
 
   async getUserWebhooks(userId: string): Promise<Webhook[]> {
-    const { data, error } = await this.supabase
-      .getAdminClient()
+    const { data, error } = await this.getAdminDb()
       .from('webhooks')
       .select('*')
       .eq('user_id', userId)
@@ -90,8 +105,7 @@ export class WebhooksService {
   }
 
   async getWebhookById(userId: string, webhookId: string): Promise<Webhook | null> {
-    const { data, error } = await this.supabase
-      .getAdminClient()
+    const { data, error } = await this.getAdminDb()
       .from('webhooks')
       .select('*')
       .eq('id', webhookId)
@@ -106,9 +120,35 @@ export class WebhooksService {
     return data as Webhook | null;
   }
 
+  /**
+   * Fetch webhook by id using admin context (Sprint III helper)
+   */
+  async getWebhook(webhookId: string): Promise<Webhook | null> {
+    const baseQuery = this.getAdminDb()
+      .from('webhooks')
+      .select('*')
+      .eq('id', webhookId);
+
+    const response = typeof (baseQuery as { maybeSingle?: unknown }).maybeSingle === 'function'
+      ? await (baseQuery as typeof baseQuery & { maybeSingle: () => Promise<{ data: Webhook | null; error?: { message: string } }> }).maybeSingle()
+      : typeof (baseQuery as { single?: unknown }).single === 'function'
+        ? await (baseQuery as typeof baseQuery & { single: () => Promise<{ data: Webhook | null; error?: { message: string } }> }).single()
+        : typeof (baseQuery as { then?: unknown }).then === 'function'
+          ? await (baseQuery as typeof baseQuery & { then: () => Promise<{ data: Webhook | null; error?: { message: string } }> }).then()
+          : await baseQuery;
+
+    const { data, error } = response as { data: Webhook | null; error?: { message: string } };
+
+    if (error) {
+      this.logger.error(`Failed to fetch webhook: ${error.message}`, undefined, WebhooksService.name);
+      return null;
+    }
+
+    return data as Webhook | null;
+  }
+
   async updateWebhook(userId: string, webhookId: string, dto: UpdateWebhookDto): Promise<Webhook | null> {
-    const { data, error } = await this.supabase
-      .getAdminClient()
+    const { data, error } = await this.getAdminDb()
       .from('webhooks')
       .update(dto)
       .eq('id', webhookId)
@@ -125,8 +165,7 @@ export class WebhooksService {
   }
 
   async deleteWebhook(userId: string, webhookId: string): Promise<boolean> {
-    const { error } = await this.supabase
-      .getAdminClient()
+    const { error } = await this.getAdminDb()
       .from('webhooks')
       .delete()
       .eq('id', webhookId)
@@ -155,8 +194,7 @@ export class WebhooksService {
       return [];
     }
 
-    const { data, error } = await this.supabase
-      .getAdminClient()
+    const { data, error } = await this.getAdminDb()
       .from('webhook_deliveries')
       .select('*')
       .eq('webhook_id', webhookId)
@@ -172,8 +210,7 @@ export class WebhooksService {
   }
 
   async retryWebhookDelivery(userId: string, deliveryId: string): Promise<boolean> {
-    const { data: delivery, error: fetchError } = await this.supabase
-      .getAdminClient()
+    const { data: delivery, error: fetchError } = await this.getAdminDb()
       .from('webhook_deliveries')
       .select('*, webhooks!inner(user_id, url, secret, is_active)')
       .eq('id', deliveryId)
@@ -194,8 +231,7 @@ export class WebhooksService {
   }
 
   private async getActiveWebhooksForEvent(userId: string, eventType: string): Promise<Webhook[]> {
-    const { data, error } = await this.supabase
-      .getAdminClient()
+    const { data, error } = await this.getAdminDb()
       .from('webhooks')
       .select('*')
       .eq('user_id', userId)
@@ -226,8 +262,7 @@ export class WebhooksService {
 
     let deliveryId = retryDeliveryId;
     if (!deliveryId) {
-      const { data: newDelivery } = await this.supabase
-        .getAdminClient()
+      const { data: newDelivery } = await this.getAdminDb()
         .from('webhook_deliveries')
         .insert({
           webhook_id: webhook.id,
@@ -255,7 +290,7 @@ export class WebhooksService {
 
       const isSuccess = response.status >= 200 && response.status < 300;
 
-      await this.supabase.getAdminClient().from('webhook_deliveries').update({
+      await this.getAdminDb().from('webhook_deliveries').update({
         status: isSuccess ? 'success' : 'failed',
         response_code: response.status,
         response_body: JSON.stringify(response.data).substring(0, 1000),
@@ -268,7 +303,7 @@ export class WebhooksService {
       }
     } catch (error) {
       const axiosError = error as AxiosError;
-      await this.supabase.getAdminClient().from('webhook_deliveries').update({
+      await this.getAdminDb().from('webhook_deliveries').update({
         status: 'failed',
         error_message: axiosError.message,
         attempts: retryDeliveryId ? undefined : 1,
@@ -405,11 +440,15 @@ export class WebhooksService {
   /**
    * Get webhook statistics
    */
-  async getWebhookStats(webhookId: string): Promise<Record<string, any>> {
-    const { data: deliveries } = await this.supabase.supabaseClient
+  async getWebhookStats(webhookId: string): Promise<Record<string, unknown>> {
+    const client = this.getAdminDb();
+    const builder = client
       .from('webhook_deliveries')
       .select('status, created_at')
       .eq('webhook_id', webhookId);
+
+    const response = typeof builder.then === 'function' ? await builder.then() : await builder;
+    const deliveries = (response as { data?: WebhookDelivery[]; error?: { message: string } })?.data;
 
     if (!deliveries) {
       return {
@@ -437,7 +476,8 @@ export class WebhooksService {
         const created = new Date(d.created_at);
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        return created > sevenDaysAgo;
+        sevenDaysAgo.setHours(0, 0, 0, 0);
+        return created >= sevenDaysAgo;
       }).length,
     };
   }

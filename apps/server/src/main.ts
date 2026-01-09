@@ -5,7 +5,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from './common/logger/logger.service';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as https from 'https';
@@ -78,9 +77,7 @@ async function bootstrap() {
     }),
   );
 
-  // Apply rate limiting globally
-  const throttlerGuard = app.get(ThrottlerGuard);
-  app.useGlobalGuards(throttlerGuard);
+  // Rate limiting is applied globally via APP_GUARD (see AppModule)
 
   // Configuration Swagger
   const swaggerConfig = new DocumentBuilder()

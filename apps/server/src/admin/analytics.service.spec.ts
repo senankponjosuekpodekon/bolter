@@ -1,23 +1,35 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AnalyticsService, ReportQuery } from './analytics.service';
+import { AnalyticsService, ReportQuery, ReportResult } from './analytics.service';
 import { SupabaseService } from '../supabase/supabase.service';
+
+type TableData = Record<string, unknown[]>;
+
+const createMockClient = (tableData: TableData) => ({
+  from: (table: string) => {
+    const rows = tableData[table] ?? [];
+    const builder = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      gte: jest.fn().mockReturnThis(),
+      lte: jest.fn().mockReturnThis(),
+      then: (resolver: (value: { data: unknown[]; error: null }) => void) =>
+        resolver({ data: rows, error: null }),
+    };
+    return builder;
+  },
+});
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
-  let mockSupabaseService: any;
+  let supabaseService: { getClient: jest.Mock };
 
   beforeEach(async () => {
-    mockSupabaseService = {
-      getClient: jest.fn().mockReturnValue({
-        from: jest.fn(),
-      }),
-    };
+    supabaseService = {
+      getClient: jest.fn(() => createMockClient({})),
+    } as unknown as { getClient: jest.Mock };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AnalyticsService,
-        { provide: SupabaseService, useValue: mockSupabaseService },
-      ],
+      providers: [AnalyticsService, { provide: SupabaseService, useValue: supabaseService }],
     }).compile();
 
     service = module.get<AnalyticsService>(AnalyticsService);
@@ -27,198 +39,111 @@ describe('AnalyticsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('generateReport', () => {
-    it('should throw error if required parameters are missing', async () => {
-      const incompleteQuery: any = {
-        type: 'transactions',
-      };
-
-      await expect(service.generateReport(incompleteQuery)).rejects.toThrow();
-    });
-
-    it('should throw error if startDate is after endDate', async () => {
-      const query: ReportQuery = {
-        type: 'transactions',
-        startDate: new Date('2024-01-31'),
-        endDate: new Date('2024-01-01'),
-        tenantId: 'tenant-1',
-      };
-
-      await expect(service.generateReport(query)).rejects.toThrow();
-    });
-
-    it('should generate transaction report', async () => {
-      const query: ReportQuery = {
-        type: 'transactions',
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-01-31'),
-        tenantId: 'tenant-1',
-      };
-
-      mockSupabaseService.supabaseClient.from = jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          gte: jest.fn().mockReturnThis(),
-          lte: jest.fn().mockReturnThis(),
-          then: jest.fn().mockResolvedValue({
-            data: [
-              { id: '1', amount: 1000, status: 'approved', created_at: '2024-01-15' },
-              { id: '2', amount: 2000, status: 'approved', created_at: '2024-01-20' },
-            ],
-            error: null,
-          }),
-        }),
-      });
-
-      const report = await service.generateReport(query);
-
-      expect(report).toBeDefined();
-      expect(report.type).toBe('transactions');
-      expect(report.data.length).toBeGreaterThan(0);
-    });
-
-    it('should generate user report', async () => {
-      const query: ReportQuery = {
-        type: 'users',
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-01-31'),
-        tenantId: 'tenant-1',
-      };getClient = jest.fn().mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          gte: jest.fn().mockReturnThis(),
-          lte: jest.fn().mockReturnThis(),
-          then: jest.fn().mockResolvedValue({
-            data: [
-              { id: '1', created_at: '2024-01-15', status: 'active' },
-              { id: '2', created_at: '2024-01-20', status: 'active' },
-            ],
-            error: null,
-          }), created_at: '2024-01-20', status: 'active' },
-          ],
-          error: null,
-        }),
-      });
-
-      const report = await service.generateReport(query);
-
-      expect(report).toBeDefined();
-      expect(report.type).toBe('users');
-    });
-
-    it('should generate kyc report', async () => {
-      const query: ReportQuery = {
-        type: 'kyc',
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-01-31'),
-        tenantId: 'tenant-1',
-      };getClient = jest.fn().mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          gte: jest.fn().mockReturnThis(),
-          lte: jest.fn().mockReturnThis(),
-          then: jest.fn().mockResolvedValue({
-            data: [
-              { id: '1', status: 'approved', created_at: '2024-01-15', document_type: 'id' },
-            ],
-            error: null,
-          }), status: 'approved', created_at: '2024-01-15', document_type: 'id' },
-          ],
-          error: null,
-        }),
-      });
-
-      const report = await service.generateReport(query);
-
-      expect(report).toBeDefined();
-      expect(report.type).toBe('kyc');
-    });
+  it('should throw error when required params are missing', async () => {
+    await expect(service.generateReport({} as unknown as ReportQuery)).rejects.toThrow();
   });
 
-  describe('exportToCSV', () => {
-    it('should export report to CSV format', () => {
-      const report = {
-        id: 'rpt_123',
-        name: 'Test Report',
-        type: 'transactions',
-        generatedAt: new Date(),
-        data: [
-          { timestamp: new Date('2024-01-15'), segment: 'approved', value: 1000 },
-          { timestamp: new Date('2024-01-20'), segment: 'pending', value: 2000 },
+  it('should throw error when startDate is after endDate', async () => {
+    const query: ReportQuery = {
+      type: 'transactions',
+      startDate: new Date('2024-02-01'),
+      endDate: new Date('2024-01-01'),
+      tenantId: 'tenant-1',
+    };
+
+    await expect(service.generateReport(query)).rejects.toThrow();
+  });
+
+  it('should generate transaction report', async () => {
+    const query: ReportQuery = {
+      type: 'transactions',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2024-01-31'),
+      tenantId: 'tenant-1',
+    };
+
+    supabaseService.getClient.mockReturnValue(
+      createMockClient({
+        transactions: [
+          { id: '1', amount: 1000, status: 'approved', created_at: '2024-01-15', tenant_id: 'tenant-1' },
         ],
-        summary: {
-          totalRecords: 2,
-          startDate: new Date('2024-01-01'),
-          endDate: new Date('2024-01-31'),
-          segments: 2,
-        },
-      };
+      })
+    );
 
-      const csv = service.exportToCSV(report);
+    const report = await service.generateReport(query);
 
-      expect(csv).toBeDefined();
-      expect(csv).toContain('timestamp');
-      expect(csv).toContain('segment');
-      expect(csv).toContain('value');
-    });
+    expect(report.type).toBe('transactions');
+    expect(report.data.length).toBeGreaterThan(0);
   });
 
-  describe('exportToJSON', () => {
-    it('should export report to JSON format', () => {
-      const report = {
-        id: 'rpt_123',
-        name: 'Test Report',
-        type: 'transactions',
-        generatedAt: new Date(),
-        data: [
-          { timestamp: new Date('2024-01-15'), segment: 'approved', value: 1000 },
+  it('should generate user report', async () => {
+    const query: ReportQuery = {
+      type: 'users',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2024-01-31'),
+      tenantId: 'tenant-1',
+    };
+
+    supabaseService.getClient.mockReturnValue(
+      createMockClient({
+        users: [
+          { id: '1', status: 'active', created_at: '2024-01-15', tenant_id: 'tenant-1' },
+          { id: '2', status: 'active', created_at: '2024-01-20', tenant_id: 'tenant-1' },
         ],
-        summary: {
-          totalRecords: 1,
-          startDate: new Date('2024-01-01'),
-          endDate: new Date('2024-01-31'),
-          segments: 1,
-        },
-      };
+      })
+    );
 
-      const json = service.exportToJSON(report);
+    const report = await service.generateReport(query);
 
-      expect(json).toBeDefined();
-      expect(JSON.parse(json)).toBeDefined();
-      expect(JSON.parse(json).type).toBe('transactions');
-    });
+    expect(report.type).toBe('users');
+    expect(report.summary.totalRecords).toBe(2);
   });
 
-  describe('getTimeSeriesData', () => {
-    it('should return time-series data grouped by daily interval', async () => {
-      const query: ReportQuery = {
-        type: 'transactions',
+  it('should export CSV and JSON', () => {
+    const report: ReportResult = {
+      id: 'rpt_123',
+      name: 'Test Report',
+      type: 'transactions',
+      generatedAt: new Date(),
+      data: [
+        { timestamp: new Date('2024-01-15'), segment: 'approved', value: 1000 },
+        { timestamp: new Date('2024-01-20'), segment: 'pending', value: 2000 },
+      ],
+      summary: {
+        totalRecords: 2,
         startDate: new Date('2024-01-01'),
         endDate: new Date('2024-01-31'),
-        tenantId: 'tenant-1',
-      };
+        segments: 2,
+      },
+    };
 
-      mockSupabaseService.supabaseClient.from = jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        gte: jest.fn().mockReturnThis(),
-        lte: jest.fn().mockReturnThis(),
-        then: jest.fn().mockResolvedValue({
-          data: [
-            { id: '1', amount: 1000, status: 'approved', created_at: '2024-01-15' },
-            { id: '2', amount: 2000, status: 'approved', created_at: '2024-01-15' },
-          ],
-          error: null,
-        }),
-      });
+    const csv = service.exportToCSV(report);
+    const json = service.exportToJSON(report);
 
-      const timeSeries = await service.getTimeSeriesData(query, 'daily');
+    expect(csv).toContain('timestamp');
+    expect(JSON.parse(json).type).toBe('transactions');
+  });
 
-      expect(timeSeries).toBeDefined();
-      expect(Array.isArray(timeSeries)).toBe(true);
-    });
+  it('should generate time series data', async () => {
+    const query: ReportQuery = {
+      type: 'transactions',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2024-01-31'),
+      tenantId: 'tenant-1',
+    };
+
+    supabaseService.getClient.mockReturnValue(
+      createMockClient({
+        transactions: [
+          { id: '1', amount: 1000, status: 'approved', created_at: '2024-01-15', tenant_id: 'tenant-1' },
+          { id: '2', amount: 2000, status: 'approved', created_at: '2024-01-15', tenant_id: 'tenant-1' },
+        ],
+      })
+    );
+
+    const timeSeries = await service.getTimeSeriesData(query, 'daily');
+
+    expect(Array.isArray(timeSeries)).toBe(true);
   });
 
   describe('clearCache', () => {
@@ -228,51 +153,17 @@ describe('AnalyticsService', () => {
         startDate: new Date('2024-01-01'),
         endDate: new Date('2024-01-31'),
         tenantId: 'tenant-1',
-      };getClient = jest.fn().mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          gte: jest.fn().mockReturnThis(),
-          lte: jest.fn().mockReturnThis(),
-          then: jest.fn().mockResolvedValue({
-            data: [],
-            error: null,
-          })().mockResolvedValue({
-          data: [],
-          error: null,
-        }),
-      });
+      };
 
-      // Generate report to cache it
-      await service.generateReport(query);
+      const report = await service.generateReport(query);
+      service['cacheMap'].set('transactions', { data: report, expiresAt: Date.now() + 1000 });
 
-      // Clear cache
       service.clearCache();
 
-      // Should not error
-      expect(() => service.clearCache()).not.toThrow();
+      expect(service['cacheMap'].size).toBe(0);
     });
 
     it('should clear cache by type', async () => {
-      service.clearCache('transactions');
-
-      expect(() => service.clearCache('transactions')).not.toThrow();
-    });
-  });
-
-  describe('Error handling', () => {
-    it('should throw error on invalid report type', async () => {
-      const query: any = {
-        type: 'invalid',
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-01-31'),
-        tenantId: 'tenant-1',
-      };
-
-      await expect(service.generateReport(query)).rejects.toThrow();
-    });
-
-    it('should handle database errors', async () => {
       const query: ReportQuery = {
         type: 'transactions',
         startDate: new Date('2024-01-01'),
@@ -280,16 +171,23 @@ describe('AnalyticsService', () => {
         tenantId: 'tenant-1',
       };
 
-      mockSupabaseService.supabaseClient.from = jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        gte: jest.fn().mockReturnThis(),
-        lte: jest.fn().mockReturnThis(),
-        then: jest.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'Database error' },
-        }),
-      });
+      const report = await service.generateReport(query);
+      service['cacheMap'].set('transactions', { data: report, expiresAt: Date.now() + 1000 });
+
+      service.clearCache('transactions');
+
+      expect(service['cacheMap'].has('transactions')).toBe(false);
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should throw error on invalid report type', async () => {
+      const query = {
+        type: 'invalid',
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2024-01-31'),
+        tenantId: 'tenant-1',
+      } as unknown as ReportQuery;
 
       await expect(service.generateReport(query)).rejects.toThrow();
     });

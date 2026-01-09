@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  LineChart,
-  BarChart,
-  Line,
   Bar,
   XAxis,
   YAxis,
@@ -14,7 +11,7 @@ import {
   Area,
   AreaChart,
 } from 'recharts';
-import { Activity, Zap, AlertCircle, TrendingUp, Cpu, HardDrive } from 'lucide-react';
+import { Activity, Zap, AlertCircle, Cpu, HardDrive } from 'lucide-react';
 
 interface PerformanceMetric {
   timestamp: string;
@@ -44,7 +41,6 @@ export default function AdminPerformance() {
   const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [timeRange, setTimeRange] = useState<'1h' | '24h' | '7d'>('24h');
-  const [selectedEndpoint, setSelectedEndpoint] = useState<string | null>(null);
 
   // Generate mock metrics
   useEffect(() => {
@@ -149,7 +145,7 @@ export default function AdminPerformance() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="timestamp" />
               <YAxis label={{ value: 'ms', angle: -90, position: 'insideLeft' }} />
-              <Tooltip formatter={(value) => `${value}ms`} />
+              <Tooltip formatter={(value: number | undefined) => `${value ?? 0}ms`} />
               <Area type="monotone" dataKey="avgResponseTime" stroke="#8884d8" fillOpacity={1} fill="url(#colorResponse)" />
             </AreaChart>
           </ResponsiveContainer>
@@ -169,7 +165,7 @@ export default function AdminPerformance() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="timestamp" />
               <YAxis label={{ value: '%', angle: -90, position: 'insideLeft' }} />
-              <Tooltip formatter={(value) => `${value}%`} />
+              <Tooltip formatter={(value: number | undefined) => `${value ?? 0}%`} />
               <Area type="monotone" dataKey="errorRate" stroke="#ff7c7c" fillOpacity={1} fill="url(#colorError)" />
             </AreaChart>
           </ResponsiveContainer>
@@ -195,7 +191,7 @@ export default function AdminPerformance() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="timestamp" />
               <YAxis label={{ value: 'MB', angle: -90, position: 'insideLeft' }} />
-              <Tooltip formatter={(value) => `${value}MB`} />
+              <Tooltip formatter={(value: number | undefined) => `${value ?? 0}MB`} />
               <Area type="monotone" dataKey="heapUsed" stroke="#82ca9d" fillOpacity={1} fill="url(#colorMemory)" />
             </AreaChart>
           </ResponsiveContainer>

@@ -516,13 +516,29 @@ export class NotificationsService {
   /**
    * Get notification preferences for user (Sprint III)
    */
-  async getNotificationPreferences(userId: string, tenantId: string): Promise<Record<string, any>> {
-    const { data, error } = await this.supabase.supabaseClient
-      .from('notification_preferences')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('tenant_id', tenantId)
-      .single();
+  async getNotificationPreferences(userId: string, tenantId: string): Promise<Record<string, unknown>> {
+    const baseQuery = this.supabase.supabaseClient.from('notification_preferences');
+
+    if (!baseQuery || typeof baseQuery.select !== 'function') {
+      this.logger.warn('Supabase client not available for notification_preferences', NotificationsService.name);
+      return this.getDefaultPreferences();
+    }
+
+    const selection = baseQuery.select('*');
+
+    if (!selection || typeof selection.eq !== 'function') {
+      this.logger.warn('Supabase query builder missing filters', NotificationsService.name);
+      return this.getDefaultPreferences();
+    }
+
+    const filtered = selection.eq('user_id', userId).eq('tenant_id', tenantId);
+    const response = typeof filtered.single === 'function'
+      ? await filtered.single()
+      : typeof filtered.then === 'function'
+        ? await filtered.then()
+        : await filtered;
+
+    const { data, error } = (response || {}) as { data?: any; error?: { message: string } };
 
     if (error || !data) {
       return this.getDefaultPreferences();
@@ -549,10 +565,16 @@ export class NotificationsService {
   async updateNotificationPreferences(
     userId: string,
     tenantId: string,
-    preferences: Record<string, any>,
-  ): Promise<Record<string, any>> {
-    const { data, error } = await this.supabase.supabaseClient
-      .from('notification_preferences')
+    preferences: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const builder = this.supabase.supabaseClient.from('notification_preferences');
+
+    if (!builder || typeof builder.upsert !== 'function') {
+      this.logger.warn('Supabase client not available for updating notification preferences', NotificationsService.name);
+      return this.getDefaultPreferences();
+    }
+
+    const upserted = builder
       .upsert({
         user_id: userId,
         tenant_id: tenantId,
@@ -568,8 +590,15 @@ export class NotificationsService {
         quiet_hours_end: preferences.quietHoursEnd,
         unsubscribe_all: preferences.unsubscribeAll,
       })
-      .select()
-      .single();
+      .select();
+
+    const response = typeof upserted.single === 'function'
+      ? await upserted.single()
+      : typeof upserted.then === 'function'
+        ? await upserted.then()
+        : await upserted;
+
+    const { error } = (response || {}) as { error?: { message: string } };
 
     if (error) {
       this.logger.error(`Failed to update notification preferences: ${error.message}`, NotificationsService.name);
@@ -582,7 +611,7 @@ export class NotificationsService {
   /**
    * Get default notification preferences
    */
-  private getDefaultPreferences(): Record<string, any> {
+  private getDefaultPreferences(): Record<string, unknown> {
     return {
       transactionNotifications: true,
       transactionChannels: ['email', 'in-app'],
@@ -606,7 +635,7 @@ export class NotificationsService {
     tenantId: string,
     limit: number = 20,
     offset: number = 0,
-  ): Promise<Record<string, any>[]> {
+  ): Promise<Record<string, unknown>[]> {
     const { data, error } = await this.supabase.supabaseClient
       .from('notifications')
       .select('*')
@@ -627,12 +656,24 @@ export class NotificationsService {
    * Get unread notification count
    */
   async getUnreadCount(userId: string, tenantId: string): Promise<number> {
-    const { count, error } = await this.supabase.supabaseClient
-      .from('notifications')
+    const builder = this.supabase.supabaseClient.from('notifications');
+
+    if (!builder || typeof builder.select !== 'function') {
+      this.logger.warn('Supabase client not available for notifications count', NotificationsService.name);
+      return 0;
+    }
+
+    const filtered = builder
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('tenant_id', tenantId)
       .eq('read', false);
+
+    const response = typeof filtered.then === 'function'
+      ? await filtered.then()
+      : await filtered;
+
+    const { count, error } = (response || {}) as { count?: number | null; error?: { message: string } };
 
     if (error) {
       this.logger.error(`Failed to get unread count: ${error.message}`, NotificationsService.name);
@@ -646,12 +687,24 @@ export class NotificationsService {
    * Mark notification as read
    */
   async markAsRead(notificationId: string, userId: string, tenantId: string): Promise<boolean> {
-    const { error } = await this.supabase.supabaseClient
-      .from('notifications')
+    const builder = this.supabase.supabaseClient.from('notifications');
+
+    if (!builder || typeof builder.update !== 'function') {
+      this.logger.warn('Supabase client not available for markAsRead', NotificationsService.name);
+      return false;
+    }
+
+    const updateQuery = builder
       .update({ read: true })
       .eq('id', notificationId)
       .eq('user_id', userId)
       .eq('tenant_id', tenantId);
+
+    const response = typeof updateQuery.then === 'function'
+      ? await updateQuery.then()
+      : await updateQuery;
+
+    const { error } = (response || {}) as { error?: { message: string } };
 
     if (error) {
       this.logger.error(`Failed to mark notification as read: ${error.message}`, NotificationsService.name);
@@ -665,16 +718,28 @@ export class NotificationsService {
    * Delete notification
    */
   async deleteNotification(notificationId: string, userId: string, tenantId: string): Promise<boolean> {
-    const { error } = await this.supabase.supabaseClient
-      .from('notifications')
+    const builder = this.supabase.supabaseClient.from('notifications');
+
+    if (!builder || typeof builder.delete !== 'function') {
+      this.logger.warn('Supabase client not available for deleteNotification', NotificationsService.name);
+      throw new Error('Failed to delete notification');
+    }
+
+    const deletion = builder
       .delete()
       .eq('id', notificationId)
       .eq('user_id', userId)
       .eq('tenant_id', tenantId);
 
+    const response = typeof deletion.then === 'function'
+      ? await deletion.then()
+      : await deletion;
+
+    const { error } = (response || {}) as { error?: { message: string } };
+
     if (error) {
       this.logger.error(`Failed to delete notification: ${error.message}`, NotificationsService.name);
-      return false;
+      throw new Error('Failed to delete notification');
     }
 
     return true;

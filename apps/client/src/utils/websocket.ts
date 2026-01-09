@@ -1,5 +1,7 @@
 import { Socket, io } from 'socket.io-client';
 
+type SocketEventPayload = Record<string, unknown>;
+
 /**
  * WebSocket client configuration and singleton
  * Manages socket.io connection with automatic reconnection
@@ -104,7 +106,7 @@ class WebSocketClient {
   /**
    * Emit custom event
    */
-  private emitEvent(eventName: string, data?: any): void {
+  private emitEvent(eventName: string, data?: unknown): void {
     if (this.socket) {
       this.socket.emit(eventName, data);
     }
@@ -113,7 +115,7 @@ class WebSocketClient {
   /**
    * Subscribe to event
    */
-  public on(eventName: string, callback: (data: any) => void): void {
+  public on(eventName: string, callback: (data: SocketEventPayload) => void): void {
     if (this.socket) {
       this.socket.on(eventName, callback);
     }
@@ -122,7 +124,7 @@ class WebSocketClient {
   /**
    * Subscribe to event once
    */
-  public once(eventName: string, callback: (data: any) => void): void {
+  public once(eventName: string, callback: (data: SocketEventPayload) => void): void {
     if (this.socket) {
       this.socket.once(eventName, callback);
     }
@@ -131,7 +133,7 @@ class WebSocketClient {
   /**
    * Unsubscribe from event
    */
-  public off(eventName: string, callback?: (data: any) => void): void {
+  public off(eventName: string, callback?: (data: SocketEventPayload) => void): void {
     if (this.socket) {
       if (callback) {
         this.socket.off(eventName, callback);
@@ -144,7 +146,7 @@ class WebSocketClient {
   /**
    * Emit event to server
    */
-  public emit(eventName: string, data?: any, callback?: (response: any) => void): void {
+  public emit(eventName: string, data?: unknown, callback?: (response: unknown) => void): void {
     if (this.socket) {
       if (callback) {
         this.socket.emit(eventName, data, callback);
@@ -205,92 +207,97 @@ class WebSocketClient {
 
 export default WebSocketClient.getInstance();
 
+const extractField = (payload: SocketEventPayload, key: string): string => {
+  const value = payload[key];
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : 'unknown';
+};
+
 /**
  * Event listeners configuration
  * Setup all application-wide event handlers
  */
 export const setupWebSocketListeners = (socket: Socket): void => {
   // Transaction events
-  socket.on('transaction:created', (data: any) => {
-    console.log('[Event] Transaction created:', data.id);
+  socket.on('transaction:created', (data: SocketEventPayload) => {
+    console.log('[Event] Transaction created:', extractField(data, 'id'));
   });
 
-  socket.on('transaction:updated', (data: any) => {
-    console.log('[Event] Transaction updated:', data.id);
+  socket.on('transaction:updated', (data: SocketEventPayload) => {
+    console.log('[Event] Transaction updated:', extractField(data, 'id'));
   });
 
-  socket.on('transaction:approved', (data: any) => {
-    console.log('[Event] Transaction approved:', data.id);
+  socket.on('transaction:approved', (data: SocketEventPayload) => {
+    console.log('[Event] Transaction approved:', extractField(data, 'id'));
   });
 
-  socket.on('transaction:rejected', (data: any) => {
-    console.log('[Event] Transaction rejected:', data.id);
+  socket.on('transaction:rejected', (data: SocketEventPayload) => {
+    console.log('[Event] Transaction rejected:', extractField(data, 'id'));
   });
 
   // KYC events
-  socket.on('kyc:submitted', (data: any) => {
-    console.log('[Event] KYC submitted:', data.userId);
+  socket.on('kyc:submitted', (data: SocketEventPayload) => {
+    console.log('[Event] KYC submitted:', extractField(data, 'userId'));
   });
 
-  socket.on('kyc:approved', (data: any) => {
-    console.log('[Event] KYC approved:', data.userId);
+  socket.on('kyc:approved', (data: SocketEventPayload) => {
+    console.log('[Event] KYC approved:', extractField(data, 'userId'));
   });
 
-  socket.on('kyc:rejected', (data: any) => {
-    console.log('[Event] KYC rejected:', data.userId);
+  socket.on('kyc:rejected', (data: SocketEventPayload) => {
+    console.log('[Event] KYC rejected:', extractField(data, 'userId'));
   });
 
   // Loan events
-  socket.on('loan:created', (data: any) => {
-    console.log('[Event] Loan created:', data.id);
+  socket.on('loan:created', (data: SocketEventPayload) => {
+    console.log('[Event] Loan created:', extractField(data, 'id'));
   });
 
-  socket.on('loan:approved', (data: any) => {
-    console.log('[Event] Loan approved:', data.id);
+  socket.on('loan:approved', (data: SocketEventPayload) => {
+    console.log('[Event] Loan approved:', extractField(data, 'id'));
   });
 
-  socket.on('loan:rejected', (data: any) => {
-    console.log('[Event] Loan rejected:', data.id);
+  socket.on('loan:rejected', (data: SocketEventPayload) => {
+    console.log('[Event] Loan rejected:', extractField(data, 'id'));
   });
 
   // System events
-  socket.on('system:alert', (data: any) => {
-    console.log('[Event] System alert:', data.message);
+  socket.on('system:alert', (data: SocketEventPayload) => {
+    console.log('[Event] System alert:', extractField(data, 'message'));
   });
 
-  socket.on('system:maintenance', (data: any) => {
-    console.log('[Event] System maintenance:', data.message);
+  socket.on('system:maintenance', (data: SocketEventPayload) => {
+    console.log('[Event] System maintenance:', extractField(data, 'message'));
   });
 
   // Report events
-  socket.on('report:ready', (data: any) => {
-    console.log('[Event] Report ready:', data.reportId);
+  socket.on('report:ready', (data: SocketEventPayload) => {
+    console.log('[Event] Report ready:', extractField(data, 'reportId'));
   });
 
-  socket.on('report:error', (data: any) => {
-    console.log('[Event] Report error:', data.message);
+  socket.on('report:error', (data: SocketEventPayload) => {
+    console.log('[Event] Report error:', extractField(data, 'message'));
   });
 
   // Bulk operation events
-  socket.on('bulk:progress', (data: any) => {
-    console.log('[Event] Bulk operation progress:', data.progress);
+  socket.on('bulk:progress', (data: SocketEventPayload) => {
+    console.log('[Event] Bulk operation progress:', extractField(data, 'progress'));
   });
 
-  socket.on('bulk:completed', (data: any) => {
-    console.log('[Event] Bulk operation completed:', data.operationId);
+  socket.on('bulk:completed', (data: SocketEventPayload) => {
+    console.log('[Event] Bulk operation completed:', extractField(data, 'operationId'));
   });
 
   // User events
-  socket.on('user:online', (data: any) => {
-    console.log('[Event] User online:', data.userId);
+  socket.on('user:online', (data: SocketEventPayload) => {
+    console.log('[Event] User online:', extractField(data, 'userId'));
   });
 
-  socket.on('user:offline', (data: any) => {
-    console.log('[Event] User offline:', data.userId);
+  socket.on('user:offline', (data: SocketEventPayload) => {
+    console.log('[Event] User offline:', extractField(data, 'userId'));
   });
 
   // Presence events
-  socket.on('presence:update', (data: any) => {
+  socket.on('presence:update', (data: SocketEventPayload) => {
     console.log('[Event] Presence updated:', data);
   });
 };
@@ -300,7 +307,7 @@ export const setupWebSocketListeners = (socket: Socket): void => {
  */
 export const registerEventHandler = (
   eventName: string,
-  handler: (data: any) => void
+  handler: (data: SocketEventPayload) => void
 ): (() => void) => {
   const socket = WebSocketClient.getInstance().getSocket();
   socket.on(eventName, handler);

@@ -2,7 +2,7 @@ import { WebhooksService, CreateWebhookDto, UpdateWebhookDto } from './webhooks.
 import { Request } from 'express';
 interface AuthRequest extends Request {
     user: {
-        sub: string;
+        id: string;
         email: string;
         role?: string;
     };
@@ -32,6 +32,11 @@ export declare class WebhooksController {
     getWebhookDeliveries(req: AuthRequest, webhookId: string): Promise<{
         success: boolean;
         deliveries: import("./webhooks.service").WebhookDelivery[];
+    }>;
+    testWebhook(req: AuthRequest, webhookId: string): Promise<{
+        success: boolean;
+        message: string;
+        responseTime: number;
     }>;
     retryDelivery(req: AuthRequest, deliveryId: string): Promise<{
         success: boolean;

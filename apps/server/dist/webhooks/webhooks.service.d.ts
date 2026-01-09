@@ -38,9 +38,11 @@ export declare class WebhooksService {
     private readonly config;
     private readonly logger;
     constructor(supabase: SupabaseService, config: ConfigService, logger: Logger);
+    private getAdminDb;
     createWebhook(userId: string, dto: CreateWebhookDto): Promise<Webhook>;
     getUserWebhooks(userId: string): Promise<Webhook[]>;
     getWebhookById(userId: string, webhookId: string): Promise<Webhook | null>;
+    getWebhook(webhookId: string): Promise<Webhook | null>;
     updateWebhook(userId: string, webhookId: string, dto: UpdateWebhookDto): Promise<Webhook | null>;
     deleteWebhook(userId: string, webhookId: string): Promise<boolean>;
     deliverWebhook(userId: string, eventType: string, payload: Record<string, unknown>): Promise<void>;
@@ -50,4 +52,11 @@ export declare class WebhooksService {
     private sendWebhook;
     private generateSecret;
     private generateSignature;
+    testWebhook(webhookId: string): Promise<{
+        success: boolean;
+        message: string;
+        responseTime: number;
+    }>;
+    retryDelivery(deliveryId: string): Promise<WebhookDelivery | null>;
+    getWebhookStats(webhookId: string): Promise<Record<string, unknown>>;
 }

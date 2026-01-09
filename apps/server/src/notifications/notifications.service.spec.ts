@@ -8,7 +8,7 @@ import { Logger } from '../common/logger/logger.service';
 
 describe('NotificationsService - Sprint III Extensions', () => {
   let service: NotificationsService;
-  let mockSupabaseService: any;
+  let mockSupabaseService: { supabaseClient: { from: jest.Mock } };
 
   beforeEach(async () => {
     mockSupabaseService = {

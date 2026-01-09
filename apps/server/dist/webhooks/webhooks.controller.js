@@ -21,43 +21,69 @@ let WebhooksController = class WebhooksController {
         this.webhooksService = webhooksService;
     }
     async createWebhook(req, dto) {
+        console.log('CREATE WEBHOOK - req.user:', JSON.stringify(req.user, null, 2));
+        console.log('CREATE WEBHOOK - user.id:', req.user?.id);
         if (!dto.url || !dto.events || dto.events.length === 0) {
             throw new common_1.HttpException('Missing required fields', common_1.HttpStatus.BAD_REQUEST);
         }
-        const webhook = await this.webhooksService.createWebhook(req.user.sub, dto);
-        return { success: true, webhook };
+        try {
+            new URL(dto.url);
+        }
+        catch {
+            throw new common_1.HttpException('Invalid URL', common_1.HttpStatus.BAD_REQUEST);
+        }
+        if (!req.user?.id) {
+            throw new common_1.HttpException('User ID not found in request', common_1.HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            const webhook = await this.webhooksService.createWebhook(req.user.id, dto);
+            return { success: true, webhook };
+        }
+        catch (err) {
+            const message = err?.message || 'Failed to create webhook';
+            const isPolicyErr = /permission|RLS|policy/i.test(message);
+            const status = isPolicyErr ? common_1.HttpStatus.FORBIDDEN : common_1.HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new common_1.HttpException(message, status);
+        }
     }
     async getUserWebhooks(req) {
-        const webhooks = await this.webhooksService.getUserWebhooks(req.user.sub);
+        const webhooks = await this.webhooksService.getUserWebhooks(req.user.id);
         return { success: true, webhooks };
     }
     async getWebhook(req, webhookId) {
-        const webhook = await this.webhooksService.getWebhookById(req.user.sub, webhookId);
+        const webhook = await this.webhooksService.getWebhookById(req.user.id, webhookId);
         if (!webhook) {
             throw new common_1.HttpException('Webhook not found', common_1.HttpStatus.NOT_FOUND);
         }
         return { success: true, webhook };
     }
     async updateWebhook(req, webhookId, dto) {
-        const webhook = await this.webhooksService.updateWebhook(req.user.sub, webhookId, dto);
+        const webhook = await this.webhooksService.updateWebhook(req.user.id, webhookId, dto);
         if (!webhook) {
             throw new common_1.HttpException('Webhook not found', common_1.HttpStatus.NOT_FOUND);
         }
         return { success: true, webhook };
     }
     async deleteWebhook(req, webhookId) {
-        const success = await this.webhooksService.deleteWebhook(req.user.sub, webhookId);
+        const success = await this.webhooksService.deleteWebhook(req.user.id, webhookId);
         if (!success) {
             throw new common_1.HttpException('Failed to delete webhook', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return { success: true };
     }
     async getWebhookDeliveries(req, webhookId) {
-        const deliveries = await this.webhooksService.getWebhookDeliveries(req.user.sub, webhookId);
+        const deliveries = await this.webhooksService.getWebhookDeliveries(req.user.id, webhookId);
         return { success: true, deliveries };
     }
+    async testWebhook(req, webhookId) {
+        const webhook = await this.webhooksService.getWebhookById(req.user.id, webhookId);
+        if (!webhook) {
+            throw new common_1.HttpException('Webhook not found', common_1.HttpStatus.NOT_FOUND);
+        }
+        return this.webhooksService.testWebhook(webhookId);
+    }
     async retryDelivery(req, deliveryId) {
-        const success = await this.webhooksService.retryWebhookDelivery(req.user.sub, deliveryId);
+        const success = await this.webhooksService.retryWebhookDelivery(req.user.id, deliveryId);
         if (!success) {
             throw new common_1.HttpException('Failed to retry delivery', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -113,6 +139,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], WebhooksController.prototype, "getWebhookDeliveries", null);
+__decorate([
+    (0, common_1.Post)(':id/test'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], WebhooksController.prototype, "testWebhook", null);
 __decorate([
     (0, common_1.Post)('deliveries/:deliveryId/retry'),
     __param(0, (0, common_1.Req)()),

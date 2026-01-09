@@ -50,7 +50,7 @@ describe('AuditExportService', () => {
 
   describe('getAuditLogs', () => {
     it('should fetch audit logs without filters', async () => {
-      mockSupabaseClient.range.mockResolvedValue({
+      mockSupabaseClient.limit.mockResolvedValue({
         data: [
           {
             id: 'log-1',

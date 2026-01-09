@@ -4,12 +4,12 @@ import { SupabaseService } from '../supabase/supabase.service';
 
 describe('PerformanceService', () => {
   let service: PerformanceService;
-  let mockSupabaseService: any;
+  let mockSupabaseService: SupabaseService;
 
   beforeEach(async () => {
     mockSupabaseService = {
-      supabaseClient: {},
-    };
+      getClient: jest.fn(),
+    } as unknown as SupabaseService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
