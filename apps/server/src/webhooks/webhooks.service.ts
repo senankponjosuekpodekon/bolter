@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHmac } from 'crypto';
 import axios, { AxiosError } from 'axios';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from '../supabase/supabase.service';
 import { Logger } from '../common/logger/logger.service';
 
@@ -49,10 +50,10 @@ export class WebhooksService {
     private readonly logger: Logger,
   ) { }
 
-  private getAdminDb(): any {
-    return typeof (this.supabase as unknown as { getAdminClient?: () => unknown }).getAdminClient === 'function'
+  private getAdminDb(): SupabaseClient {
+    return typeof (this.supabase as unknown as { getAdminClient?: () => SupabaseClient }).getAdminClient === 'function'
       ? this.supabase.getAdminClient()
-      : (this.supabase as unknown as { supabaseClient?: unknown }).supabaseClient;
+      : (this.supabase as unknown as { supabaseClient?: SupabaseClient }).supabaseClient;
   }
 
   async createWebhook(userId: string, dto: CreateWebhookDto): Promise<Webhook> {

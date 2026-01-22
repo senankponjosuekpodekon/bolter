@@ -18,7 +18,7 @@ export class AuditExportService {
   /**
    * Fetch audit logs based on filters
    */
-  async getAuditLogs(filters: AuditExportFilter): Promise<Record<string, any>[]> {
+  async getAuditLogs(filters: AuditExportFilter): Promise<Record<string, unknown>[]> {
     try {
       let query = this.supabase
         .getAdminClient()
@@ -73,7 +73,7 @@ export class AuditExportService {
         throw error || new Error('No data returned');
       }
 
-      return data as Record<string, any>[];
+      return data as Record<string, unknown>[];
     } catch (err) {
       throw new BadRequestException(
         `Failed to fetch audit logs: ${err instanceof Error ? err.message : 'Unknown error'}`,
@@ -218,8 +218,8 @@ export class AuditExportService {
         .map(
           (log) => `
         <tr>
-          <td>${new Date(log.created_at).toLocaleString()}</td>
-          <td>${log.user_id.substring(0, 8)}...</td>
+          <td>${new Date(log.created_at as string | number).toLocaleString()}</td>
+          <td>${String(log.user_id).substring(0, 8)}...</td>
           <td>${log.action}</td>
           <td>${log.resource_type || '-'}</td>
           <td>${log.changes ? JSON.stringify(log.changes).substring(0, 50) + '...' : '-'
@@ -263,17 +263,20 @@ export class AuditExportService {
 
       logs.forEach((log) => {
         // Action breakdown
-        stats.actionBreakdown[log.action] =
-          (stats.actionBreakdown[log.action] || 0) + 1;
+        const action = String(log.action);
+        stats.actionBreakdown[action] =
+          (stats.actionBreakdown[action] || 0) + 1;
 
         // Resource type breakdown
         if (log.resource_type) {
-          stats.resourceTypeBreakdown[log.resource_type] =
-            (stats.resourceTypeBreakdown[log.resource_type] || 0) + 1;
+          const resourceType = String(log.resource_type);
+          stats.resourceTypeBreakdown[resourceType] =
+            (stats.resourceTypeBreakdown[resourceType] || 0) + 1;
         }
 
         // Top users
-        stats.topUsers[log.user_id] = (stats.topUsers[log.user_id] || 0) + 1;
+        const userId = String(log.user_id);
+        stats.topUsers[userId] = (stats.topUsers[userId] || 0) + 1;
       });
 
       return stats;

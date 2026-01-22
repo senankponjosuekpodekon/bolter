@@ -21,12 +21,13 @@ const createMockClient = (tableData: TableData) => ({
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
-  let supabaseService: { getClient: jest.Mock };
+  let supabaseService: { getClient: jest.Mock; getAdminClient: jest.Mock };
 
   beforeEach(async () => {
     supabaseService = {
       getClient: jest.fn(() => createMockClient({})),
-    } as unknown as { getClient: jest.Mock };
+      getAdminClient: jest.fn(() => createMockClient({})),
+    } as unknown as { getClient: jest.Mock; getAdminClient: jest.Mock };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [AnalyticsService, { provide: SupabaseService, useValue: supabaseService }],
@@ -62,7 +63,7 @@ describe('AnalyticsService', () => {
       tenantId: 'tenant-1',
     };
 
-    supabaseService.getClient.mockReturnValue(
+    supabaseService.getAdminClient.mockReturnValue(
       createMockClient({
         transactions: [
           { id: '1', amount: 1000, status: 'approved', created_at: '2024-01-15', tenant_id: 'tenant-1' },
@@ -84,7 +85,7 @@ describe('AnalyticsService', () => {
       tenantId: 'tenant-1',
     };
 
-    supabaseService.getClient.mockReturnValue(
+    supabaseService.getAdminClient.mockReturnValue(
       createMockClient({
         users: [
           { id: '1', status: 'active', created_at: '2024-01-15', tenant_id: 'tenant-1' },

@@ -12,9 +12,9 @@ export declare class AuditExportController {
         resourceTypeBreakdown: Record<string, number>;
         topUsers: Record<string, number>;
         dateRange: {
-            earliest: any;
-            latest: any;
+            earliest: unknown;
+            latest: unknown;
         };
     }>;
-    getLogs(filters: AuditExportFilter): Promise<Record<string, any>[]>;
+    getLogs(filters: AuditExportFilter): Promise<Record<string, unknown>[]>;
 }

@@ -176,7 +176,7 @@ let AuditExportService = class AuditExportService {
             .map((log) => `
         <tr>
           <td>${new Date(log.created_at).toLocaleString()}</td>
-          <td>${log.user_id.substring(0, 8)}...</td>
+          <td>${String(log.user_id).substring(0, 8)}...</td>
           <td>${log.action}</td>
           <td>${log.resource_type || '-'}</td>
           <td>${log.changes ? JSON.stringify(log.changes).substring(0, 50) + '...' : '-'}</td>
@@ -210,13 +210,16 @@ let AuditExportService = class AuditExportService {
                 },
             };
             logs.forEach((log) => {
-                stats.actionBreakdown[log.action] =
-                    (stats.actionBreakdown[log.action] || 0) + 1;
+                const action = String(log.action);
+                stats.actionBreakdown[action] =
+                    (stats.actionBreakdown[action] || 0) + 1;
                 if (log.resource_type) {
-                    stats.resourceTypeBreakdown[log.resource_type] =
-                        (stats.resourceTypeBreakdown[log.resource_type] || 0) + 1;
+                    const resourceType = String(log.resource_type);
+                    stats.resourceTypeBreakdown[resourceType] =
+                        (stats.resourceTypeBreakdown[resourceType] || 0) + 1;
                 }
-                stats.topUsers[log.user_id] = (stats.topUsers[log.user_id] || 0) + 1;
+                const userId = String(log.user_id);
+                stats.topUsers[userId] = (stats.topUsers[userId] || 0) + 1;
             });
             return stats;
         }

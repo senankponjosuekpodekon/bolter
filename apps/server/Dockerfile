@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -7,8 +7,13 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/server/package*.json ./apps/server/
 
-# Install dependencies (including devDependencies for build)
-RUN npm ci
+# Install dependencies (including devDependencies for build) with increased timeout
+# Using npm install instead of npm ci for better network resilience
+RUN npm config set fetch-timeout 600000 && \
+    npm config set fetch-retries 10 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm install
 
 # Copy server source code
 COPY apps/server ./apps/server
@@ -19,7 +24,7 @@ WORKDIR /app/apps/server
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -27,8 +32,13 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/server/package*.json ./apps/server/
 
-# Install production dependencies only
-RUN npm ci --only=production
+# Install production dependencies only with increased timeout
+# Using npm install instead of npm ci for better network resilience
+RUN npm config set fetch-timeout 600000 && \
+    npm config set fetch-retries 10 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm install --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/apps/server/dist ./apps/server/dist

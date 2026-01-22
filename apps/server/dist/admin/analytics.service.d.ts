@@ -1,6 +1,6 @@
 import { SupabaseService } from '../supabase/supabase.service';
 export interface ReportQuery {
-    type: 'transactions' | 'users' | 'kyc' | 'loans' | 'accounts';
+    type: 'transactions' | 'users' | 'kyc' | 'loans' | 'accounts' | 'tontines';
     startDate: Date;
     endDate: Date;
     filters?: Record<string, unknown>;
@@ -32,13 +32,16 @@ export declare class AnalyticsService {
     private supabaseService;
     private readonly cacheMap;
     private readonly CACHE_TTL;
+    private readonly logger;
     constructor(supabaseService: SupabaseService);
     generateReport(query: ReportQuery): Promise<ReportResult>;
+    private validateReportQuery;
     private getTransactionAnalytics;
     private getUserAnalytics;
     private getKycAnalytics;
     private getLoanAnalytics;
     private getAccountAnalytics;
+    private getTontineAnalytics;
     private aggregateData;
     private performAggregation;
     exportToCSV(report: ReportResult): string;

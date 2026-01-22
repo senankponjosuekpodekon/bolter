@@ -71,13 +71,29 @@ export default function MobileDrawer({ open, onClose }: Props) {
             Tontines
           </Link>
           {user?.role === "ADMIN" && (
-            <Link
-              to="/admin/webhooks"
-              onClick={onClose}
-              className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
-            >
-              Webhooks
-            </Link>
+            <>
+              <Link
+                to="/admin/dashboard"
+                onClick={onClose}
+                className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                Admin Dashboard
+              </Link>
+              <Link
+                to="/admin/analytics"
+                onClick={onClose}
+                className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                Analytics
+              </Link>
+              <Link
+                to="/admin/webhooks"
+                onClick={onClose}
+                className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                Webhooks
+              </Link>
+            </>
           )}
           {/* KYC moved into Profile page */}
           <Link

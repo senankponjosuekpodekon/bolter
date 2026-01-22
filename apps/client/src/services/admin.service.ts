@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config/api.config';
+import api from './api';
 
 export interface DashboardMetrics {
   overview: {
@@ -128,101 +128,48 @@ export interface TimeSeriesData {
  * Handles all dashboard and admin-related API calls
  */
 export class AdminService {
-  private baseUrl = `${API_BASE_URL}/admin`;
-
   /**
    * Get comprehensive dashboard metrics
    */
   async getDashboardMetrics(): Promise<DashboardMetrics> {
-    const response = await fetch(`${this.baseUrl}/dashboard`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch dashboard metrics: ${response.statusText}`);
-    }
-
-    return response.json();
+    const response = await api.get('/admin/dashboard');
+    return response.data;
   }
 
   /**
    * Get transaction statistics
    */
   async getTransactionStats(period: '7d' | '30d' | '90d' = '7d'): Promise<TransactionStats> {
-    const response = await fetch(`${this.baseUrl}/stats/transactions?period=${period}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
+    const response = await api.get('/admin/stats/transactions', {
+      params: { period },
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch transaction stats: ${response.statusText}`);
-    }
-
-    return response.json();
+    return response.data;
   }
 
   /**
    * Get user statistics
    */
   async getUserStats(): Promise<UserStats> {
-    const response = await fetch(`${this.baseUrl}/stats/users`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user stats: ${response.statusText}`);
-    }
-
-    return response.json();
+    const response = await api.get('/admin/stats/users');
+    return response.data;
   }
 
   /**
    * Get KYC statistics
    */
   async getKycStats(): Promise<KycStats> {
-    const response = await fetch(`${this.baseUrl}/stats/kyc`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch KYC stats: ${response.statusText}`);
-    }
-
-    return response.json();
+    const response = await api.get('/admin/stats/kyc');
+    return response.data;
   }
 
   /**
    * Get time series data for charts
    */
   async getTimeSeriesData(period: '7d' | '30d' | '90d' = '7d'): Promise<TimeSeriesData> {
-    const response = await fetch(`${this.baseUrl}/stats/timeline?period=${period}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
+    const response = await api.get('/admin/stats/timeline', {
+      params: { period },
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch timeline data: ${response.statusText}`);
-    }
-
-    return response.json();
+    return response.data;
   }
 }
 

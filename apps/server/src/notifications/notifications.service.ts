@@ -538,7 +538,7 @@ export class NotificationsService {
         ? await filtered.then()
         : await filtered;
 
-    const { data, error } = (response || {}) as { data?: any; error?: { message: string } };
+    const { data, error } = (response || {}) as { data?: Record<string, unknown>; error?: { message: string } };
 
     if (error || !data) {
       return this.getDefaultPreferences();

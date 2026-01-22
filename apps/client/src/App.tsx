@@ -9,7 +9,11 @@ import { ToastContainer } from "./components/ui/ToastContainer";
 import { I18nDebugPanel } from "./components/I18nDebugPanel";
 import { useTheme } from "./hooks/useTheme";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminWebhooks = lazy(() => import("./pages/AdminWebhooks"));
+const AdminKycFilter = lazy(() => import("./pages/AdminKycFilter"));
+const AdminTransactionFilter = lazy(() => import("./pages/AdminTransactionFilter"));
+const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 import Accounts from "./pages/Accounts";
 import Transactions from "./pages/Transactions";
 const Profile = lazy(() => import("./pages/Profile"));
@@ -107,11 +111,51 @@ function App() {
           <Route path="scheduled-transfers" element={<ScheduledTransfers />} />
           <Route path="alerts-settings" element={<AlertsSettings />} />
           <Route
+            path="admin/dashboard"
+            element={
+              <Suspense fallback={<SkeletonPage title="Admin Dashboard" />}>
+                <RouteLocaleLoader>
+                  <AdminDashboard />
+                </RouteLocaleLoader>
+              </Suspense>
+            }
+          />
+          <Route
             path="admin/webhooks"
             element={
               <Suspense fallback={<SkeletonPage title="Webhooks" />}>
                 <RouteLocaleLoader>
                   <AdminWebhooks />
+                </RouteLocaleLoader>
+              </Suspense>
+            }
+          />
+          <Route
+            path="admin/kyc"
+            element={
+              <Suspense fallback={<SkeletonPage title="KYC Management" />}>
+                <RouteLocaleLoader>
+                  <AdminKycFilter />
+                </RouteLocaleLoader>
+              </Suspense>
+            }
+          />
+          <Route
+            path="admin/transactions"
+            element={
+              <Suspense fallback={<SkeletonPage title="Transaction Management" />}>
+                <RouteLocaleLoader>
+                  <AdminTransactionFilter />
+                </RouteLocaleLoader>
+              </Suspense>
+            }
+          />
+          <Route
+            path="admin/analytics"
+            element={
+              <Suspense fallback={<SkeletonPage title="Analytics" />}>
+                <RouteLocaleLoader>
+                  <AdminAnalytics />
                 </RouteLocaleLoader>
               </Suspense>
             }

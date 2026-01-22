@@ -17,6 +17,7 @@ import { adminTheme } from "./theme";
 import { AccountList, AccountEdit } from "./resources/accounts";
 import { AuditLogList } from "./resources/auditLogs";
 import { LoanList, LoanShow } from "./resources/loans";
+import { AnalyticsList } from "./resources/analytics";
 // Notifications are rendered inside AdminLayout (NotificationsProvider) now
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -64,6 +65,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         options={{ label: "Loan Requests" }}
         list={LoanList}
         show={LoanShow}
+      />
+      <Resource
+        name="analytics"
+        options={{ label: "Analytics" }}
+        list={AnalyticsList}
       />
     </Admin>
   </React.StrictMode>

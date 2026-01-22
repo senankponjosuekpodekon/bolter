@@ -14,20 +14,25 @@ const audit_export_service_1 = require("./audit-export.service");
 const audit_export_controller_1 = require("./audit-export.controller");
 const admin_service_1 = require("./admin.service");
 const admin_dashboard_controller_1 = require("./admin-dashboard.controller");
+const admin_filter_controller_1 = require("./admin-filter.controller");
+const analytics_controller_1 = require("./analytics.controller");
+const analytics_service_1 = require("./analytics.service");
 const supabase_module_1 = require("../supabase/supabase.module");
 const auth_module_1 = require("../auth/auth.module");
 const storage_monitoring_service_1 = require("../common/services/storage-monitoring.service");
 const storage_monitoring_controller_1 = require("./storage-monitoring.controller");
 const audit_logs_module_1 = require("../audit-logs/audit-logs.module");
+const kyc_module_1 = require("../kyc/kyc.module");
+const transactions_module_1 = require("../transactions/transactions.module");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
 exports.AdminModule = AdminModule = __decorate([
     (0, common_1.Module)({
-        imports: [supabase_module_1.SupabaseModule, auth_module_1.AuthModule, audit_logs_module_1.AuditLogsModule],
-        controllers: [bulk_operations_controller_1.BulkOperationsController, audit_export_controller_1.AuditExportController, admin_dashboard_controller_1.AdminDashboardController, storage_monitoring_controller_1.StorageMonitoringController],
-        providers: [bulk_operations_service_1.BulkOperationsService, audit_export_service_1.AuditExportService, admin_service_1.AdminService, storage_monitoring_service_1.StorageMonitoringService],
-        exports: [bulk_operations_service_1.BulkOperationsService, audit_export_service_1.AuditExportService, admin_service_1.AdminService, storage_monitoring_service_1.StorageMonitoringService],
+        imports: [supabase_module_1.SupabaseModule, auth_module_1.AuthModule, audit_logs_module_1.AuditLogsModule, kyc_module_1.KycModule, transactions_module_1.TransactionsModule],
+        controllers: [bulk_operations_controller_1.BulkOperationsController, audit_export_controller_1.AuditExportController, admin_dashboard_controller_1.AdminDashboardController, storage_monitoring_controller_1.StorageMonitoringController, admin_filter_controller_1.AdminFilterController, analytics_controller_1.AnalyticsController],
+        providers: [bulk_operations_service_1.BulkOperationsService, audit_export_service_1.AuditExportService, admin_service_1.AdminService, storage_monitoring_service_1.StorageMonitoringService, analytics_service_1.AnalyticsService],
+        exports: [bulk_operations_service_1.BulkOperationsService, audit_export_service_1.AuditExportService, admin_service_1.AdminService, storage_monitoring_service_1.StorageMonitoringService, analytics_service_1.AnalyticsService],
     })
 ], AdminModule);
 //# sourceMappingURL=admin.module.js.map

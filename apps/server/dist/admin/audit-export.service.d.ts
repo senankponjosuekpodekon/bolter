@@ -11,7 +11,7 @@ export interface AuditExportFilter {
 export declare class AuditExportService {
     private supabase;
     constructor(supabase: SupabaseService);
-    getAuditLogs(filters: AuditExportFilter): Promise<Record<string, any>[]>;
+    getAuditLogs(filters: AuditExportFilter): Promise<Record<string, unknown>[]>;
     private escapeCSV;
     exportToCSV(filters: AuditExportFilter): Promise<string>;
     exportToJSON(filters: AuditExportFilter): Promise<string>;
@@ -22,8 +22,8 @@ export declare class AuditExportService {
         resourceTypeBreakdown: Record<string, number>;
         topUsers: Record<string, number>;
         dateRange: {
-            earliest: any;
-            latest: any;
+            earliest: unknown;
+            latest: unknown;
         };
     }>;
 }

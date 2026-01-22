@@ -22,6 +22,7 @@ describe('AnalyticsService', () => {
     beforeEach(async () => {
         supabaseService = {
             getClient: jest.fn(() => createMockClient({})),
+            getAdminClient: jest.fn(() => createMockClient({})),
         };
         const module = await testing_1.Test.createTestingModule({
             providers: [analytics_service_1.AnalyticsService, { provide: supabase_service_1.SupabaseService, useValue: supabaseService }],
@@ -50,7 +51,7 @@ describe('AnalyticsService', () => {
             endDate: new Date('2024-01-31'),
             tenantId: 'tenant-1',
         };
-        supabaseService.getClient.mockReturnValue(createMockClient({
+        supabaseService.getAdminClient.mockReturnValue(createMockClient({
             transactions: [
                 { id: '1', amount: 1000, status: 'approved', created_at: '2024-01-15', tenant_id: 'tenant-1' },
             ],
@@ -66,7 +67,7 @@ describe('AnalyticsService', () => {
             endDate: new Date('2024-01-31'),
             tenantId: 'tenant-1',
         };
-        supabaseService.getClient.mockReturnValue(createMockClient({
+        supabaseService.getAdminClient.mockReturnValue(createMockClient({
             users: [
                 { id: '1', status: 'active', created_at: '2024-01-15', tenant_id: 'tenant-1' },
                 { id: '2', status: 'active', created_at: '2024-01-20', tenant_id: 'tenant-1' },

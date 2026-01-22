@@ -96,12 +96,26 @@ export default function Layout() {
                   Tontines
                 </Link>
                 {user?.role === "ADMIN" && (
-                  <Link
-                    to="/admin/webhooks"
-                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
-                    Webhooks
-                  </Link>
+                  <>
+                    <Link
+                      to="/admin/dashboard"
+                      className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    >
+                      Admin
+                    </Link>
+                    <Link
+                      to="/admin/analytics"
+                      className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    >
+                      Analytics
+                    </Link>
+                    <Link
+                      to="/admin/webhooks"
+                      className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    >
+                      Webhooks
+                    </Link>
+                  </>
                 )}
                 <Link
                   to="/profile"

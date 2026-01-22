@@ -1,6 +1,41 @@
 import React, { useEffect, useRef } from "react";
-import type { ChartData, ChartOptions, ChartType, Chart } from "chart.js";
+import type { ChartData, ChartOptions, ChartType } from "chart.js";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  LineController,
+  BarController,
+  PieController,
+  DoughnutController,
+} from "chart.js";
 import { Loader } from "lucide-react";
+
+// Register all Chart.js components and controllers
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  LineController,
+  BarController,
+  PieController,
+  DoughnutController
+);
 
 interface ChartProps {
   type: ChartType;
@@ -26,51 +61,47 @@ export const ChartComponent: React.FC<ChartProps> = ({
   height = 300,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<Chart<ChartType> | null>(null);
+  const chartRef = useRef<ChartJS<ChartType> | null>(null);
+  const chartIdRef = useRef<string>(`chart-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     if (!canvasRef.current || loading || error || !data) return;
 
-    // Dynamic import of Chart.js
-    import("chart.js").then(async (ChartJS) => {
-      const Chart = ChartJS.Chart;
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
 
-      if (chartRef.current) {
-        chartRef.current.destroy();
-      }
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
 
-      const ctx = canvasRef.current!.getContext("2d");
-      if (!ctx) return;
-
-      const defaultOptions = {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: {
-            position: "top" as const,
-            labels: {
-              usePointStyle: true,
-              padding: 15,
-            },
-          },
-          title: {
-            display: title ? true : false,
-            text: title || "",
-            padding: {
-              bottom: 30,
-            },
+    const defaultOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: "top" as const,
+          labels: {
+            usePointStyle: true,
+            padding: 15,
           },
         },
-      };
-
-      chartRef.current = new Chart(ctx, {
-        type,
-        data,
-        options: {
-          ...defaultOptions,
-          ...options,
+        title: {
+          display: title ? true : false,
+          text: title || "",
+          padding: {
+            bottom: 30,
+          },
         },
-      });
+      },
+    };
+
+    chartRef.current = new ChartJS(ctx, {
+      type,
+      data,
+      options: {
+        ...defaultOptions,
+        ...options,
+      },
     });
 
     return () => {
@@ -109,7 +140,7 @@ export const ChartComponent: React.FC<ChartProps> = ({
       className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
       style={{ height }}
     >
-      <canvas ref={canvasRef}></canvas>
+      <canvas ref={canvasRef} id={chartIdRef.current}></canvas>
     </div>
   );
 };
