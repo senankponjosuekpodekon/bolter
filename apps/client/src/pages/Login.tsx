@@ -9,6 +9,7 @@ import Verify2FAModal from "../components/auth/Verify2FAModal";
 interface User {
   id: string;
   email: string;
+  role: string;
   [key: string]: unknown;
 }
 

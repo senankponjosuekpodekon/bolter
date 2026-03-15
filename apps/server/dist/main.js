@@ -113,7 +113,7 @@ async function bootstrap() {
         customSiteTitle: 'Banking Platform API Docs',
     });
     await app.listen(port, '0.0.0.0');
-    logger.log(`Application is running on: https://192.168.1.199:${port} or http://localhost:${port}`);
+    logger.log(`Application is running on: https://192.168.1.198:${port} or http://localhost:${port}`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

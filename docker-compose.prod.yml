@@ -1,5 +1,13 @@
 version: '3.8'
 
+# Docker Compose pour PRODUCTION (sans code source)
+# Utilise les images pré-buildées depuis Docker Hub
+# 
+# Pour déployer:
+# 1. Remplacer DOCKER_USER par votre username Docker Hub
+# 2. Copier ce fichier + .env sur le serveur cible
+# 3. docker compose -f docker-compose.prod.yml up -d
+
 services:
   # PostgreSQL Database
   postgres:
@@ -12,7 +20,6 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./apps/server/migrations:/docker-entrypoint-initdb.d
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     networks:
@@ -42,11 +49,9 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Backend API
+  # Backend API (Image depuis Docker Hub)
   server:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: <DOCKER_USER>/bolter-server:latest  # ← REMPLACER <DOCKER_USER>
     container_name: bolter-server
     environment:
       NODE_ENV: ${NODE_ENV:-production}
@@ -87,11 +92,9 @@ services:
       retries: 3
     restart: unless-stopped
 
-  # Client Frontend
+  # Client Frontend (Image depuis Docker Hub)
   client:
-    build:
-      context: .
-      dockerfile: apps/client/Dockerfile
+    image: <DOCKER_USER>/bolter-client:latest  # ← REMPLACER <DOCKER_USER>
     container_name: bolter-client
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
@@ -112,15 +115,14 @@ services:
       retries: 3
     restart: unless-stopped
 
-  # Admin Dashboard
+  # Admin Dashboard (Image depuis Docker Hub)
   admin:
-    build:
-      context: .
-      dockerfile: apps/admin/Dockerfile
+    image: <DOCKER_USER>/bolter-admin:latest  # ← REMPLACER <DOCKER_USER>
     container_name: bolter-admin
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
-      VITE_NOTIFICATIONS_URL: ${VITE_NOTIFICATIONS_URL:-http://localhost:3000}
+      VITE_SUPABASE_URL: ${SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
     ports:
       - "${ADMIN_PORT:-5174}:8080"
     depends_on:
@@ -143,9 +145,9 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
-      - "4317:4317"  # OTLP gRPC receiver
-      - "4318:4318"  # OTLP HTTP receiver
-      - "8889:8889"  # Prometheus metrics
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
     networks:
       - bolter-network
     restart: unless-stopped

@@ -22,6 +22,7 @@ interface KycDocument {
   status: 'APPROVED' | 'REJECTED' | 'PENDING';
   reviewed_at?: string;
   file_path?: string;
+  created_at: string;
 }
 
 export default function KYC() {

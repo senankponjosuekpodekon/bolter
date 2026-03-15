@@ -31,6 +31,7 @@ const admin_module_1 = require("./admin/admin.module");
 const localization_module_1 = require("./localization/localization.module");
 const webhooks_module_1 = require("./webhooks/webhooks.module");
 const tontines_module_1 = require("./tontines/tontines.module");
+const health_controller_1 = require("./health.controller");
 const configuration_1 = __importDefault(require("./config/configuration"));
 let AppModule = class AppModule {
 };
@@ -83,6 +84,7 @@ exports.AppModule = AppModule = __decorate([
                 useClass: throttler_1.ThrottlerGuard,
             },
         ],
+        controllers: [health_controller_1.HealthController],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
