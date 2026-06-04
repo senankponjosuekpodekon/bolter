@@ -12,6 +12,7 @@
     "dev:client": "npm run dev --workspace=client",
     "dev:admin": "npm run dev --workspace=admin",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:admin\"",
+    "tunnel": "node scripts/ngrok.js",
     "build:server": "npm run build --workspace=server",
     "build:client": "npm run build --workspace=client",
     "build:admin": "npm run build --workspace=admin",
@@ -32,7 +33,8 @@
     "ci:all": "npm run lint && npm run test:coverage && npm run build && npm run e2e"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "ngrok": "^4.3.3"
   },
   "dependencies": {
     "eslint-plugin-react": "^7.37.5",

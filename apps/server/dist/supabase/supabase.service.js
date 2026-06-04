@@ -8,11 +8,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SupabaseService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const supabase_js_1 = require("@supabase/supabase-js");
+const ws_1 = __importDefault(require("ws"));
 let SupabaseService = class SupabaseService {
     constructor(configService) {
         this.configService = configService;
@@ -22,13 +26,19 @@ let SupabaseService = class SupabaseService {
         if (!supabaseUrl || !supabaseAnonKey) {
             throw new Error('Supabase credentials not found in environment variables');
         }
-        this.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseAnonKey);
+        const realtimeClientOptions = typeof globalThis.WebSocket === 'undefined'
+            ? { transport: ws_1.default }
+            : {};
+        this.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseAnonKey, {
+            realtime: realtimeClientOptions,
+        });
         if (supabaseServiceKey) {
             this.supabaseAdmin = (0, supabase_js_1.createClient)(supabaseUrl, supabaseServiceKey, {
                 auth: {
                     autoRefreshToken: false,
                     persistSession: false,
                 },
+                realtime: realtimeClientOptions,
             });
         }
     }

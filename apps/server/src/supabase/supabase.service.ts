@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import WebSocket from 'ws';
 
 @Injectable()
 export class SupabaseService {
@@ -16,7 +17,14 @@ export class SupabaseService {
       throw new Error('Supabase credentials not found in environment variables');
     }
 
-    this.supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // Provide WebSocket transport for Realtime on Node.js < 22
+    const realtimeClientOptions = typeof globalThis.WebSocket === 'undefined' 
+      ? { transport: WebSocket as any }
+      : {};
+
+    this.supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      realtime: realtimeClientOptions,
+    });
 
     if (supabaseServiceKey) {
       this.supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
@@ -24,6 +32,7 @@ export class SupabaseService {
           autoRefreshToken: false,
           persistSession: false,
         },
+        realtime: realtimeClientOptions,
       });
     }
   }

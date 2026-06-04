@@ -47,7 +47,9 @@
     "sharp": "^0.33.5",
     "socket.io": "^4.7.5",
     "speakeasy": "^2.0.0",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "ws": "^8.13.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

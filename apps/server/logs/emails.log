@@ -14195,3 +14195,1027 @@
 {"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2025-12-23T05:41:52.710Z"}
 {"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2025-12-23T05:41:52.750Z"}
 {"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2025-12-23T05:41:52.779Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.678Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.706Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.711Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.714Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.718Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.723Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.726Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.729Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.732Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.738Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.741Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.744Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.747Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.749Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.750Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.753Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.755Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.757Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.760Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.762Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.764Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.767Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.768Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.770Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.772Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.774Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.776Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.778Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.779Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.782Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.784Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.786Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.789Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.791Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.794Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.796Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.799Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.803Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.805Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.808Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.811Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.813Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.816Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.819Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.821Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.824Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.826Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.829Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.831Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.834Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.837Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.839Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.841Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.844Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.848Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.850Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.852Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.855Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.857Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.860Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.862Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.864Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.867Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.869Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.872Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.874Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.877Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.880Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.882Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.884Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.887Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.888Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.891Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.894Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.897Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.900Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.902Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.905Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.908Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.911Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.913Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.916Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.919Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.922Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.924Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.927Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.929Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.932Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.934Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.936Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.939Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.941Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.942Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.946Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.949Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.952Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.955Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.957Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.959Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.962Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.965Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.967Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.970Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.972Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.975Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.978Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.980Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.983Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.985Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-03T19:30:59.986Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.990Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.993Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.995Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:30:59.998Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.000Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.003Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.006Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.009Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.011Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.014Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.016Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.019Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.025Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.027Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.033Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:31:00.038Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-03T19:31:00.111Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-03T19:31:00.154Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-03T19:46:46.961Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:46.989Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:46.994Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:46.997Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.001Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.005Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.008Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.010Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.013Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.020Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.024Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.027Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.030Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.032Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.033Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.037Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.038Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.040Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.044Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.046Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.048Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.050Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.052Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.054Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.056Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.058Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.061Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.062Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.064Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.066Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.067Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.069Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.071Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.072Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.074Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.076Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.078Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.080Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.081Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.083Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.084Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.086Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.087Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.090Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.091Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.093Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.094Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.096Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.097Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.100Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.101Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.103Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.104Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.106Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.109Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.110Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.111Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.113Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.118Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.120Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.125Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.126Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.131Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.133Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.134Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.138Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.140Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.143Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.145Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.147Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.150Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.151Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.154Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.156Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.159Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.162Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.165Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.167Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.170Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.173Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.175Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.178Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.181Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.183Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.185Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.187Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.190Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.191Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.192Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.196Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.199Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.202Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.203Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.206Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.208Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.213Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.214Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.219Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.221Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.224Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.227Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.231Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.235Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.237Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.239Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.241Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.244Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.246Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.248Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-03T19:46:47.249Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.253Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.255Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.258Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.263Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.265Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.273Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.276Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.280Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.282Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.284Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.288Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.290Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.293Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.296Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.297Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:46:47.299Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-03T19:46:47.357Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-03T19:46:47.402Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.500Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.532Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.535Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.539Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.542Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.547Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.550Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.553Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.556Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.562Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.566Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.570Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.573Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.574Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.576Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.580Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.582Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.584Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.588Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.590Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.592Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.595Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.597Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.599Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.601Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.603Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.605Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.607Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.609Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.610Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.611Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.613Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.615Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.616Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.617Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.619Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.620Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.622Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.624Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.625Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.627Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.628Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.630Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.631Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.632Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.633Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.635Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.636Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.638Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.640Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.642Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.644Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.645Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.647Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.650Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.651Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.652Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.654Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.656Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.658Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.659Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.660Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.662Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.663Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.665Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.666Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.668Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.669Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.671Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.672Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.674Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.675Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.677Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.679Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.680Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.682Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.684Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.685Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.687Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.689Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.690Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.691Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.693Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.694Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.695Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.697Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.699Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.700Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.702Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.703Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.704Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.706Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.707Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.709Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.710Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.712Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.713Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.714Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.716Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.717Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.719Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.720Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.721Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.723Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.723Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.725Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.726Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.728Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.729Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-03T19:52:32.730Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.731Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.732Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.734Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.735Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.736Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.738Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.739Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.741Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.742Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.744Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.745Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.747Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.748Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.749Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.751Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T19:52:32.752Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-03T19:52:32.797Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-03T19:52:32.828Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.003Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.028Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.035Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.040Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.042Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.045Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.047Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.049Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.052Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.056Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.059Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.061Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.062Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.063Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.065Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.067Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.068Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.069Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.071Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.073Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.074Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.076Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.077Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.079Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.080Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.081Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.083Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.084Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.085Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.087Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.087Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.088Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.090Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.090Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.092Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.093Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.094Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.096Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.097Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.098Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.099Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.100Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.101Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.103Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.104Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.105Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.106Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.107Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.108Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.109Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.110Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.112Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.113Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.114Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.116Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.117Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.118Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.121Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.123Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.124Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.125Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.126Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.127Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.128Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.129Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.131Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.132Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.133Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.134Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.136Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.137Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.138Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.139Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.140Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.141Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.143Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.144Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.145Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.147Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.148Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.149Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.151Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.152Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.153Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.154Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.155Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.156Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.158Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.159Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.160Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.161Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.162Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.162Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.164Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.165Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.166Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.167Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.168Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.169Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.170Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.171Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.172Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.173Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.174Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.174Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.175Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.176Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.177Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.178Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-03T21:38:32.179Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.180Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.181Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.182Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.183Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.185Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.186Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.187Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.188Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.189Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.190Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.191Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.192Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.193Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.194Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.195Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T21:38:32.196Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-03T21:38:32.228Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-03T21:38:32.249Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-03T22:03:34.836Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.914Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.931Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.942Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.948Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.954Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.961Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.969Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.985Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:34.998Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.013Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.021Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.028Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.032Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.038Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.045Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.054Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.056Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.061Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.068Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.079Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.083Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.092Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.103Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.104Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.121Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.129Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.131Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.139Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.143Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.144Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.145Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.156Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.157Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.166Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.173Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.177Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.182Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.184Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.190Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.200Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.201Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.209Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.211Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.217Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.219Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.230Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.231Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.240Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.244Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.245Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.246Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.258Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.259Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.269Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.274Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.277Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.279Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.284Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.288Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.290Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.291Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.299Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.304Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.310Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.316Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.323Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.328Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.330Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.336Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.342Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.346Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.355Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.362Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.366Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.374Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.384Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.393Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.399Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.401Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.411Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.412Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.423Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.425Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.426Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.428Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.437Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.441Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.444Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.447Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.450Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.454Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.455Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.467Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.471Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.475Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.477Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.478Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.482Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.485Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.491Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.493Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.495Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.497Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.499Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.501Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.508Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.511Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.517Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-03T22:03:35.518Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.519Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.522Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.524Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.526Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.529Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.531Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.533Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.538Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.540Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.543Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.547Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.551Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.553Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.557Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.561Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:03:35.563Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-03T22:03:35.611Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-03T22:03:35.644Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.684Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.708Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.712Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.716Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.718Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.720Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.722Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.723Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.726Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.730Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.732Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.734Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.736Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.737Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.738Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.739Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.741Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.742Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.745Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.746Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.748Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.749Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.750Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.752Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.753Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.756Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.760Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.762Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.764Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.768Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.769Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.773Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.777Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.778Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.786Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.787Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.793Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.794Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.801Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.802Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.807Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.808Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.811Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.813Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.819Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.823Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.827Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.829Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.830Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.832Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.838Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.841Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.844Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.849Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.852Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.853Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.856Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.859Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.860Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.861Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.862Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.863Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.864Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.865Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.867Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.868Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.871Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.872Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.874Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.875Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.877Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.878Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.879Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.881Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.884Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.885Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.887Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.889Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.893Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.895Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.900Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.903Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.906Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.907Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.909Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.911Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.914Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.916Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.917Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.918Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.919Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.921Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.922Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.924Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.926Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.927Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.930Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.933Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.934Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.937Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.938Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.939Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.940Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.941Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.941Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.944Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.945Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.946Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.947Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-03T22:04:56.948Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.949Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.950Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.951Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.954Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.955Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.958Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.959Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.960Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.962Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.963Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.965Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.966Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.967Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.968Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.969Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-03T22:04:56.970Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-03T22:04:57.005Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-03T22:04:57.032Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.153Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.172Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.175Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.178Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.179Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.181Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.183Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.185Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.187Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.190Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.193Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.195Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.196Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.197Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.198Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.200Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.201Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.202Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.204Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.206Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.207Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.209Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.210Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.212Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.213Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.215Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.216Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.217Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.219Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.220Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.221Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.223Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.224Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.224Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.225Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.226Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.228Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.228Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.229Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.230Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.231Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.232Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.233Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.238Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.239Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.242Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.243Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.244Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.245Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.247Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.248Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.249Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.250Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.251Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.253Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.254Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.259Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.260Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.261Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.262Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.263Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.264Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.265Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.266Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.268Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.269Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.270Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.272Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.273Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.274Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.275Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.276Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.278Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.279Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.281Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.282Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.283Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.285Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.286Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.288Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.289Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.290Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.291Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.292Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.293Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.295Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.296Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.297Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.299Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.300Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.301Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.303Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.303Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.305Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.306Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.307Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.309Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.310Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.311Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.312Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.313Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.314Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.315Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.317Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.318Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.319Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.320Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.321Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.322Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-04T22:46:07.323Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.324Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.325Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.326Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.328Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.329Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.330Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.331Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.332Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.333Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.335Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.336Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.337Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.338Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.340Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.341Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:46:07.342Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-04T22:46:07.379Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-04T22:46:07.403Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/auth}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.669Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/register, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.705Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/login, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.723Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/refresh, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.731Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/logout, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.736Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.748Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/google/callback, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.753Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/profile, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.757Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/setup, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.764Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/enable, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.771Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/disable, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.776Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/2fa/verify, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.784Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/forgot-password, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.786Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/auth/reset-password, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.792Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/users}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.793Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.800Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.802Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.803Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.810Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/profile, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.819Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.823Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/users/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.825Z"}
+{"context":"RoutesResolver","level":"info","message":"AccountsController {/api/accounts}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.829Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.833Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.845Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id/balance, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.849Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.852Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/admin/:userId, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.854Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.856Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/accounts/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.860Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditLogsController {/api/audit-logs}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.861Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.863Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/audit-logs/me, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.865Z"}
+{"context":"RoutesResolver","level":"info","message":"CardsController {/api/cards}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.868Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.870Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/account/:accountId, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.872Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.874Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.876Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/admin/:userId/:accountId, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.878Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.879Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/cards/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.881Z"}
+{"context":"RoutesResolver","level":"info","message":"TransactionsController {/api/transactions}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.882Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/transfer, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.884Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/deposit, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.885Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/withdraw, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.887Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/card, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.888Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.890Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.891Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/pending/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.892Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/filter, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.894Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/admin, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.896Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/transactions/:id/validate, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.897Z"}
+{"context":"RoutesResolver","level":"info","message":"KycController {/api/kyc}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.898Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.900Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/upload, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.902Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.905Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/pending, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.908Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/view, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.912Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/download, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.915Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/documents/:id/review, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.917Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/kyc/applications/filter, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.922Z"}
+{"context":"RoutesResolver","level":"info","message":"WebhooksController {/api/webhooks}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.923Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.927Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.929Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.933Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.934Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id, DELETE} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.937Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/:id/deliveries, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.940Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/webhooks/deliveries/:deliveryId/retry, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.942Z"}
+{"context":"RoutesResolver","level":"info","message":"LoansController {/api/loans}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.943Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.944Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.946Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.948Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.949Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.951Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/repayments, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.952Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/approve, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.954Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/loans/:id/reject, PATCH} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.955Z"}
+{"context":"RoutesResolver","level":"info","message":"ExchangeController {/api/exchange}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.957Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rates, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.958Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.960Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/supported-currencies, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.961Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/rate/:from/:to, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.962Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/exchange/convert, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.964Z"}
+{"context":"RoutesResolver","level":"info","message":"BulkOperationsController {/api/admin/bulk-operations}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.965Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/review, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.967Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/review, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.968Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/flag, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.970Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/flag, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.971Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/kyc/delete, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.973Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/transactions/delete, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.974Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/bulk-operations/stats, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.975Z"}
+{"context":"RoutesResolver","level":"info","message":"AuditExportController {/api/admin/audit-export}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.976Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/csv, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.981Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/json, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.982Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/pdf, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.987Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/stats, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.990Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/audit-export/logs, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.991Z"}
+{"context":"RoutesResolver","level":"info","message":"AdminDashboardController {/api/admin}:","service":"financial-platform","timestamp":"2026-06-04T22:49:34.995Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/dashboard, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.996Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/transactions, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:34.997Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/users, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.003Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/kyc, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.003Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/stats/timeline, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.005Z"}
+{"context":"RoutesResolver","level":"info","message":"StorageMonitoringController {/api/admin/storage}:","service":"financial-platform","timestamp":"2026-06-04T22:49:35.005Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/metrics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.007Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/buckets/:bucketName, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.008Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/users/:userId, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.013Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/admin/storage/quota-check, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.017Z"}
+{"context":"RoutesResolver","level":"info","message":"TontinesController {/api/tontines}:","service":"financial-platform","timestamp":"2026-06-04T22:49:35.022Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.026Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.029Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/user/applications/pending, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.035Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.036Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id, PUT} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.042Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/start, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.043Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.044Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.050Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/contributions, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.052Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.056Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/members/:memberId/statistics, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.059Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/invitations, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.062Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.066Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/invite/:code/apply, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.067Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications, GET} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.068Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/tontines/:id/applications/:applicationId/review, POST} route","service":"financial-platform","timestamp":"2026-06-04T22:49:35.070Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","service":"financial-platform","timestamp":"2026-06-04T22:49:35.112Z"}
+{"level":"info","message":"Application is running on: https://192.168.1.199:3000 or http://localhost:3000","service":"financial-platform","timestamp":"2026-06-04T22:49:35.148Z"}

@@ -329,7 +329,13 @@ Le serveur lit les certificats depuis `apps/server/cert` et utilisera les fichie
 # expose le port 3000 via ngrok (HTTPS public)
 ngrok http 3000
 ```
+Ou via le script npm interne du projet :
 
+```bash
+npm run tunnel
+```
+
+Le script utilise `scripts/ngrok.js` et crée un tunnel vers le port `3000` par défaut. Il peut aussi lire `NGROK_PORT`, `NGROK_PROTO`, `NGROK_REGION` et `NGROK_AUTH_TOKEN`.
 ngrok fournit une URL HTTPS publique que tu peux ouvrir depuis ton téléphone sans toucher aux certificats locaux. Utile pour partage rapide, attention à l'exposition publique des API.
 
 4. Firewall / réseau
