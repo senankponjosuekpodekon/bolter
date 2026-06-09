@@ -13,6 +13,13 @@
     "dev:admin": "npm run dev --workspace=admin",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:admin\"",
     "tunnel": "node scripts/ngrok.js",
+    "tunnel:cli": "./scripts/ngrok-cli.sh",
+    "tunnel:client": "./scripts/ngrok-cli.sh client",
+    "tunnel:api": "./scripts/ngrok-cli.sh api",
+    "tunnel:admin": "./scripts/ngrok-cli.sh admin",
+    "tunnel:all": "./scripts/ngrok-cli.sh all",
+    "start:all": "./scripts/start-all.sh",
+    "start:admin-ngrok": "./scripts/start-with-admin.sh",
     "build:server": "npm run build --workspace=server",
     "build:client": "npm run build --workspace=client",
     "build:admin": "npm run build --workspace=admin",
@@ -34,7 +41,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "ngrok": "^4.3.3"
+    "ngrok": "^5.0.0-beta.2"
   },
   "dependencies": {
     "eslint-plugin-react": "^7.37.5",

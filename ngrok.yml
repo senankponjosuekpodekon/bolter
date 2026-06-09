@@ -1,0 +1,25 @@
+# Ngrok Configuration for Banking Platform
+# Usage: ngrok start --config=ngrok.yml client
+
+version: "3"
+agent:
+  authtoken: 3EG9VqLXRfyGcIzeXGU3CSHZ2PN_5UjW5pTVEpTFvPSaBhVJY
+
+# Tunnel pour le client frontend (port 5173)
+tunnels:
+  client:
+    proto: http
+    addr: 5173
+    schemes: [https]
+
+  # Tunnel pour l'API backend (port 3000)
+  api:
+    proto: http
+    addr: 3000
+    schemes: [https]
+
+  # Tunnel pour l'admin (port 5174)
+  admin:
+    proto: http
+    addr: 5174
+    schemes: [https]
