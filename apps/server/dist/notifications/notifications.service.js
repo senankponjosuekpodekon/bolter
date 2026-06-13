@@ -40,6 +40,16 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         this.logger = logger;
         this.config = config;
     }
+    async notifyWelcome(userId, email) {
+        const user = await this.getUserContact(userId);
+        const appUrl = this.config.get('app.url') || 'http://localhost:5173';
+        const name = user ? this.formatName(user) : email;
+        await this.safeSendEmail({ id: userId, email, firstName: user?.firstName, lastName: user?.lastName }, {
+            subject: `Bienvenue sur ${this.config.get('app.name') || 'Bolter Banking'} 🎉`,
+            html: this.renderHtmlTemplate('Bienvenue !', `Bonjour ${name},<br><br>Votre compte ${this.config.get('app.name') || 'Bolter Banking'} est maintenant activé. Vous pouvez dès maintenant accéder à votre espace client :<br><br><a href="${appUrl}/dashboard" style="display:inline-block;padding:10px 20px;background:${this.config.get('app.primaryColor') || '#2563eb'};color:#fff;text-decoration:none;border-radius:5px;">Accéder à mon espace</a><br><br>Pour profiter de toutes les fonctionnalités, complétez votre vérification KYC depuis votre profil.`),
+            text: `Bienvenue ${name} ! Votre compte ${this.config.get('app.name') || 'Bolter Banking'} est activé. Connectez-vous sur ${appUrl}.`,
+        });
+    }
     async notifyAccountCreated(userId, accountNumber) {
         const user = await this.getUserContact(userId);
         if (!user) {
@@ -368,12 +378,14 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         });
     }
     renderHtmlTemplate(title, body) {
-        const appUrl = this.config.get('APP_URL') || 'https://banking-platform.test';
+        const appUrl = this.config.get('app.url') || 'http://localhost:5173';
+        const appName = this.config.get('app.name') || 'Bolter Banking';
+        const primaryColor = this.config.get('app.primaryColor') || '#2563eb';
         return `
       <div style="font-family: 'Segoe UI', Tahoma, sans-serif; color: #111827;">
         <h2 style="color: #1f2937;">${title}</h2>
         <p style="line-height: 1.6;">${body}</p>
-        <p style="line-height: 1.6;">Vous pouvez suivre l'état de vos opérations depuis votre espace client : <a href="${appUrl}" style="color: #2563eb;">${appUrl}</a>.</p>
+        <p style="line-height: 1.6;">Vous pouvez suivre l'état de vos opérations depuis votre espace client : <a href="${appUrl}" style="color: ${primaryColor};">${appName}</a>.</p>
         <p style="margin-top: 24px; font-size: 12px; color: #6b7280;">Cet email est généré automatiquement, merci de ne pas y répondre.</p>
       </div>
     `;

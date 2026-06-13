@@ -19,7 +19,7 @@ export class SupabaseService {
 
     // Provide WebSocket transport for Realtime on Node.js < 22
     const realtimeClientOptions = typeof globalThis.WebSocket === 'undefined' 
-      ? { transport: WebSocket as any }
+      ? { transport: WebSocket as unknown as typeof globalThis.WebSocket }
       : {};
 
     this.supabase = createClient(supabaseUrl, supabaseAnonKey, {

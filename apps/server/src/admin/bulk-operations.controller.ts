@@ -17,7 +17,7 @@ import { Request } from 'express';
 @ApiTags('admin/bulk-operations')
 @Controller('admin/bulk-operations')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
+@Roles('ADMIN')
 @ApiBearerAuth()
 export class BulkOperationsController {
     constructor(private readonly bulkOperationsService: BulkOperationsService) { }

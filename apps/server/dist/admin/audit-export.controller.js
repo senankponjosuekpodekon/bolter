@@ -101,7 +101,7 @@ exports.AuditExportController = AuditExportController = __decorate([
     (0, swagger_1.ApiTags)('admin/audit-export'),
     (0, common_1.Controller)('admin/audit-export'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('ADMIN', 'COMPLIANCE'),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [audit_export_service_1.AuditExportService])
 ], AuditExportController);

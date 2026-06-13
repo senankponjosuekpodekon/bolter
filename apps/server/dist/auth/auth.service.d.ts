@@ -22,7 +22,7 @@ export declare class AuthService {
     constructor(usersService: UsersService, jwtService: JwtService, configService: ConfigService, logger: Logger, auditLogsService: AuditLogsService, notificationsService: NotificationsService);
     validateUser(email: string, password: string): Promise<Omit<User, 'password' | 'refreshToken'>>;
     login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<LoginResponse>;
-    register(registerDto: RegisterDto): Promise<LoginResponse>;
+    register(registerDto: RegisterDto, tenantId?: string | null): Promise<LoginResponse>;
     refreshToken(userId: string, refreshToken: string): Promise<{
         accessToken: string;
     }>;
@@ -32,7 +32,7 @@ export declare class AuthService {
         }>;
         id: string;
         displayName?: string;
-    }): Promise<Omit<User, 'password' | 'refreshToken'>>;
+    }, tenantId?: string | null): Promise<Omit<User, 'password' | 'refreshToken'>>;
     private generateRefreshToken;
     logout(userId: string): Promise<{
         success: boolean;

@@ -11,6 +11,7 @@ export interface CreateAuditLogOptions {
     resourceId?: string | null;
     userId?: string | null;
     performedBy?: string | null;
+    tenantId?: string | null;
     metadata?: Record<string, unknown>;
     context?: AuditLogContext;
 }

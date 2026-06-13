@@ -25,7 +25,7 @@ let LoansService = LoansService_1 = class LoansService {
         this.accountsService = accountsService;
         this.logger = new common_1.Logger(LoansService_1.name);
     }
-    async createLoan(userId, dto) {
+    async createLoan(userId, dto, tenantId) {
         await this.ensureUserEligible(userId);
         const riskScore = await this.calculateRiskScore(userId, dto.amount, dto.durationMonths, dto.monthlyIncome);
         const interestRate = this.determineInterestRate(riskScore, dto.durationMonths);
@@ -49,6 +49,7 @@ let LoansService = LoansService_1 = class LoansService {
             supporting_documents: sanitizedDocuments,
             risk_score: riskScore,
             outstanding_balance: simulation.totalCost,
+            tenant_id: tenantId ?? null,
         };
         const { data, error } = await client.from('loans').insert(insertPayload).select().single();
         if (error) {

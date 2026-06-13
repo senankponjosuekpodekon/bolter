@@ -26,6 +26,8 @@ let RolesGuard = class RolesGuard {
             return true;
         }
         const { user } = context.switchToHttp().getRequest();
+        if (user?.role === 'SUPER_ADMIN')
+            return true;
         return requiredRoles.some((role) => user.role === role);
     }
 };

@@ -8,6 +8,7 @@ import {
   updatePreferences as svcUpdatePreferences,
 } from "../services/profileService";
 import { useLocalization } from "../hooks";
+import { useToast } from "../hooks/useToast";
 import KYC from "./KYC";
 import ProfileAvatar from "../components/ProfileAvatar";
 import TwoFactorSettings from "./TwoFactorSettings";
@@ -43,9 +44,13 @@ export default function Profile(): JSX.Element {
   });
 
   const [theme, setTheme] = useState(user?.preferences?.theme || "light");
-  const [widgets, setWidgets] = useState<string[]>(
-    user?.preferences?.widgets || ["dashboard", "transactions"]
-  );
+  const [widgets, setWidgets] = useState<string[]>(() => {
+    const savedWidgets = user?.preferences?.widgets;
+    // If undefined/null, use defaults. If array (even empty), use as-is
+    return savedWidgets === undefined || savedWidgets === null
+      ? ["dashboard", "transactions", "accounts", "loans", "kyc"]
+      : savedWidgets;
+  });
   const [locale, setLocale] = useState<string>(
     user?.locale ??
       (typeof navigator !== "undefined"
@@ -180,14 +185,22 @@ export default function Profile(): JSX.Element {
       ? widgets.filter((w) => w !== widget)
       : [...widgets, widget];
     setWidgets(newWidgets);
-    updatePreferences({ widgets: newWidgets });
-    svcUpdatePreferences({ widgets: newWidgets })
-      .then((data) => setUser(data))
-      .catch(() => {});
+  };
+
+  const handleSaveWidgets = async () => {
+    try {
+      await svcUpdatePreferences({ preferences: { ...user?.preferences, widgets } });
+      updatePreferences({ widgets });
+      showSuccess(t("profile.widgets_saved_success"), t("common.success"));
+    } catch {
+      updatePreferences({ widgets });
+      showError(t("common.error"), t("common.error"));
+    }
   };
 
   const { t } = useTranslation(["common"]);
   const { changeLanguage } = useLocalization();
+  const { success: showSuccess, error: showError } = useToast();
 
   return (
     <div className="space-y-6">
@@ -619,6 +632,17 @@ export default function Profile(): JSX.Element {
                   </label>
                 )
               )}
+            </div>
+
+            {/* Save Widgets Button */}
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={handleSaveWidgets}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                <Check className="w-4 h-4" />
+                {t("profile.labels.save_widgets")}
+              </button>
             </div>
           </div>
         </div>

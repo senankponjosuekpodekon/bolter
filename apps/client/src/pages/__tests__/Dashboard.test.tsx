@@ -1,6 +1,7 @@
 import React from "react";
-import { vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { vi, beforeEach } from "vitest";
+import "@testing-library/jest-dom";
+import { render, screen, waitFor } from "@testing-library/react";
 import Dashboard from "../Dashboard";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -11,79 +12,130 @@ interface UserSelector {
 
 vi.mock("../../stores/authStore", () => {
   const mockState = {
-    user: { id: "u1", locale: "fr-FR", currency: "EUR" },
+    user: { id: "u1", locale: "fr-FR", currency: "EUR", kyc_status: "APPROVED" },
     setUser: vi.fn(),
   };
-  // create a callable mock that resembles the zustand useStore hook
   const useAuthStoreMock: UserSelector = (
     selector?: (state: unknown) => unknown
   ) => (typeof selector === "function" ? selector(mockState) : mockState);
-  // expose getState for callers that use useAuthStore.getState()
   useAuthStoreMock.getState = () => mockState;
   return { useAuthStore: useAuthStoreMock };
 });
 
 vi.mock("../../services/api", () => ({
-  default: {
-    get: vi.fn(),
-  },
+  default: { get: vi.fn() },
 }));
 
-// QuickActions contains modal components that use ToastProvider; mock it to avoid needing the provider in this unit test
-vi.mock("../../components/dashboard/QuickActions", () => ({
-  default: () => React.createElement("div", { "data-testid": "quick-actions" }),
+vi.mock("../../services/loanService", () => ({
+  createLoan: vi.fn(),
 }));
 
-const q = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
-describe("Dashboard localization", () => {
-  it("formats balances and amounts according to user locale/currency", async () => {
-    const apiModule = await import("../../services/api");
-    // Default export is mocked by vitest above
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+const ACCOUNT = {
+  id: "a1",
+  account_type: "SAVINGS",
+  account_number: "AC-001",
+  status: "ACTIVE",
+  balance: 1234.5,
+  currency: "EUR",
+  limit: 1000,
+  created_at: new Date().toISOString(),
+};
+
+const TRANSACTION = {
+  id: "t1",
+  description: "Salary",
+  created_at: new Date().toISOString(),
+  amount: "1234.5",
+  currency: "EUR",
+  type: "DEPOSIT",
+  status: "APPROVED",
+};
+
+const mockApi = async (path: string) => {
+  if (path === "/accounts") return { data: [ACCOUNT] };
+  if (path === "/transactions") return { data: [TRANSACTION] };
+  if (path === "/auth/profile") return { data: { id: "u1", locale: "fr-FR" } };
+  return { data: [] };
+};
+
+describe("Dashboard", () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let api: any;
+
+  beforeEach(async () => {
+    const mod = await import("../../services/api");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const api = (apiModule as any).default;
-    // accounts response
-    api.get.mockImplementation(async (path: string) => {
-      if (path === "/accounts")
-        return {
-          data: [
-            {
-              id: "a1",
-              account_type: "SAVINGS",
-              account_number: "AC-1",
-              status: "ACTIVE",
-              balance: 1234.5,
-              currency: "EUR",
-              limit: 1000,
-              created_at: new Date().toISOString(),
-            },
-          ],
-        };
-      if (path === "/transactions")
-        return {
-          data: [
-            {
-              id: "t1",
-              description: "Salary",
-              created_at: new Date().toISOString(),
-              amount: "1234.5",
-              currency: "EUR",
-              type: "DEPOSIT",
-              status: "APPROVED",
-            },
-          ],
-        };
-      return { data: [] };
-    });
+    api = (mod as any).default;
+    api.get.mockReset();
+  });
+
+  it("formats balances and amounts according to user locale/currency", async () => {
+    api.get.mockImplementation(mockApi);
 
     render(
-      <QueryClientProvider client={q}>
+      <QueryClientProvider client={makeClient()}>
         <Dashboard />
       </QueryClientProvider>
     );
 
-    // assert localized amounts appear (should include balance and at least one transaction)
     const matches = await screen.findAllByText(/1\s?234[,·]50|1\u202F234,50/);
     expect(matches.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("shows account number when accounts load", async () => {
+    api.get.mockImplementation(mockApi);
+
+    render(
+      <QueryClientProvider client={makeClient()}>
+        <Dashboard />
+      </QueryClientProvider>
+    );
+
+    expect(await screen.findByText(/AC-001/)).toBeInTheDocument();
+  });
+
+  it("renders the deposit action button", async () => {
+    api.get.mockImplementation(mockApi);
+
+    render(
+      <QueryClientProvider client={makeClient()}>
+        <Dashboard />
+      </QueryClientProvider>
+    );
+
+    expect(await screen.findByRole("button", { name: /deposit/i })).toBeInTheDocument();
+  });
+
+  it("shows empty state when no accounts returned", async () => {
+    api.get.mockImplementation(async (path: string) => {
+      if (path === "/auth/profile") return { data: { id: "u1" } };
+      return { data: [] };
+    });
+
+    render(
+      <QueryClientProvider client={makeClient()}>
+        <Dashboard />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText(/AC-001/)).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows transaction description in activity feed", async () => {
+    api.get.mockImplementation(mockApi);
+
+    render(
+      <QueryClientProvider client={makeClient()}>
+        <Dashboard />
+      </QueryClientProvider>
+    );
+
+    expect(await screen.findByText(/Salary/i)).toBeInTheDocument();
   });
 });

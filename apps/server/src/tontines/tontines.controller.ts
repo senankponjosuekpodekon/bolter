@@ -3,6 +3,8 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam } from '@nestjs/swagger'
 import { TontinesService } from './tontines.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import {
   CreateTontineDto,
   UpdateTontineDto,
@@ -29,6 +31,17 @@ export class TontinesController {
     const userId = (req.user as Record<string, unknown>)?.id as string;
     if (!userId) throw new BadRequestException('User not authenticated');
     return this.tontinesService.createTontine(userId, dto);
+  }
+
+  /**
+   * Get ALL tontines (Admin/SuperAdmin only)
+   */
+  @Get('admin/all')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @ApiOperation({ summary: 'Get all tontines across all users (Admin only)' })
+  async getAllTontinesAdmin() {
+    return this.tontinesService.getAllTontines();
   }
 
   /**

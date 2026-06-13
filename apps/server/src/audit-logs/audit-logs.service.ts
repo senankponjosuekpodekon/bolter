@@ -14,6 +14,7 @@ export interface CreateAuditLogOptions {
     resourceId?: string | null;
     userId?: string | null;
     performedBy?: string | null;
+    tenantId?: string | null;
     metadata?: Record<string, unknown>;
     context?: AuditLogContext;
 }
@@ -57,6 +58,7 @@ export class AuditLogsService {
             action,
             resource_type: resourceType,
             resource_id: resourceId,
+            tenant_id: options.tenantId ?? null,
             metadata: Object.keys(metadataPayload).length ? metadataPayload : null,
         });
 

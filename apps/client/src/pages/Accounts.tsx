@@ -14,7 +14,9 @@ import {
   X,
   Plus,
   Building,
+  Download,
 } from "lucide-react";
+import { exportAccountStatement } from "../lib/exportPdf";
 
 export default function Accounts() {
   type Account = {
@@ -231,10 +233,6 @@ export default function Accounts() {
       return;
     }
 
-    console.log("Creating card with payload:", {
-      accountId: cardAccountId,
-      type: cardType,
-    });
     createCard.mutate({ accountId: cardAccountId, type: cardType });
   };
 
@@ -298,6 +296,30 @@ export default function Accounts() {
       }
     },
     [copyText, formatAccountDetails, toast, t]
+  );
+
+  const handleExportPdf = useCallback(
+    async (account: Account | null) => {
+      if (!account) return;
+      try {
+        const txRes = await api.get("/transactions");
+        const allTx = txRes.data ?? [];
+        const accountTx = allTx.filter(
+          (tx: { account_id?: string }) =>
+            !tx.account_id || tx.account_id === account.id
+        );
+        exportAccountStatement({
+          account,
+          transactions: accountTx,
+          userName: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Customer",
+          locale: user?.locale ?? "fr-FR",
+        });
+        toast.success(t("accounts.pdf_exported", { defaultValue: "Statement exported" }));
+      } catch {
+        toast.error(t("accounts.pdf_error", { defaultValue: "Export failed" }));
+      }
+    },
+    [user, toast, t]
   );
 
   const handleShareDetails = useCallback(
@@ -451,6 +473,14 @@ export default function Accounts() {
               >
                 <Copy size={14} />
                 {t("accounts.copy", { defaultValue: "Copy" })}
+              </button>
+              <button
+                onClick={() => handleExportPdf(activeAccount)}
+                className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs font-semibold hover:bg-white/20 transition"
+                title={t("accounts.export_pdf", { defaultValue: "Export PDF" })}
+              >
+                <Download size={14} />
+                {t("accounts.export_pdf", { defaultValue: "PDF" })}
               </button>
               <button
                 onClick={() => handleShareDetails(activeAccount)}

@@ -6,7 +6,11 @@ export declare class GoogleStrategy extends GoogleStrategy_base {
     private configService;
     private authService;
     constructor(configService: ConfigService, authService: AuthService);
-    validate(accessToken: string, refreshToken: string, profile: {
+    validate(req: {
+        tenant?: {
+            id?: string;
+        };
+    }, _accessToken: string, _refreshToken: string, profile: {
         emails?: Array<{
             value: string;
         }>;

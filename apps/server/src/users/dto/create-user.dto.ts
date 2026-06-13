@@ -1,7 +1,7 @@
 import { IsEmail, IsString, IsOptional, MinLength, MaxLength, IsIn } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-const USER_ROLES = ['CLIENT', 'ADMIN', 'COMPLIANCE'] as const;
+const USER_ROLES = ['CLIENT', 'ADMIN', 'COMPLIANCE', 'SUPER_ADMIN'] as const;
 const USER_STATUSES = ['ACTIVE', 'SUSPENDED', 'PENDING_VERIFICATION', 'CLOSED'] as const;
 const KYC_STATUSES = ['PENDING', 'SUBMITTED', 'APPROVED', 'REJECTED'] as const;
 
@@ -43,7 +43,7 @@ export class CreateUserDto {
 
   @ApiPropertyOptional({ example: 'CLIENT', enum: USER_ROLES })
   @IsOptional()
-  @IsIn(USER_ROLES, { message: 'Role must be CLIENT, ADMIN, or COMPLIANCE' })
+  @IsIn(USER_ROLES, { message: 'Role must be CLIENT, ADMIN, COMPLIANCE, or SUPER_ADMIN' })
   role?: UserRole;
 
   @ApiPropertyOptional({ example: 'ACTIVE', enum: USER_STATUSES })
@@ -70,4 +70,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   timezone?: string;
+
+  @ApiPropertyOptional({ example: { widgets: ['dashboard', 'transactions'] }, description: 'User preferences object (widgets, theme, etc.)' })
+  @IsOptional()
+  preferences?: Record<string, unknown>;
 }

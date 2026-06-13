@@ -44,8 +44,11 @@
       "currency_label": "Currency",
       "timezone_label": "Timezone",
       "save_prefs": "Save preferences",
-      "widgets_label": "Displayed widgets"
-    }
+      "widgets_label": "Displayed widgets",
+      "save_widgets": "Save Widgets"
+    },
+    "widgets_saved_success": "Widgets saved successfully",
+    "widgets_saved_error": "Error saving widgets"
   },
   "login": {
     "title": "Sign in to your account",
@@ -264,6 +267,7 @@
   "common": {
     "loading": "Loading…",
     "na": "N/A",
-    "error": "Error"
+    "error": "Error",
+    "success": "Success"
   }
 }

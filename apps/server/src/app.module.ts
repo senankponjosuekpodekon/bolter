@@ -1,4 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { MaintenanceMiddleware } from './common/middleware/maintenance.middleware';
+import { TenantMiddleware } from './common/middleware/tenant.middleware';
+import { TenantsModule } from './tenants/tenants.module';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SupabaseModule } from './supabase/supabase.module';
@@ -17,6 +20,8 @@ import { AdminModule } from './admin/admin.module';
 import { LocalizationModule } from './localization/localization.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { TontinesModule } from './tontines/tontines.module';
+import { HealthModule } from './health/health.module';
+import { SystemConfigModule } from './system-config/system-config.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -42,6 +47,14 @@ import configuration from './config/configuration';
     AdminModule,
     LocalizationModule,
     TontinesModule,
+    HealthModule,
+    SystemConfigModule,
+    TenantsModule,
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(TenantMiddleware).forRoutes('*');
+    consumer.apply(MaintenanceMiddleware).forRoutes('*');
+  }
+}

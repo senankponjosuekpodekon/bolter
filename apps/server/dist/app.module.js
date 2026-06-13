@@ -11,6 +11,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const maintenance_middleware_1 = require("./common/middleware/maintenance.middleware");
+const tenant_middleware_1 = require("./common/middleware/tenant.middleware");
+const tenants_module_1 = require("./tenants/tenants.module");
 const config_1 = require("@nestjs/config");
 const schedule_1 = require("@nestjs/schedule");
 const supabase_module_1 = require("./supabase/supabase.module");
@@ -29,8 +32,14 @@ const admin_module_1 = require("./admin/admin.module");
 const localization_module_1 = require("./localization/localization.module");
 const webhooks_module_1 = require("./webhooks/webhooks.module");
 const tontines_module_1 = require("./tontines/tontines.module");
+const health_module_1 = require("./health/health.module");
+const system_config_module_1 = require("./system-config/system-config.module");
 const configuration_1 = __importDefault(require("./config/configuration"));
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(tenant_middleware_1.TenantMiddleware).forRoutes('*');
+        consumer.apply(maintenance_middleware_1.MaintenanceMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
@@ -57,6 +66,9 @@ exports.AppModule = AppModule = __decorate([
             admin_module_1.AdminModule,
             localization_module_1.LocalizationModule,
             tontines_module_1.TontinesModule,
+            health_module_1.HealthModule,
+            system_config_module_1.SystemConfigModule,
+            tenants_module_1.TenantsModule,
         ],
     })
 ], AppModule);

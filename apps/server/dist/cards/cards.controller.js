@@ -29,20 +29,37 @@ let CardsController = class CardsController {
     getAllCards(req) {
         return this.cardsService.findByUserId(req.user.id);
     }
-    getCardsByAccount(accountId) {
-        return this.cardsService.findByAccountId(accountId);
+    async getCardsByAccount(req, accountId) {
+        const cards = await this.cardsService.findByAccountId(accountId);
+        const isAdmin = ['ADMIN', 'COMPLIANCE', 'SUPER_ADMIN'].includes(req.user.role);
+        if (!isAdmin) {
+            const userCards = await this.cardsService.findByUserId(req.user.id);
+            const userAccountIds = new Set(userCards.map((c) => c.account_id));
+            if (!userAccountIds.has(accountId))
+                throw new common_1.ForbiddenException('Access denied');
+        }
+        return cards;
     }
-    getCard(id) {
-        return this.cardsService.findById(id);
+    async getCard(req, id) {
+        const card = await this.cardsService.findById(id);
+        const isAdmin = ['ADMIN', 'COMPLIANCE', 'SUPER_ADMIN'].includes(req.user.role);
+        if (!isAdmin) {
+            const userCards = await this.cardsService.findByUserId(req.user.id);
+            const userAccountIds = new Set(userCards.map((c) => c.account_id));
+            if (!userAccountIds.has(card?.account_id)) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+        }
+        return card;
     }
     createCard(req, createCardDto) {
         if (!createCardDto.accountId) {
             throw new common_1.BadRequestException('accountId is required');
         }
-        return this.cardsService.create(req.user.id, createCardDto.accountId, createCardDto);
+        return this.cardsService.create(req.user.id, createCardDto.accountId, createCardDto, false, req.tenant?.id);
     }
     createCardAsAdmin(req, userId, accountId, createCardDto) {
-        return this.cardsService.create(userId, accountId, createCardDto, true);
+        return this.cardsService.create(userId, accountId, createCardDto, true, req.tenant?.id);
     }
     updateCard(req, id, updateCardDto) {
         return this.cardsService.update(req.user.id, id, updateCardDto);
@@ -65,20 +82,22 @@ __decorate([
     (0, common_1.Get)('account/:accountId'),
     (0, swagger_1.ApiOperation)({ summary: 'Get cards for an account' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Return cards' }),
-    __param(0, (0, common_1.Param)('accountId')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('accountId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
 ], CardsController.prototype, "getCardsByAccount", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get card by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Return card' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Card not found' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
 ], CardsController.prototype, "getCard", null);
 __decorate([
     (0, common_1.Post)(),

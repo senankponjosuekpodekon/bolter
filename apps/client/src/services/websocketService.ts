@@ -19,9 +19,12 @@ class WebSocketService {
       return;
     }
 
-    const host = window.location.hostname;
-    const defaultBase = `http://${host}:3000`;
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || defaultBase;
+    // In development, use same origin (Vite proxy handles WebSocket upgrade)
+    // This avoids mixed content issues with ngrok HTTPS → HTTP
+    const isDev = import.meta.env.DEV;
+    const API_BASE_URL = isDev
+      ? window.location.origin  // Same origin for proxy
+      : (import.meta.env.VITE_API_BASE_URL || window.location.origin);
 
     this.socket = io(`${API_BASE_URL}/notifications`, {
       auth: { token },
@@ -33,7 +36,6 @@ class WebSocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected');
     });
 
     this.socket.on('notification', (payload: NotificationPayload) => {
@@ -41,7 +43,6 @@ class WebSocketService {
     });
 
     this.socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
     });
 
     this.socket.on('connect_error', (error: Error) => {

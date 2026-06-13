@@ -16,7 +16,7 @@ import { Response } from 'express';
 @ApiTags('admin/audit-export')
 @Controller('admin/audit-export')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
+@Roles('ADMIN', 'COMPLIANCE')
 @ApiBearerAuth()
 export class AuditExportController {
   constructor(private readonly auditExportService: AuditExportService) { }

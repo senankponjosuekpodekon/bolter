@@ -20,6 +20,7 @@ interface KycDocument {
   id: string;
   document_type: string;
   status: 'APPROVED' | 'REJECTED' | 'PENDING';
+  created_at: string;
   reviewed_at?: string;
   file_path?: string;
 }

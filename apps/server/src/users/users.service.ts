@@ -14,10 +14,12 @@ export interface User {
   kyc_status?: string;
   hasPassword: boolean;
   two_factor_enabled?: boolean;
+  preferences?: Record<string, unknown> | null;
   createdAt?: string;
   updatedAt?: string;
   password?: string;
   refreshToken?: string;
+  tenant_id?: string | null;
 }
 
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
@@ -45,8 +47,10 @@ type RawUserRow = {
   password_hash?: string | null;
   refresh_token?: string | null;
   two_factor_enabled?: boolean;
+  preferences?: Record<string, unknown> | null;
   created_at?: string | null;
   updated_at?: string | null;
+  tenant_id?: string | null;
 };
 
 @Injectable()
@@ -59,7 +63,7 @@ export class UsersService {
     private readonly notificationsService: NotificationsService,
   ) { }
 
-  async create(data: CreateUserDto, options?: { performedBy?: string | null; metadata?: { changes?: Record<string, unknown>;[k: string]: unknown } }): Promise<User> {
+  async create(data: CreateUserDto, options?: { performedBy?: string | null; tenantId?: string | null; metadata?: { changes?: Record<string, unknown>;[k: string]: unknown } }): Promise<User> {
     const { password, email, firstName, lastName, role, phone, address, status, kyc_status, locale, currency, timezone } = data;
     const hashedPassword = password ? await this.hashPassword(password) : null;
     const insertPayload: Record<string, unknown> = {
@@ -76,6 +80,7 @@ export class UsersService {
     if (timezone) insertPayload.timezone = timezone;
     if (status) insertPayload.status = status;
     if (kyc_status) insertPayload.kyc_status = kyc_status;
+    if (options?.tenantId) insertPayload.tenant_id = options.tenantId;
     const { data: user, error } = await this.supabase
       .getAdminClient()
       .from('users')
@@ -92,6 +97,7 @@ export class UsersService {
         account_number: accountNumber,
         account_type: 'CHECKING',
         balance: 0,
+        tenant_id: options?.tenantId ?? user.tenant_id ?? null,
       })
       .select()
       .single();
@@ -129,16 +135,20 @@ export class UsersService {
       },
     });
     await this.notificationsService.notifyAccountCreated(user.id, accountNumber);
+    await this.notificationsService.notifyWelcome(user.id, email);
     return this.mapUser(user);
   }
 
-  async findAll(params?: { skip?: number; take?: number }): Promise<User[]> {
-    const { skip = 0, take = 100 } = params || {};
-    const { data, error } = await this.supabase
+  async findAll(params?: { skip?: number; take?: number; tenantId?: string | null }): Promise<User[]> {
+    const { skip = 0, take = 100, tenantId } = params || {};
+    let query = this.supabase
       .getAdminClient()
       .from('users')
-      .select('*')
-      .range(skip, skip + take - 1);
+      .select('*');
+    if (tenantId) {
+      query = query.eq('tenant_id', tenantId);
+    }
+    const { data, error } = await query.range(skip, skip + take - 1);
     if (error) throw new BadRequestException(`Failed to fetch users: ${error.message}`);
     return (data ?? []).map(u => this.mapUser(u));
   }
@@ -185,6 +195,7 @@ export class UsersService {
     if (userData.status !== undefined) updatePayload.status = userData.status;
     if (userData.kyc_status !== undefined) updatePayload.kyc_status = userData.kyc_status;
     if (userData.role !== undefined) updatePayload.role = userData.role;
+    if (userData.preferences !== undefined) updatePayload.preferences = userData.preferences ?? null;
     if (hashedPassword) updatePayload.password_hash = hashedPassword;
     if (Object.keys(updatePayload).length === 0) {
       return user;
@@ -371,10 +382,11 @@ export class UsersService {
       status: user.status,
       kyc_status: user.kyc_status,
       hasPassword: Boolean(user.password_hash),
-      // Safe fallback for two_factor_enabled if column doesn't exist
       two_factor_enabled: Boolean(user.two_factor_enabled ?? false),
+      preferences: user.preferences ?? null,
       createdAt: user.created_at,
       updatedAt: user.updated_at,
+      tenant_id: user.tenant_id ?? null,
     };
     if (options.includeSensitive) {
       payload.password = user.password_hash;

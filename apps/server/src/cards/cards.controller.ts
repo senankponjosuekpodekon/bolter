@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Req, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { CardsService } from './cards.service';
+import { CardsService, Card } from './cards.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -25,16 +25,32 @@ export class CardsController {
     @Get('account/:accountId')
     @ApiOperation({ summary: 'Get cards for an account' })
     @ApiResponse({ status: 200, description: 'Return cards' })
-    getCardsByAccount(@Param('accountId') accountId: string) {
-        return this.cardsService.findByAccountId(accountId);
+    async getCardsByAccount(@Req() req, @Param('accountId') accountId: string) {
+        const cards = await this.cardsService.findByAccountId(accountId);
+        const isAdmin = ['ADMIN', 'COMPLIANCE', 'SUPER_ADMIN'].includes(req.user.role);
+        if (!isAdmin) {
+            const userCards = await this.cardsService.findByUserId(req.user.id);
+            const userAccountIds = new Set(userCards.map((c: Card) => c.account_id));
+            if (!userAccountIds.has(accountId)) throw new ForbiddenException('Access denied');
+        }
+        return cards;
     }
 
     @Get(':id')
     @ApiOperation({ summary: 'Get card by ID' })
     @ApiResponse({ status: 200, description: 'Return card' })
     @ApiResponse({ status: 404, description: 'Card not found' })
-    getCard(@Param('id') id: string) {
-        return this.cardsService.findById(id);
+    async getCard(@Req() req, @Param('id') id: string) {
+        const card = await this.cardsService.findById(id) as Card;
+        const isAdmin = ['ADMIN', 'COMPLIANCE', 'SUPER_ADMIN'].includes(req.user.role);
+        if (!isAdmin) {
+            const userCards = await this.cardsService.findByUserId(req.user.id);
+            const userAccountIds = new Set(userCards.map((c: Card) => c.account_id));
+            if (!userAccountIds.has(card?.account_id)) {
+                throw new ForbiddenException('Access denied');
+            }
+        }
+        return card;
     }
 
     @Post()
@@ -45,7 +61,7 @@ export class CardsController {
         if (!createCardDto.accountId) {
             throw new BadRequestException('accountId is required');
         }
-        return this.cardsService.create(req.user.id, createCardDto.accountId, createCardDto);
+        return this.cardsService.create(req.user.id, createCardDto.accountId, createCardDto, false, req.tenant?.id);
     }
 
     @Post('admin/:userId/:accountId')
@@ -58,7 +74,7 @@ export class CardsController {
         @Param('accountId') accountId: string,
         @Body() createCardDto: CreateCardDto,
     ) {
-        return this.cardsService.create(userId, accountId, createCardDto, true);
+        return this.cardsService.create(userId, accountId, createCardDto, true, req.tenant?.id);
     }
 
     @Patch(':id')

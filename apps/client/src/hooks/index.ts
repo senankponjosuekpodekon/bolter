@@ -18,3 +18,5 @@ export type { UseFormattingReturn } from './useFormatting'
 export { useTransactionMutations } from './useTransactionMutations'
 
 export { useToast } from './useToast'
+
+export { useEnabledWidgets } from './useEnabledWidgets'

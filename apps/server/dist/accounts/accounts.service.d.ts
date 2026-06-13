@@ -39,7 +39,7 @@ export declare class AccountsService {
         total: number;
     }>;
     findByIds(ids: string[]): Promise<Account[]>;
-    create(userId: string, dto: CreateAccountDto, bypassLimits?: boolean): Promise<Account>;
+    create(userId: string, dto: CreateAccountDto, bypassLimits?: boolean, tenantId?: string | null): Promise<Account>;
     getBalance(accountId: string): Promise<number>;
     update(adminId: string, accountId: string, updateDto: UpdateAccountDto): Promise<Account>;
     delete(userId: string, accountId: string, deleteDto: DeleteAccountDto): Promise<{

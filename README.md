@@ -1,35 +1,73 @@
 # Banking Platform - Full Stack Monorepo
 
-Plateforme bancaire complète avec Backend NestJS, Frontend Client React, et Admin Panel React-Admin.
+Plateforme bancaire complète avec Backend NestJS et Frontend React (client + admin intégré).
 
-## 📊 Current Status (10 décembre 2025)
+## 📊 État actuel (juin 2026)
 
 **Code Quality:**
 
-- ✅ **Lint:** 0 errors (All passing)
-- ✅ **TypeScript:** 0 type errors (All passing)
-- ✅ **Builds:** All 3 applications building successfully
+- ✅ Lint : 0 erreurs
+- ✅ TypeScript : 0 erreurs de type
+- ✅ Builds : server + client OK
 
-**Testing:**
+**Tests:**
 
-- ✅ **Backend Tests:** 66/66 passing (100%)
-  - 8/8 test suites passing
-  - All services tested: Loans, Cards, Notifications, Transactions, KYC, Exchange, Admin, Localization
-- ✅ **Frontend Tests:** Comprehensive test suites for filters and bulk operations
-  - Filter service tests with mocked API calls
-  - Bulk operations service tests with data transformation
+- ✅ Backend : 66/66 passing
+- ✅ Frontend : Dashboard (5), Accounts (6), Loans, Profile, KYC, 2FA
 
 ## 🏗️ Architecture Monorepo
 
 ```
-banking-platform/
+bolter/
 ├── apps/
-│   ├── server/          # Backend NestJS + Supabase
-│   ├── client/          # Frontend Client React + Vite
-│   └── admin/           # Admin Panel React-Admin
-├── package.json         # Root workspace configuration
-└── README.md
+│   ├── server/          # Backend NestJS + Supabase (port 3000)
+│   └── client/          # Frontend React + Vite (port 5173)
+│       └── src/admin/   # Admin panel intégré (route /admin)
+├── supabase/            # Scripts SQL (sécurité, RLS)
+├── docker-compose.yml   # Orchestration prod
+├── ngrok.yml            # Config tunnels dev
+└── scripts/
+    └── start-ngrok.sh   # Démarrage dev avec tunnel public
 ```
+
+## 🚀 Démarrage rapide
+
+### Développement local
+
+```bash
+npm install
+npm run dev          # server (3000) + client (5173)
+```
+
+Accès :
+- Client : http://localhost:5173
+- Admin : http://localhost:5173/admin
+- Swagger : http://localhost:3000/api/docs
+
+### Développement avec ngrok (accès mobile / URL publique)
+
+```bash
+npm run start:ngrok
+```
+
+Le script démarre automatiquement le server, le tunnel ngrok et le client Vite.  
+L'URL publique est affichée dans le terminal — le même tunnel sert client, admin et API via le proxy Vite.
+
+### Production avec Docker
+
+```bash
+# Copier et remplir les variables d'environnement
+cp apps/server/.env.example apps/server/.env
+
+# Lancer
+docker compose up --build
+```
+
+Accès :
+- Client + Admin : http://localhost:80
+- Server : http://localhost:3000 (interne uniquement)
+
+En prod avec un vrai domaine, placer un reverse proxy (Caddy / Traefik / Nginx) devant pour le HTTPS automatique.
 
 ## ✅ Applications
 
@@ -61,53 +99,28 @@ banking-platform/
 - ✅ Vérification solde suffisant avant virements/retraits
 - ✅ Support DEPOSIT/WITHDRAWAL en plus des TRANSFER
 
-### 2. Client Dashboard (apps/client/) - Port 5173
+### 2. Client + Admin (apps/client/) - Port 5173
 
 **React 18 + TypeScript + Vite + Tailwind CSS**
 
-**Pages**:
+**Routes :**
+- `/login` `/register` — Auth
+- `/dashboard` — Vue d'ensemble (soldes, transactions, widgets configurables)
+- `/accounts` — Comptes bancaires + cartes
+- `/transactions` — Transfer / Deposit / Withdraw
+- `/loans` — Prets + simulateur
+- `/tontines` — Tontines (creation, membres, contributions)
+- `/profile` — Profil editable, KYC, 2FA, preferences widgets
+- `/admin/*` — Panel admin React-Admin (ADMIN/COMPLIANCE uniquement)
 
-- `/login` - Connexion utilisateur
-- `/register` - Inscription nouveau compte
-- `/dashboard` - Vue d'ensemble (soldes, transactions récentes)
-- `/transactions` - **Onglets Transfer/Deposit/Withdraw** ⭐⭐⭐
-  - Formulaire virement (TRANSFER)
-  - Historique complet avec statuts
-- `/profile` - **Gestion profil éditable** ⭐⭐
-  - Modification firstName, lastName, phone, address
-  - Vue des statuts (role, account status, KYC status)
+**Features cles :**
+- Refresh token silencieux (intercepteur axios, queue de requetes)
+- Timeout axios 15s + toast reseau automatique
+- Rate limiting formulaires auth (debounce + cooldown 429)
+- Preferences (theme, widgets) persistees en base
+- Responsive complet : bottom nav mobile, drawer, `--vh` fix iOS
+- Dark mode, i18n (fr/en)
 
-- ✅ **Menu Administration conditionnel** - Visible uniquement pour ADMIN/COMPLIANCE ⭐
-
-- **Users** - CRUD utilisateurs, gestion rôles et statuts
-  - Liste tous les comptes bancaires avec owner et soldes
-  - Audit log automatique des modifications
-- **Audit Logs** - **Historique complet des actions** ⭐⭐
-- ✅ Gestion utilisateurs avec modification rôles
-- ✅ **Consultation Audit Logs** depuis l'admin pour tracer toutes les actions
-- ✅ Auth réservée aux rôles ADMIN et COMPLIANCE
-  - Endpoints sécurisés (ROLE = ADMIN/COMPLIANCE) pour listing, édition profil, changement rôle/statut, activation/désactivation.
-  - Services appliquent validations (immutabilité email, rôles autorisés) et publient les entrées `audit_logs` (`resource_type = "user"`, `action` = role_change|status_update|profile_update).
-  - DTO retournent métadonnées (`validated_by`, `updated_at`) afin d’alimenter l’UI React-Admin.
-
-- **Frontend (React-Admin)**
-  - Resource `users`: `Datagrid` + `Edit` form pilotant les mutations (role/status toggle, reset 2FA).
-  - `useMutation` déclenche un `PATCH`/`POST` vers chaque endpoint dédié, puis rafraîchit la liste (`refresh` + `invalidateStore`).
-  - Affichage des retours backend (snackbar succès/erreur) et des informations d’audit (`lastActionBy`, `lastActionAt`).
-
-  - Services Nest injectent `AuditLogsService` pour consigner authentification, comptes, utilisateurs et transactions.
-  - L'admin panel consomme `GET /audit-logs` (filtres action/resource/user) pour afficher l'historique des opérations.
-
-## 🚀 Quick Start
-
-```bash
-
-```
-
-- Admin panel: http://localhost:5174
-  **Démarrage individuel**:
-
-npm run dev:admin # Admin only
 
 ## 🔐 Workflows Principaux
 
@@ -130,44 +143,50 @@ npm run dev:admin # Admin only
 
 ## 📦 Scripts Disponibles
 
-### Root (monorepo)
-
 ```bash
-npm run dev              # Start all apps
-npm run build            # Build all apps
-npm run dev:server       # Start server only
-npm run dev:client       # Start client only
-npm run dev:admin        # Start admin only
-npm run build:server     # Build server
-npm run build:client     # Build client
-npm run build:admin      # Build admin
+npm run dev              # server + client (dev)
+npm run dev:server       # server uniquement
+npm run dev:client       # client uniquement
+npm run build            # build server + client
+npm run build:server     # build server
+npm run build:client     # build client
+npm run test             # tests tous les workspaces
+npm run lint             # lint server + client
+npm run start:ngrok      # dev avec tunnel ngrok public
 ```
 
 ## 🔧 Configuration
 
-### Supabase Setup
+### Variables d'environnement
 
-Créer `apps/server/.env`:
+Créer `apps/server/.env` :
 
 ```env
+# Supabase
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# JWT
 JWT_SECRET=your-jwt-secret
 JWT_REFRESH_SECRET=your-refresh-secret
 JWT_EXPIRATION=3600
 JWT_REFRESH_EXPIRATION=604800
+
+# Email
 EMAIL_HOST=smtp.sendgrid.net
 EMAIL_PORT=587
 EMAIL_USER=apikey
 EMAIL_PASSWORD=your-smtp-password
-EMAIL_FROM=notifications@banking-platform.test
-APP_URL=http://localhost:5173
-VITE_API_URL=http://localhost:3000
-VITE_NOTIFICATIONS_URL=http://localhost:3000
-PORT=3000
+EMAIL_FROM=notifications@your-domain.com
 
+# App
+PORT=3000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 ```
+
+> En production Docker, `FRONTEND_URL` doit pointer vers le domaine réel pour que CORS fonctionne.
 
 ### Base de données Supabase
 
@@ -286,14 +305,12 @@ npm run --prefix apps/server dev
 export VITE_API_URL=http://192.168.1.199:3000   # optionnel : utile si tu builds le front ou veux pointer explicitement l'API
 npm run --prefix apps/client dev
 
-# Admin (si besoin)
-npm run --prefix apps/admin dev
 ```
 
 Ensuite sur ton téléphone (même Wi‑Fi) : (modi de viturl dans .env et main.ts serveur file)
 
 - Front client : `http://192.168.1.199:5173`
-- Admin : `http://192.168.1.199:5174`
+- Admin : `http://192.168.1.199:5173/admin`
 - Swagger backend : `http://192.168.1.199:3000/api/docs`
 
 Remarques :
@@ -326,17 +343,28 @@ Le serveur lit les certificats depuis `apps/server/cert` et utilisera les fichie
 3. Utiliser un tunnel HTTPS public (ngrok)
 
 ```bash
-# expose le port 3000 via ngrok (HTTPS public)
+# Option 1: Tunnel simple (port 3000)
 ngrok http 3000
-```
-Ou via le script npm interne du projet :
 
-```bash
+# Option 2: Script du projet (recommandé)
+npm run start:ngrok
+
+# Option 3: Tunnel uniquement
 npm run tunnel
 ```
 
-Le script utilise `scripts/ngrok.js` et crée un tunnel vers le port `3000` par défaut. Il peut aussi lire `NGROK_PORT`, `NGROK_PROTO`, `NGROK_REGION` et `NGROK_AUTH_TOKEN`.
-ngrok fournit une URL HTTPS publique que tu peux ouvrir depuis ton téléphone sans toucher aux certificats locaux. Utile pour partage rapide, attention à l'exposition publique des API.
+**Script `start:ngrok`**:
+- Démarre automatiquement le serveur API (port 3000)
+- Crée un tunnel ngrok HTTPS public
+- Affiche l'URL publique à utiliser
+
+**Dépannage ngrok**:
+- Si le tunnel ne démarre pas, vérifiez que ngrok est installé: `npm install -g ngrok`
+- Si l'URL n'est pas récupérée, patientez jusqu'à 30 secondes
+- Vérifiez votre connexion internet
+- Assurez-vous que le port 3000 n'est pas déjà utilisé
+
+Le script utilise `scripts/start-ngrok.sh` et crée un tunnel vers le port `3000` par défaut. ngrok fournit une URL HTTPS publique que vous pouvez utiliser depuis votre téléphone ou pour partager l'API.
 
 4. Firewall / réseau
 
@@ -506,10 +534,13 @@ PATCH /api/transactions/:id/validate
 ### Authentification & Autorisation
 
 - Passwords hashés avec bcrypt
-- JWT tokens avec expiration
-- Row Level Security (RLS) sur toutes les tables
-- Validation des données avec class-validator
-- Guards NestJS (JwtAuthGuard + RolesGuard)
+- JWT access token (1h) + refresh token silencieux (7j)
+- CORS restrictif : liste blanche `FRONTEND_URL` + ngrok
+- Rate limiting : login (10/15min), password reset (3/h) côté serveur
+- Rate limiting formulaires : debounce + cooldown 429 côté client
+- Row Level Security (RLS) sur toutes les tables Supabase
+- GraphQL anon/authenticated accès révoqué (voir `supabase/security-fix.sql`)
+- Validation class-validator + Guards NestJS (JwtAuthGuard + RolesGuard)
 
 ### Two-Factor Authentication (2FA)
 
@@ -580,48 +611,31 @@ PATCH /api/transactions/:id/validate
 - ✅ **Edition comptes bancaires (IBAN/Type/Status/Balance) avec audit** ⭐⭐
 - ✅ **Vue Audit Logs** filtrable (actions, entités, user)
 
-### 🚧 Améliorations Futures
+### 🚧 Améliorations futures
 
-**Backend**:
+**DevOps :**
+- [ ] CI/CD GitHub Actions (lint + test + build Docker)
+- [ ] Health check endpoint `/api/health`
+- [ ] Monitoring (Sentry, Datadog)
 
-- [x] 2FA authentification (TOTP) ✅
-- [ ] Tests unitaires et e2e (en cours - unit tests pour 2FA, e2e tests pour setup→enable→login)
+**Backend :**
 - [ ] Notifications email (transactions validées, KYC reviewed)
-- [ ] WebSocket pour notifications temps réel
-- [ ] Support multi-devises (EUR, USD, GBP)
 - [ ] Export PDF relevés de compte
-- [ ] Scheduled transactions (virements programmés)
-- [ ] Codes de secours (backup codes) pour 2FA
-- [ ] 2FA par SMS ou email comme alternative
+- [ ] 2FA par SMS/email en alternative TOTP
 
-**Frontend**:
-
-- [ ] Tests composants React
-- [ ] Tests e2e (Playwright/Cypress)
-- [ ] Notifications toast améliorées
-- [ ] Dark mode
-- [ ] Graphiques analytics avancés
-
-**Admin**:
-
-- [ ] Dashboard analytics avec graphiques
-- [ ] Export CSV/PDF des données
-- [ ] Filtres avancés supplémentaires (multi critères)
-- [ ] Actions bulk (validation multiple, mises à jour groupées)
-
-**DevOps**:
-
-- [ ] Docker + Docker Compose
-- [ ] CI/CD (GitHub Actions)
-- [ ] Monitoring (Datadog, Sentry)
-- [ ] Health checks et alerts
+**Frontend :**
+- [ ] Tests e2e Playwright
+- [ ] Graphiques analytics Dashboard
+- [ ] Export CSV/PDF données
+- [ ] Accessibilité WCAG 2.1 (focus trap drawer mobile)
 
 ## 📖 Documentation
 
-- `README.md` - Ce fichier (vue d'ensemble)
-- `IMPLEMENTATION.md` - Détails techniques implémentation
-- `MISSING_FEATURES.md` - Analyse complète de ce qui manque
-- `README_MONOREPO.md` - Guide rapide monorepo
+- `README.md` — Ce fichier
+- `supabase/security-fix.sql` — Script SQL sécurité (à exécuter dans Supabase SQL Editor)
+- `apps/server/src/` — Code NestJS annoté
+- `apps/client/src/admin/` — Panel admin React-Admin
+- Swagger : http://localhost:3000/api/docs (en dev)
 
 ## 🤝 Contribution
 

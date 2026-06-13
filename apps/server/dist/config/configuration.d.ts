@@ -1,10 +1,18 @@
 declare const _default: () => {
     port: number;
+    app: {
+        name: string;
+        url: string;
+        supportEmail: string;
+        logoUrl: string;
+        primaryColor: string;
+    };
     database: {
         url: string;
     };
     jwt: {
         secret: string;
+        refreshSecret: string;
         expiresIn: number;
         refreshExpiresIn: number;
     };

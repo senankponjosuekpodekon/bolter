@@ -88,7 +88,28 @@ async function bootstrap() {
             originAgentCluster: false,
         }));
     }
-    app.enableCors();
+    const frontendUrl = configService.get('frontend.url', 'http://localhost:5173');
+    const allowedOrigins = [
+        frontendUrl,
+        'http://localhost:5173',
+        'http://localhost:5174',
+        /^https:\/\/[a-z0-9-]+\.ngrok-free\.dev$/,
+        /^https:\/\/[a-z0-9-]+\.ngrok\.io$/,
+        /^https:\/\/[a-z0-9-]+\.ngrok\.app$/,
+    ];
+    app.enableCors({
+        origin: (origin, callback) => {
+            if (!origin)
+                return callback(null, true);
+            const allowed = allowedOrigins.some((o) => typeof o === 'string' ? o === origin : o.test(origin));
+            if (allowed)
+                return callback(null, true);
+            callback(new Error(`CORS: origin '${origin}' not allowed`));
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID'],
+    });
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
@@ -106,12 +127,14 @@ async function bootstrap() {
         .addBearerAuth()
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, swaggerConfig);
-    swagger_1.SwaggerModule.setup('api/docs', app, document, {
-        swaggerOptions: {
-            url: '/api-json',
-        },
-        customSiteTitle: 'Banking Platform API Docs',
-    });
+    if (process.env.NODE_ENV !== 'production') {
+        swagger_1.SwaggerModule.setup('api/docs', app, document, {
+            swaggerOptions: {
+                url: '/api-json',
+            },
+            customSiteTitle: 'Banking Platform API Docs',
+        });
+    }
     await app.listen(port, '0.0.0.0');
     logger.log(`Application is running on: https://192.168.1.199:${port} or http://localhost:${port}`);
 }

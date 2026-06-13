@@ -1,4 +1,4 @@
-declare const USER_ROLES: readonly ["CLIENT", "ADMIN", "COMPLIANCE"];
+declare const USER_ROLES: readonly ["CLIENT", "ADMIN", "COMPLIANCE", "SUPER_ADMIN"];
 declare const USER_STATUSES: readonly ["ACTIVE", "SUSPENDED", "PENDING_VERIFICATION", "CLOSED"];
 declare const KYC_STATUSES: readonly ["PENDING", "SUBMITTED", "APPROVED", "REJECTED"];
 export type UserRole = (typeof USER_ROLES)[number];
@@ -17,5 +17,6 @@ export declare class CreateUserDto {
     locale?: string;
     currency?: string;
     timezone?: string;
+    preferences?: Record<string, unknown>;
 }
 export {};

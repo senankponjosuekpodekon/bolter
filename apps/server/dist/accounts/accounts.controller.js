@@ -42,10 +42,10 @@ let AccountsController = class AccountsController {
         return this.accountsService.getBalance(id);
     }
     createAccount(req, createAccountDto) {
-        return this.accountsService.create(req.user.id, createAccountDto);
+        return this.accountsService.create(req.user.id, createAccountDto, false, req.tenant?.id);
     }
     createAccountAsAdmin(req, userId, createAccountDto) {
-        return this.accountsService.create(userId, createAccountDto, true);
+        return this.accountsService.create(userId, createAccountDto, true, req.tenant?.id);
     }
     updateAccount(req, id, updateAccountDto) {
         return this.accountsService.update(req.user.id, id, updateAccountDto);

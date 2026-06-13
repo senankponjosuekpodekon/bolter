@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useTranslation } from "react-i18next";
 import { loadLocale } from "../i18n";
 import { useLocalization, useFormatting } from "../hooks";
+import { useRateLimitedSubmit } from "../hooks/useRateLimitedSubmit";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ export default function Register() {
         : "UTC",
   });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { isSubmitting: loading, cooldownRemaining, wrap } = useRateLimitedSubmit();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { changeLanguage } = useLocalization();
@@ -38,10 +39,8 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    try {
-      // Ensure currency defaults based on locale if not provided
+    await wrap(async () => {
       type RegisterPayload = {
         email: string;
         password: string;
@@ -53,7 +52,6 @@ export default function Register() {
       };
       const payload = { ...formData } as RegisterPayload;
       if (!payload.currency) {
-        // basic mapping by locale
         const defaultCurrency: Record<string, string> = {
           "en-US": "USD",
           "fr-FR": "EUR",
@@ -66,16 +64,15 @@ export default function Register() {
       }
       await api.post("/auth/register", payload);
       navigate("/login");
-    } catch (err) {
+    }).catch((err) => {
       let message = "Registration failed";
       if (typeof err === "object" && err !== null && "response" in err) {
-        // @ts-expect-error: err type from axios may have response property
-        message = err.response?.data?.message || message;
+        const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+        if (typeof msg === "string") message = msg;
       }
+      if (cooldownRemaining > 0) message = `Too many attempts. Please wait ${cooldownRemaining}s.`;
       setError(message);
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -223,10 +220,14 @@ export default function Register() {
           </div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || cooldownRemaining > 0}
             className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? t("register.creating") : t("register.register")}
+            {loading
+              ? t("register.creating")
+              : cooldownRemaining > 0
+              ? `${t("register.register")} (${cooldownRemaining}s)`
+              : t("register.register")}
           </button>
           <div className="text-center">
             <Link to="/login" className="text-blue-600 hover:text-blue-500">

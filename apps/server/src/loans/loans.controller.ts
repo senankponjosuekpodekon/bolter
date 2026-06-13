@@ -20,7 +20,7 @@ export class LoansController {
   @Post()
   @ApiOperation({ summary: 'Create a new loan request' })
   createLoan(@Req() req, @Body() dto: CreateLoanDto) {
-    return this.loansService.createLoan(req.user.id, dto);
+    return this.loansService.createLoan(req.user.id, dto, req.tenant?.id);
   }
 
   @Get()

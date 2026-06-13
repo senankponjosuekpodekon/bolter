@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Req, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,15 +19,31 @@ export class UsersController {
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Create a new user (Admin only)' })
   create(@Req() req, @Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto, { performedBy: req.user.id });
+    const actor = req.user;
+    const requestedRole = createUserDto.role ?? 'CLIENT';
+
+    if (actor.role === 'ADMIN') {
+      // ADMIN can only create CLIENT or COMPLIANCE
+      if (requestedRole === 'ADMIN' || requestedRole === 'SUPER_ADMIN') {
+        throw new ForbiddenException('ADMIN can only create CLIENT or COMPLIANCE users');
+      }
+    }
+
+    if (actor.role === 'SUPER_ADMIN' && requestedRole === 'SUPER_ADMIN') {
+      throw new ForbiddenException('Cannot create another SUPER_ADMIN');
+    }
+
+    const tenantId = req.tenant?.id ?? null;
+    return this.usersService.create(createUserDto, { performedBy: actor.id, tenantId });
   }
 
   @Get()
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Get all users (Admin only)' })
-  findAll(@Query() query: QueryUserDto) {
+  findAll(@Req() req, @Query() query: QueryUserDto) {
     const { skip, take } = query;
-    return this.usersService.findAll({ skip, take });
+    const tenantId = req.user?.role === 'SUPER_ADMIN' ? null : (req.tenant?.id ?? null);
+    return this.usersService.findAll({ skip, take, tenantId });
   }
 
   @Get('profile')
@@ -47,23 +63,45 @@ export class UsersController {
   @ApiOperation({ summary: 'Update current user profile' })
   updateProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const allowed = { ...(updateUserDto ?? {}) } as Record<string, unknown>;
-    delete allowed.role;
-    delete allowed.status;
-    delete allowed.kyc_status;
+    delete allowed.role;       // Users cannot change their own role
+    delete allowed.status;     // Users cannot change their own status
+    delete allowed.kyc_status; // Users cannot change their own KYC status
     return this.usersService.update(req.user.id, allowed as UpdateUserDto, { performedBy: req.user.id });
   }
 
   @Patch(':id')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Update user (Admin only)' })
-  update(@Req() req, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto, { performedBy: req.user.id });
+  async update(@Req() req, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const actor = req.user;
+    // Only SUPER_ADMIN can assign/change roles
+    if (updateUserDto.role && actor.role !== 'SUPER_ADMIN') {
+      throw new ForbiddenException('Only SUPER_ADMIN can change user roles');
+    }
+    // ADMIN cannot modify another ADMIN or SUPER_ADMIN
+    if (actor.role === 'ADMIN') {
+      const target = await this.usersService.findById(id);
+      if (target?.role === 'ADMIN' || target?.role === 'SUPER_ADMIN') {
+        throw new ForbiddenException('ADMIN cannot modify another ADMIN or SUPER_ADMIN');
+      }
+    }
+    return this.usersService.update(id, updateUserDto, { performedBy: actor.id });
   }
 
   @Delete(':id')
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Delete user (Admin only)' })
-  remove(@Req() req, @Param('id') id: string) {
-    return this.usersService.remove(id, { performedBy: req.user.id });
+  async remove(@Req() req, @Param('id') id: string) {
+    const actor = req.user;
+    // Nobody can delete a SUPER_ADMIN
+    const target = await this.usersService.findById(id);
+    if (target?.role === 'SUPER_ADMIN') {
+      throw new ForbiddenException('SUPER_ADMIN accounts cannot be deleted');
+    }
+    // ADMIN cannot delete another ADMIN
+    if (actor.role === 'ADMIN' && target?.role === 'ADMIN') {
+      throw new ForbiddenException('ADMIN cannot delete another ADMIN');
+    }
+    return this.usersService.remove(id, { performedBy: actor.id });
   }
 }

@@ -7,7 +7,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
-    register(registerDto: RegisterDto): Promise<LoginResponse>;
+    register(req: any, registerDto: RegisterDto): Promise<LoginResponse>;
     login(loginDto: LoginDto, req: any): Promise<LoginResponse>;
     refresh(refreshTokenDto: RefreshTokenDto, req: any): Promise<{
         accessToken: string;

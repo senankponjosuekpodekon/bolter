@@ -40,6 +40,7 @@ let AuditLogsService = AuditLogsService_1 = class AuditLogsService {
             action,
             resource_type: resourceType,
             resource_id: resourceId,
+            tenant_id: options.tenantId ?? null,
             metadata: Object.keys(metadataPayload).length ? metadataPayload : null,
         });
         if (error) {

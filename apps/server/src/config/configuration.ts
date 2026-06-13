@@ -1,10 +1,18 @@
 export default () => ({
   port: parseInt(process.env.PORT, 10) || 3000,
+  app: {
+    name: process.env.APP_NAME || 'Bolter Banking',
+    url: process.env.APP_URL || 'http://localhost:5173',
+    supportEmail: process.env.APP_SUPPORT_EMAIL || 'support@bolter.app',
+    logoUrl: process.env.APP_LOGO_URL || '',
+    primaryColor: process.env.APP_PRIMARY_COLOR || '#2563eb',
+  },
   database: {
     url: process.env.DATABASE_URL,
   },
   jwt: {
     secret: process.env.JWT_SECRET,
+    refreshSecret: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
     expiresIn: parseInt(process.env.JWT_EXPIRATION, 10) || 3600,
     refreshExpiresIn: parseInt(process.env.JWT_REFRESH_EXPIRATION, 10) || 604800,
   },

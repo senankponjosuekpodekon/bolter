@@ -137,6 +137,18 @@ export class TontinesService {
   }
 
   /**
+   * Get ALL tontines — admin use only
+   */
+  async getAllTontines(): Promise<Tontine[]> {
+    const { data, error } = await this.supabase.getAdminClient()
+      .from('tontines')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw new BadRequestException(`Failed to fetch tontines: ${error.message}`);
+    return (data ?? []) as Tontine[];
+  }
+
+  /**
    * Get all tontines for a user
    */
   async getUserTontines(userId: string): Promise<Tontine[]> {

@@ -106,6 +106,15 @@ let TontinesService = TontinesService_1 = class TontinesService {
         }
         return data;
     }
+    async getAllTontines() {
+        const { data, error } = await this.supabase.getAdminClient()
+            .from('tontines')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error)
+            throw new common_1.BadRequestException(`Failed to fetch tontines: ${error.message}`);
+        return (data ?? []);
+    }
     async getUserTontines(userId) {
         const client = this.supabase.getAdminClient();
         const { data: createdByUser, error: creatorError } = await client

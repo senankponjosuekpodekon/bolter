@@ -8,6 +8,7 @@ export declare class TontinesService {
     constructor(supabase: SupabaseService, auditLogs: AuditLogsService);
     createTontine(userId: string, dto: CreateTontineDto): Promise<Tontine>;
     getTontine(tontineId: string, userId: string): Promise<Tontine>;
+    getAllTontines(): Promise<Tontine[]>;
     getUserTontines(userId: string): Promise<Tontine[]>;
     updateTontine(tontineId: string, userId: string, dto: UpdateTontineDto): Promise<Tontine>;
     addMember(tontineId: string, userId: string, dto: AddMemberDto): Promise<TontineMember>;

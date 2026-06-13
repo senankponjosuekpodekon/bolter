@@ -10,6 +10,7 @@ export declare class JwtStrategy extends JwtStrategy_base {
         sub: string;
         email: string;
         role: string;
+        tenant_id?: string | null;
     }): Promise<{
         id: string;
         email: string;
@@ -25,10 +26,12 @@ export declare class JwtStrategy extends JwtStrategy_base {
         kyc_status?: string;
         hasPassword: boolean;
         two_factor_enabled?: boolean;
+        preferences?: Record<string, unknown> | null;
         createdAt?: string;
         updatedAt?: string;
         password?: string;
         refreshToken?: string;
+        tenant_id: string | null;
     }>;
 }
 export {};

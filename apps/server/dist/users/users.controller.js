@@ -27,11 +27,23 @@ let UsersController = class UsersController {
         this.usersService = usersService;
     }
     create(req, createUserDto) {
-        return this.usersService.create(createUserDto, { performedBy: req.user.id });
+        const actor = req.user;
+        const requestedRole = createUserDto.role ?? 'CLIENT';
+        if (actor.role === 'ADMIN') {
+            if (requestedRole === 'ADMIN' || requestedRole === 'SUPER_ADMIN') {
+                throw new common_1.ForbiddenException('ADMIN can only create CLIENT or COMPLIANCE users');
+            }
+        }
+        if (actor.role === 'SUPER_ADMIN' && requestedRole === 'SUPER_ADMIN') {
+            throw new common_1.ForbiddenException('Cannot create another SUPER_ADMIN');
+        }
+        const tenantId = req.tenant?.id ?? null;
+        return this.usersService.create(createUserDto, { performedBy: actor.id, tenantId });
     }
-    findAll(query) {
+    findAll(req, query) {
         const { skip, take } = query;
-        return this.usersService.findAll({ skip, take });
+        const tenantId = req.user?.role === 'SUPER_ADMIN' ? null : (req.tenant?.id ?? null);
+        return this.usersService.findAll({ skip, take, tenantId });
     }
     getProfile(req) {
         return this.usersService.findById(req.user.id);
@@ -46,11 +58,29 @@ let UsersController = class UsersController {
         delete allowed.kyc_status;
         return this.usersService.update(req.user.id, allowed, { performedBy: req.user.id });
     }
-    update(req, id, updateUserDto) {
-        return this.usersService.update(id, updateUserDto, { performedBy: req.user.id });
+    async update(req, id, updateUserDto) {
+        const actor = req.user;
+        if (updateUserDto.role && actor.role !== 'SUPER_ADMIN') {
+            throw new common_1.ForbiddenException('Only SUPER_ADMIN can change user roles');
+        }
+        if (actor.role === 'ADMIN') {
+            const target = await this.usersService.findById(id);
+            if (target?.role === 'ADMIN' || target?.role === 'SUPER_ADMIN') {
+                throw new common_1.ForbiddenException('ADMIN cannot modify another ADMIN or SUPER_ADMIN');
+            }
+        }
+        return this.usersService.update(id, updateUserDto, { performedBy: actor.id });
     }
-    remove(req, id) {
-        return this.usersService.remove(id, { performedBy: req.user.id });
+    async remove(req, id) {
+        const actor = req.user;
+        const target = await this.usersService.findById(id);
+        if (target?.role === 'SUPER_ADMIN') {
+            throw new common_1.ForbiddenException('SUPER_ADMIN accounts cannot be deleted');
+        }
+        if (actor.role === 'ADMIN' && target?.role === 'ADMIN') {
+            throw new common_1.ForbiddenException('ADMIN cannot delete another ADMIN');
+        }
+        return this.usersService.remove(id, { performedBy: actor.id });
     }
 };
 exports.UsersController = UsersController;
@@ -68,9 +98,10 @@ __decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)('ADMIN'),
     (0, swagger_1.ApiOperation)({ summary: 'Get all users (Admin only)' }),
-    __param(0, (0, common_1.Query)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [query_user_dto_1.QueryUserDto]),
+    __metadata("design:paramtypes", [Object, query_user_dto_1.QueryUserDto]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findAll", null);
 __decorate([
@@ -108,7 +139,7 @@ __decorate([
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String, update_user_dto_1.UpdateUserDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
@@ -118,7 +149,7 @@ __decorate([
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "remove", null);
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('users'),

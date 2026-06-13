@@ -30,8 +30,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully registered' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  async register(@Body() registerDto: RegisterDto): Promise<LoginResponse> {
-    return this.authService.register(registerDto);
+  async register(@Req() req, @Body() registerDto: RegisterDto): Promise<LoginResponse> {
+    return this.authService.register(registerDto, req.tenant?.id ?? null);
   }
 
   @UseGuards(LocalAuthGuard)

@@ -5,10 +5,12 @@ import { useTranslation } from "react-i18next";
 import { loadLocale } from "../i18n";
 import api from "../services/api";
 import Verify2FAModal from "../components/auth/Verify2FAModal";
+import { useRateLimitedSubmit } from "../hooks/useRateLimitedSubmit";
 
 interface User {
   id: string;
   email: string;
+  role: string;
   [key: string]: unknown;
 }
 
@@ -23,7 +25,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { isSubmitting: loading, cooldownRemaining, wrap } = useRateLimitedSubmit();
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [tempToken, setTempToken] = useState<string | null>(null);
   const [tempUser, setTempUser] = useState<User | null>(null);
@@ -44,9 +46,8 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    try {
+    await wrap(async () => {
       const response = await api.post<LoginResponse>("/auth/login", {
         email,
         password,
@@ -54,26 +55,31 @@ export default function Login() {
       const { accessToken, user, refreshToken, requires2FA } = response.data;
 
       if (requires2FA) {
-        // Store temporary credentials for 2FA verification
         setTempToken(accessToken);
         setTempUser(user);
         setTempRefreshToken(refreshToken);
         setShow2FAModal(true);
       } else {
-        // No 2FA needed, login directly
-        setAuth(user, accessToken);
-        navigate("/dashboard");
+        setAuth(user, accessToken, refreshToken);
+        if (user.role === 'SUPER_ADMIN') {
+          navigate('/admin/system-config');
+        } else if (user.role === 'ADMIN' || user.role === 'COMPLIANCE') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       }
-    } catch (err) {
+    }).catch((err) => {
       let message = "Login failed";
       if (typeof err === "object" && err !== null && "response" in err) {
-        // @ts-expect-error: err type from axios may have response property
-        message = err.response?.data?.message || message;
+        const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+        if (typeof msg === "string") message = msg;
+      }
+      if (cooldownRemaining > 0) {
+        message = `Too many attempts. Please wait ${cooldownRemaining}s.`;
       }
       setError(message);
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const handleClose2FAModal = () => {
@@ -88,7 +94,13 @@ export default function Login() {
     if (tempToken && tempUser && tempRefreshToken) {
       setAuth(tempUser, tempToken);
       handleClose2FAModal();
-      navigate("/dashboard");
+      if (tempUser.role === 'SUPER_ADMIN') {
+        navigate('/admin/system-config');
+      } else if (tempUser.role === 'ADMIN' || tempUser.role === 'COMPLIANCE') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     }
   };
 
@@ -135,10 +147,14 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || cooldownRemaining > 0}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {loading ? t("login.signing_in") : t("login.sign_in")}
+              {loading
+                ? t("login.signing_in")
+                : cooldownRemaining > 0
+                ? `${t("login.sign_in")} (${cooldownRemaining}s)`
+                : t("login.sign_in")}
             </button>
           </div>
 

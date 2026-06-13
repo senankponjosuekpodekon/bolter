@@ -79,7 +79,7 @@ let AuthService = class AuthService {
         return copy;
     }
     async login(user) {
-        const payload = { email: user.email, sub: user.id, role: user.role };
+        const payload = { email: user.email, sub: user.id, role: user.role, tenant_id: user.tenant_id ?? null };
         const refreshToken = this.generateRefreshToken(payload);
         await this.usersService.setRefreshToken(user.id, refreshToken);
         const success = await this.auditLogsService.log({
@@ -104,7 +104,7 @@ let AuthService = class AuthService {
         };
         return response;
     }
-    async register(registerDto) {
+    async register(registerDto, tenantId) {
         const existingUser = await this.usersService.findByEmail(registerDto.email);
         if (existingUser) {
             throw new common_1.BadRequestException('User with this email already exists');
@@ -113,6 +113,7 @@ let AuthService = class AuthService {
             ...registerDto,
             role: 'CLIENT',
         }, {
+            tenantId: tenantId ?? null,
             metadata: {
                 channel: 'EMAIL',
             },
@@ -141,7 +142,7 @@ let AuthService = class AuthService {
         }
         return response;
     }
-    async validateOAuthUser(profile) {
+    async validateOAuthUser(profile, tenantId) {
         const { emails, displayName } = profile;
         const email = emails[0].value;
         let user = await this.usersService.findByEmail(email);
@@ -156,6 +157,7 @@ let AuthService = class AuthService {
                 lastName,
                 role: 'CLIENT',
             }, {
+                tenantId: tenantId ?? null,
                 metadata: {
                     channel: 'GOOGLE',
                 },
@@ -179,7 +181,7 @@ let AuthService = class AuthService {
     }
     generateRefreshToken(payload) {
         const refreshToken = this.jwtService.sign(payload, {
-            secret: this.configService.get('jwt.secret'),
+            secret: this.configService.get('jwt.refreshSecret'),
             expiresIn: `${this.configService.get('jwt.refreshExpiresIn')}s`,
         });
         return refreshToken;
@@ -205,9 +207,10 @@ let AuthService = class AuthService {
     }
     async setupTwoFactor(userId) {
         const user = await this.usersService.findById(userId);
+        const appName = this.configService.get('app.name') || 'Bolter Banking';
         const secret = speakeasy.generateSecret({
-            name: `Bolter (${user?.email || 'user'})`,
-            issuer: 'Bolter Banking'
+            name: `${appName} (${user?.email || 'user'})`,
+            issuer: appName,
         });
         await this.usersService.setTempTwoFactorSecret(userId, secret.base32);
         const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);

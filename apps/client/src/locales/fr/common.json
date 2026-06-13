@@ -44,8 +44,11 @@
       "currency_label": "Devise",
       "timezone_label": "Fuseau horaire",
       "save_prefs": "Sauvegarder préférences",
-      "widgets_label": "Widgets affichés"
-    }
+      "widgets_label": "Widgets affichés",
+      "save_widgets": "Sauvegarder les widgets"
+    },
+    "widgets_saved_success": "Widgets sauvegardés avec succès",
+    "widgets_saved_error": "Erreur lors de la sauvegarde des widgets"
   },
   "login": {
     "title": "Connectez-vous à votre compte",
@@ -264,6 +267,7 @@
   "common": {
     "loading": "Chargement…",
     "na": "N/A",
-    "error": "Erreur"
+    "error": "Erreur",
+    "success": "Succès"
   }
 }

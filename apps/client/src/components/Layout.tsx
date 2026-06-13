@@ -6,11 +6,13 @@ import BottomNav from "./navigation/BottomNav";
 import { useState, useEffect } from "react";
 import { websocketService } from "../services/websocketService";
 import { useNotificationListener } from "../hooks/useNotificationListener";
+import { useEnabledWidgets } from "../hooks/useEnabledWidgets";
 
 export default function Layout() {
   const { user, logout, accessToken } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const enabledWidgets = useEnabledWidgets();
 
   // Initialize WebSocket connection
   useEffect(() => {
@@ -69,32 +71,40 @@ export default function Layout() {
                 </h1>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  to="/dashboard"
-                  onMouseEnter={() => import("../pages/Dashboard")}
-                  className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/accounts"
-                  className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Accounts
-                </Link>
-                <Link
-                  to="/loans"
-                  onMouseEnter={() => import("../pages/Loans")}
-                  className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Loans
-                </Link>
-                <Link
-                  to="/tontines"
-                  className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Tontines
-                </Link>
+                {enabledWidgets.dashboard && (
+                  <Link
+                    to="/dashboard"
+                    onMouseEnter={() => import("../pages/Dashboard")}
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                {enabledWidgets.accounts && (
+                  <Link
+                    to="/accounts"
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  >
+                    Accounts
+                  </Link>
+                )}
+                {enabledWidgets.loans && (
+                  <Link
+                    to="/loans"
+                    onMouseEnter={() => import("../pages/Loans")}
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  >
+                    Loans
+                  </Link>
+                )}
+                {enabledWidgets.tontines && (
+                  <Link
+                    to="/tontines"
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  >
+                    Tontines
+                  </Link>
+                )}
                 <Link
                   to="/profile"
                   onMouseEnter={() => import("../pages/Profile")}

@@ -13,10 +13,12 @@ export interface User {
     kyc_status?: string;
     hasPassword: boolean;
     two_factor_enabled?: boolean;
+    preferences?: Record<string, unknown> | null;
     createdAt?: string;
     updatedAt?: string;
     password?: string;
     refreshToken?: string;
+    tenant_id?: string | null;
 }
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -31,6 +33,7 @@ export declare class UsersService {
     constructor(supabase: SupabaseService, auditLogsService: AuditLogsService, notificationsService: NotificationsService);
     create(data: CreateUserDto, options?: {
         performedBy?: string | null;
+        tenantId?: string | null;
         metadata?: {
             changes?: Record<string, unknown>;
             [k: string]: unknown;
@@ -39,6 +42,7 @@ export declare class UsersService {
     findAll(params?: {
         skip?: number;
         take?: number;
+        tenantId?: string | null;
     }): Promise<User[]>;
     findById(id: string, options?: {
         includeSensitive?: boolean;

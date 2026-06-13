@@ -29,7 +29,7 @@ let LoansController = class LoansController {
         this.loansService = loansService;
     }
     createLoan(req, dto) {
-        return this.loansService.createLoan(req.user.id, dto);
+        return this.loansService.createLoan(req.user.id, dto, req.tenant?.id);
     }
     findLoans(req, query) {
         return this.loansService.findLoans(query, req.user);

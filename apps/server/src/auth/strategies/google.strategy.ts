@@ -15,16 +15,19 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientSecret: configService.get<string>('google.clientSecret'),
       callbackURL: configService.get<string>('google.callbackUrl'),
       scope: ['email', 'profile'],
+      passReqToCallback: true,
     });
   }
 
   async validate(
-    accessToken: string,
-    refreshToken: string,
+    req: { tenant?: { id?: string } },
+    _accessToken: string,
+    _refreshToken: string,
     profile: { emails?: Array<{ value: string }>; id: string; displayName?: string },
     done: VerifyCallback,
   ): Promise<void> {
-    const user = await this.authService.validateOAuthUser(profile);
+    const tenantId = req.tenant?.id ?? null;
+    const user = await this.authService.validateOAuthUser(profile, tenantId);
     done(null, user);
   }
 }

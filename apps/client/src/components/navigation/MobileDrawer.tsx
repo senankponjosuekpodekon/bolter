@@ -2,6 +2,9 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { Link } from "react-router-dom";
+import { useEnabledWidgets } from "../../hooks/useEnabledWidgets";
+
+const FOCUSABLE = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
 
 type Props = {
   open: boolean;
@@ -12,12 +15,34 @@ export default function MobileDrawer({ open, onClose }: Props) {
   const navigate = useNavigate();
   const logout = useAuthStore((s) => s.logout);
   const ref = useRef<HTMLDivElement | null>(null);
+  const enabledWidgets = useEnabledWidgets();
 
   useEffect(() => {
     if (!open) return;
+
+    const drawer = ref.current;
+    if (!drawer) return;
+
+    const focusable = Array.from(drawer.querySelectorAll<HTMLElement>(FOCUSABLE));
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    first?.focus();
+
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      if (focusable.length === 0) { e.preventDefault(); return; }
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
     };
+
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
@@ -41,34 +66,42 @@ export default function MobileDrawer({ open, onClose }: Props) {
           </h2>
         </div>
         <nav className="p-4 space-y-2">
-          <Link
-            to="/dashboard"
-            onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/accounts"
-            onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
-          >
-            Accounts
-          </Link>
-          <Link
-            to="/loans"
-            onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
-          >
-            Loans
-          </Link>
-          <Link
-            to="/tontines"
-            onClick={onClose}
-            className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
-          >
-            Tontines
-          </Link>
+          {enabledWidgets.dashboard && (
+            <Link
+              to="/dashboard"
+              onClick={onClose}
+              className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              Dashboard
+            </Link>
+          )}
+          {enabledWidgets.accounts && (
+            <Link
+              to="/accounts"
+              onClick={onClose}
+              className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              Accounts
+            </Link>
+          )}
+          {enabledWidgets.loans && (
+            <Link
+              to="/loans"
+              onClick={onClose}
+              className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              Loans
+            </Link>
+          )}
+          {enabledWidgets.tontines && (
+            <Link
+              to="/tontines"
+              onClick={onClose}
+              className="block py-3 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              Tontines
+            </Link>
+          )}
           {/* KYC moved into Profile page */}
           <Link
             to="/profile"

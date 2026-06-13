@@ -69,7 +69,7 @@ let CardsService = CardsService_1 = class CardsService {
             throw new Error(`Failed to fetch card: ${error.message}`);
         return (data ?? null);
     }
-    async create(userId, accountId, dto, bypassLimits = false) {
+    async create(userId, accountId, dto, bypassLimits = false, tenantId) {
         const { data: account, error: accountError } = await this.supabase
             .getAdminClient()
             .from('accounts')
@@ -120,6 +120,7 @@ let CardsService = CardsService_1 = class CardsService {
             cvv: cvv,
             expiry_date: expiryDate,
             status: 'ACTIVE',
+            tenant_id: tenantId ?? null,
         })
             .select()
             .single();

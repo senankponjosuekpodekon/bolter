@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 type Toast = {
   id?: string;
@@ -26,12 +26,20 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const push = useCallback((t: Toast) => {
     const id = t.id || crypto.randomUUID();
     setToasts((prev) => [{ ...t, id }, ...prev].slice(0, 5));
-    // auto remove after 4s
     setTimeout(
       () => setToasts((prev) => prev.filter((x) => x.id !== id)),
       4000
     );
   }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const msg = (e as CustomEvent<string>).detail;
+      push({ type: "error", title: "Connection error", message: msg });
+    };
+    window.addEventListener("api:error", handler);
+    return () => window.removeEventListener("api:error", handler);
+  }, [push]);
 
   return (
     <ToastContext.Provider value={{ push }}>

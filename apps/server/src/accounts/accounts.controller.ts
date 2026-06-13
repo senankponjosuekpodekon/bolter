@@ -43,7 +43,7 @@ export class AccountsController {
   @ApiOperation({ summary: 'Open a new account for the current user' })
   @ApiResponse({ status: 201, description: 'Account successfully created' })
   createAccount(@Req() req, @Body() createAccountDto: CreateAccountDto) {
-    return this.accountsService.create(req.user.id, createAccountDto);
+    return this.accountsService.create(req.user.id, createAccountDto, false, req.tenant?.id);
   }
 
   @Post('admin/:userId')
@@ -55,7 +55,7 @@ export class AccountsController {
     @Param('userId') userId: string,
     @Body() createAccountDto: CreateAccountDto,
   ) {
-    return this.accountsService.create(userId, createAccountDto, true);
+    return this.accountsService.create(userId, createAccountDto, true, req.tenant?.id);
   }
 
   @Patch(':id')

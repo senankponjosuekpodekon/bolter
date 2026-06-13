@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Lock, Eye, EyeOff, CheckCircle, ArrowLeft } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../services/api";
+import { useRateLimitedSubmit } from "../hooks/useRateLimitedSubmit";
 
 interface ResetPasswordResponse {
   message: string;
@@ -20,6 +21,7 @@ export default function ResetPassword(): JSX.Element {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { isSubmitting, cooldownRemaining, wrap } = useRateLimitedSubmit({ cooldownMs: 60_000 });
 
   const resetPassword = useMutation({
     mutationFn: async () => {
@@ -44,7 +46,7 @@ export default function ResetPassword(): JSX.Element {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    resetPassword.mutate();
+    wrap(() => resetPassword.mutateAsync());
   };
 
   if (!token) {
@@ -185,15 +187,18 @@ export default function ResetPassword(): JSX.Element {
             <button
               type="submit"
               disabled={
-                resetPassword.isPending ||
+                isSubmitting ||
+                cooldownRemaining > 0 ||
                 !password ||
                 !confirmPassword ||
                 password !== confirmPassword
               }
               className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition"
             >
-              {resetPassword.isPending
+              {isSubmitting
                 ? t("auth.resetting")
+                : cooldownRemaining > 0
+                ? `${t("auth.reset_password")} (${cooldownRemaining}s)`
                 : t("auth.reset_password")}
             </button>
 

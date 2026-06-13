@@ -22,12 +22,14 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
             clientSecret: configService.get('google.clientSecret'),
             callbackURL: configService.get('google.callbackUrl'),
             scope: ['email', 'profile'],
+            passReqToCallback: true,
         });
         this.configService = configService;
         this.authService = authService;
     }
-    async validate(accessToken, refreshToken, profile, done) {
-        const user = await this.authService.validateOAuthUser(profile);
+    async validate(req, _accessToken, _refreshToken, profile, done) {
+        const tenantId = req.tenant?.id ?? null;
+        const user = await this.authService.validateOAuthUser(profile, tenantId);
         done(null, user);
     }
 };

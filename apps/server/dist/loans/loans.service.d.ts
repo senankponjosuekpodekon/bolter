@@ -49,7 +49,7 @@ export declare class LoansService {
     private readonly accountsService;
     private readonly logger;
     constructor(supabase: SupabaseService, auditLogsService: AuditLogsService, notificationsService: NotificationsService, accountsService: AccountsService);
-    createLoan(userId: string, dto: CreateLoanDto): Promise<any>;
+    createLoan(userId: string, dto: CreateLoanDto, tenantId?: string | null): Promise<any>;
     findLoansForUser(userId: string): Promise<any[]>;
     findLoans(query: QueryLoansDto, currentUser: {
         id: string;

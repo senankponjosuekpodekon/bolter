@@ -123,7 +123,7 @@ exports.BulkOperationsController = BulkOperationsController = __decorate([
     (0, swagger_1.ApiTags)('admin/bulk-operations'),
     (0, common_1.Controller)('admin/bulk-operations'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [bulk_operations_service_1.BulkOperationsService])
 ], BulkOperationsController);

@@ -25,7 +25,7 @@ export declare class CardsService {
     findByUserId(userId: string): Promise<Card[]>;
     findById(id: string): Promise<Card>;
     findByCardNumber(cardNumber: string): Promise<Card | null>;
-    create(userId: string, accountId: string, dto: CreateCardDto, bypassLimits?: boolean): Promise<Card>;
+    create(userId: string, accountId: string, dto: CreateCardDto, bypassLimits?: boolean, tenantId?: string | null): Promise<Card>;
     update(userId: string, cardId: string, updateDto: UpdateCardDto): Promise<Card>;
     delete(userId: string, cardId: string): Promise<void>;
     private generateCardNumber;

@@ -48,8 +48,6 @@ const resources: Resource = {
 async function loadLocale(locale: string) {
     // All resources are already loaded at startup
     // This function now just validates the locale exists
-    console.log(`[loadLocale] Locale ${locale} resources already preloaded`)
-
     if (!['en-US', 'fr-FR'].includes(locale)) {
         console.warn(`Unsupported locale: ${locale}`)
         i18nErrorManager.logError(

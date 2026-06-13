@@ -6,7 +6,7 @@ import { useAuthStore } from "../stores/authStore";
 import api from "../services/api";
 import { createLoan } from "../services/loanService";
 import NewTransactionModal from "../components/transactions/NewTransactionModal";
-import { useFormatting } from "../hooks";
+import { useFormatting, useEnabledWidgets } from "../hooks";
 import { useToast } from "../hooks/useToast";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -52,13 +52,9 @@ export default function Dashboard() {
       try {
         // Fetch loans that are IN_PROGRESS (recently approved loans)
         const response = await api.get("/loans?status=IN_PROGRESS");
-        console.log("Full response:", response);
-        console.log("response.data:", response.data);
-        // Handle both array and { data: array } response formats
         const loansData = Array.isArray(response.data)
           ? response.data
           : (response.data?.data ?? []);
-        console.log("Parsed loansData:", loansData);
         return loansData;
       } catch (error) {
         console.error("Failed to fetch approved loans:", error);
@@ -121,23 +117,8 @@ export default function Dashboard() {
     locale: user?.locale ?? "en-US",
   });
 
-  // Widget display preferences - default to all widgets if not set
-  const enabledWidgets = useMemo(() => {
-    const widgets = user?.preferences?.widgets || [
-      "dashboard",
-      "transactions",
-      "accounts",
-      "loans",
-      "kyc",
-    ];
-    return {
-      dashboard: widgets.includes("dashboard"),
-      transactions: widgets.includes("transactions"),
-      accounts: widgets.includes("accounts"),
-      loans: widgets.includes("loans"),
-      kyc: widgets.includes("kyc"),
-    };
-  }, [user?.preferences?.widgets]);
+  // Widget display preferences from enabled widgets hook
+  const enabledWidgets = useEnabledWidgets();
 
   const handleOpenTransaction = useCallback(
     (type: "transfer" | "deposit" | "withdraw") => {
@@ -234,8 +215,6 @@ export default function Dashboard() {
     useMemo(() => {
       const now = new Date();
       const month = now.getMonth();
-      console.log("Current month:", month);
-      console.log("filteredTransactions:", filteredTransactions);
       const categories: Record<string, number> = {};
       let expenses = 0;
       let income = 0;
@@ -244,16 +223,6 @@ export default function Dashboard() {
       if (filteredTransactions && filteredTransactions.length > 0) {
         filteredTransactions.forEach((tx: import("../types").Transaction) => {
           const createdMonth = new Date(tx.created_at).getMonth();
-          console.log(
-            "Transaction:",
-            tx.description,
-            "Month:",
-            createdMonth,
-            "Type:",
-            tx.type,
-            "Amount:",
-            tx.amount
-          );
           if (createdMonth === month) {
             if (tx.type === "WITHDRAWAL") expenses += parseFloat(tx.amount);
             if (tx.type === "DEPOSIT") income += parseFloat(tx.amount);
@@ -263,8 +232,6 @@ export default function Dashboard() {
           }
         });
       }
-      console.log("Final expenses:", expenses, "Final income:", income);
-
       const topCategoryEntry = Object.entries(categories).sort(
         (a, b) => b[1] - a[1]
       )[0];

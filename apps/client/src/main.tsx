@@ -8,8 +8,32 @@ import "./i18n";
 import "./index.css";
 import { NotificationsProvider } from "./lib/notifications";
 import { ToastProvider } from "./components/ui/ToastProvider";
+import { getApiErrorMessage } from "./lib/apiError";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error: unknown) => {
+        type AxiosLike = { response?: { status?: number }; code?: string }
+        const e = error as AxiosLike
+        // Don't retry on 4xx or timeout — only on network/5xx
+        if (e?.response?.status && e.response.status < 500) return false
+        if (e?.code === 'ECONNABORTED') return false
+        return failureCount < 2
+      },
+      staleTime: 30_000,
+    },
+    mutations: {
+      onError: (error: unknown) => {
+        const msg = getApiErrorMessage(error)
+        if (msg.includes('timeout') || msg.includes('Network')) {
+          // Use a custom event so ToastProvider (rendered later) can pick it up
+          window.dispatchEvent(new CustomEvent('api:error', { detail: msg }))
+        }
+      },
+    },
+  },
+});
 
 // Development-only: instrument URL construction to help debug invalid base/host strings
 // This logs the raw/base arguments passed to URL() when construction fails so we can

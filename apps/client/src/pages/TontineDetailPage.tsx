@@ -7,8 +7,16 @@ interface Tontine {
   id: string;
   creator_id: string;
   name: string;
+  description?: string;
   status: 'PENDING' | 'ACTIVE' | 'COMPLETED';
   contribution_amount: number;
+  currency?: string;
+  frequency?: string;
+  current_cycle?: number;
+  total_cycles?: number;
+  cycle_duration_days?: number;
+  distribution_method?: string;
+  created_at: string;
   [key: string]: unknown;
 }
 

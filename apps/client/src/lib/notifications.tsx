@@ -40,6 +40,11 @@ const MAX_ITEMS = 30;
 import { deriveServerRoot } from "./url";
 
 const resolveBaseUrl = (): string => {
+  // In development, use same origin (Vite proxy handles WebSocket upgrade)
+  // This avoids mixed content issues with ngrok HTTPS → HTTP
+  if (import.meta.env.DEV) {
+    return window.location.origin;
+  }
   const preferred =
     import.meta.env.VITE_NOTIFICATIONS_URL || import.meta.env.VITE_API_URL;
   // deriveServerRoot will return a best-effort origin/root without the trailing /api

@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateUserDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
-const USER_ROLES = ['CLIENT', 'ADMIN', 'COMPLIANCE'];
+const USER_ROLES = ['CLIENT', 'ADMIN', 'COMPLIANCE', 'SUPER_ADMIN'];
 const USER_STATUSES = ['ACTIVE', 'SUSPENDED', 'PENDING_VERIFICATION', 'CLOSED'];
 const KYC_STATUSES = ['PENDING', 'SUBMITTED', 'APPROVED', 'REJECTED'];
 class CreateUserDto {
@@ -58,7 +58,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 'CLIENT', enum: USER_ROLES }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsIn)(USER_ROLES, { message: 'Role must be CLIENT, ADMIN, or COMPLIANCE' }),
+    (0, class_validator_1.IsIn)(USER_ROLES, { message: 'Role must be CLIENT, ADMIN, COMPLIANCE, or SUPER_ADMIN' }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "role", void 0);
 __decorate([
@@ -91,4 +91,9 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "timezone", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: { widgets: ['dashboard', 'transactions'] }, description: 'User preferences object (widgets, theme, etc.)' }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Object)
+], CreateUserDto.prototype, "preferences", void 0);
 //# sourceMappingURL=create-user.dto.js.map

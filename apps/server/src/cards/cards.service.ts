@@ -78,7 +78,7 @@ export class CardsService {
         return (data ?? null) as Card | null;
     }
 
-    async create(userId: string, accountId: string, dto: CreateCardDto, bypassLimits: boolean = false): Promise<Card> {
+    async create(userId: string, accountId: string, dto: CreateCardDto, bypassLimits: boolean = false, tenantId?: string | null): Promise<Card> {
         // Verify account exists and belongs to user
         const { data: account, error: accountError } = await this.supabase
             .getAdminClient()
@@ -146,6 +146,7 @@ export class CardsService {
                 cvv: cvv,
                 expiry_date: expiryDate,
                 status: 'ACTIVE',
+                tenant_id: tenantId ?? null,
             })
             .select()
             .single();

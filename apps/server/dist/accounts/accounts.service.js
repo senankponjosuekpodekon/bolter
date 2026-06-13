@@ -81,7 +81,7 @@ let AccountsService = AccountsService_1 = class AccountsService {
         }
         return (data ?? []);
     }
-    async create(userId, dto, bypassLimits = false) {
+    async create(userId, dto, bypassLimits = false, tenantId) {
         const accountType = dto.accountType || 'SAVINGS';
         const currency = dto.currency || 'EUR';
         const limit = dto.limit || 1000;
@@ -114,6 +114,7 @@ let AccountsService = AccountsService_1 = class AccountsService {
             limit: limit,
             balance: 0,
             status: 'ACTIVE',
+            tenant_id: tenantId ?? null,
         })
             .select()
             .single();

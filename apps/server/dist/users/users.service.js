@@ -79,6 +79,8 @@ let UsersService = UsersService_1 = class UsersService {
             insertPayload.status = status;
         if (kyc_status)
             insertPayload.kyc_status = kyc_status;
+        if (options?.tenantId)
+            insertPayload.tenant_id = options.tenantId;
         const { data: user, error } = await this.supabase
             .getAdminClient()
             .from('users')
@@ -96,6 +98,7 @@ let UsersService = UsersService_1 = class UsersService {
             account_number: accountNumber,
             account_type: 'CHECKING',
             balance: 0,
+            tenant_id: options?.tenantId ?? user.tenant_id ?? null,
         })
             .select()
             .single();
@@ -133,15 +136,19 @@ let UsersService = UsersService_1 = class UsersService {
             },
         });
         await this.notificationsService.notifyAccountCreated(user.id, accountNumber);
+        await this.notificationsService.notifyWelcome(user.id, email);
         return this.mapUser(user);
     }
     async findAll(params) {
-        const { skip = 0, take = 100 } = params || {};
-        const { data, error } = await this.supabase
+        const { skip = 0, take = 100, tenantId } = params || {};
+        let query = this.supabase
             .getAdminClient()
             .from('users')
-            .select('*')
-            .range(skip, skip + take - 1);
+            .select('*');
+        if (tenantId) {
+            query = query.eq('tenant_id', tenantId);
+        }
+        const { data, error } = await query.range(skip, skip + take - 1);
         if (error)
             throw new common_1.BadRequestException(`Failed to fetch users: ${error.message}`);
         return (data ?? []).map(u => this.mapUser(u));
@@ -195,6 +202,8 @@ let UsersService = UsersService_1 = class UsersService {
             updatePayload.kyc_status = userData.kyc_status;
         if (userData.role !== undefined)
             updatePayload.role = userData.role;
+        if (userData.preferences !== undefined)
+            updatePayload.preferences = userData.preferences ?? null;
         if (hashedPassword)
             updatePayload.password_hash = hashedPassword;
         if (Object.keys(updatePayload).length === 0) {
@@ -371,8 +380,10 @@ let UsersService = UsersService_1 = class UsersService {
             kyc_status: user.kyc_status,
             hasPassword: Boolean(user.password_hash),
             two_factor_enabled: Boolean(user.two_factor_enabled ?? false),
+            preferences: user.preferences ?? null,
             createdAt: user.created_at,
             updatedAt: user.updated_at,
+            tenant_id: user.tenant_id ?? null,
         };
         if (options.includeSensitive) {
             payload.password = user.password_hash;

@@ -18,8 +18,3 @@ tunnels:
     addr: 3000
     schemes: [https]
 
-  # Tunnel pour l'admin (port 5174)
-  admin:
-    proto: http
-    addr: 5174
-    schemes: [https]

@@ -52,7 +52,7 @@ export class AuthService {
   }
 
   async login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<LoginResponse> {
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload = { email: user.email, sub: user.id, role: user.role, tenant_id: (user as User).tenant_id ?? null };
     const refreshToken = this.generateRefreshToken(payload);
 
     await this.usersService.setRefreshToken(user.id, refreshToken);
@@ -85,7 +85,7 @@ export class AuthService {
     return response;
   }
 
-  async register(registerDto: RegisterDto): Promise<LoginResponse> {
+  async register(registerDto: RegisterDto, tenantId?: string | null): Promise<LoginResponse> {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new BadRequestException('User with this email already exists');
@@ -95,6 +95,7 @@ export class AuthService {
       ...registerDto,
       role: 'CLIENT',
     }, {
+      tenantId: tenantId ?? null,
       metadata: {
         channel: 'EMAIL',
       },
@@ -133,7 +134,7 @@ export class AuthService {
     return response;
   }
 
-  async validateOAuthUser(profile: { emails?: Array<{ value: string }>; id: string; displayName?: string }): Promise<Omit<User, 'password' | 'refreshToken'>> {
+  async validateOAuthUser(profile: { emails?: Array<{ value: string }>; id: string; displayName?: string }, tenantId?: string | null): Promise<Omit<User, 'password' | 'refreshToken'>> {
     const { emails, displayName } = profile;
     const email = emails[0].value;
 
@@ -151,6 +152,7 @@ export class AuthService {
         lastName,
         role: 'CLIENT',
       }, {
+        tenantId: tenantId ?? null,
         metadata: {
           channel: 'GOOGLE',
         },
@@ -179,7 +181,7 @@ export class AuthService {
 
   private generateRefreshToken(payload: { email: string; sub: string; role: string }): string {
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('jwt.secret'),
+      secret: this.configService.get<string>('jwt.refreshSecret'),
       expiresIn: `${this.configService.get<number>('jwt.refreshExpiresIn')}s`,
     });
 
@@ -208,9 +210,10 @@ export class AuthService {
 
   async setupTwoFactor(userId: string) {
     const user = await this.usersService.findById(userId);
+    const appName = this.configService.get<string>('app.name') || 'Bolter Banking';
     const secret = speakeasy.generateSecret({
-      name: `Bolter (${user?.email || 'user'})`,
-      issuer: 'Bolter Banking'
+      name: `${appName} (${user?.email || 'user'})`,
+      issuer: appName,
     });
 
     // persist a temporary secret so enableTwoFactor can verify against the same value

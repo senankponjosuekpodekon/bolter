@@ -104,7 +104,7 @@ export class AccountsService {
     return (data ?? []) as Account[];
   }
 
-  async create(userId: string, dto: CreateAccountDto, bypassLimits: boolean = false): Promise<Account> {
+  async create(userId: string, dto: CreateAccountDto, bypassLimits: boolean = false, tenantId?: string | null): Promise<Account> {
     const accountType: AccountType = dto.accountType || 'SAVINGS';
     const currency = dto.currency || 'EUR';
     const limit = dto.limit || 1000;
@@ -148,6 +148,7 @@ export class AccountsService {
         limit: limit,
         balance: 0,
         status: 'ACTIVE',
+        tenant_id: tenantId ?? null,
       })
       .select()
       .single();

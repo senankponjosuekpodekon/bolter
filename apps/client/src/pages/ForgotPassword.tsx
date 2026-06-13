@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useRateLimitedSubmit } from "../hooks/useRateLimitedSubmit";
 
 interface ForgotPasswordResponse {
   message: string;
@@ -14,6 +15,7 @@ export default function ForgotPassword(): JSX.Element {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { isSubmitting, cooldownRemaining, wrap } = useRateLimitedSubmit({ cooldownMs: 60_000 });
 
   const forgotPassword = useMutation({
     mutationFn: async (emailAddress: string) => {
@@ -30,7 +32,7 @@ export default function ForgotPassword(): JSX.Element {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    forgotPassword.mutate(email);
+    wrap(() => forgotPassword.mutateAsync(email));
   };
 
   if (isSubmitted) {
@@ -105,11 +107,13 @@ export default function ForgotPassword(): JSX.Element {
 
             <button
               type="submit"
-              disabled={forgotPassword.isPending || !email}
+              disabled={isSubmitting || cooldownRemaining > 0 || !email}
               className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition"
             >
-              {forgotPassword.isPending
+              {isSubmitting
                 ? t("auth.sending")
+                : cooldownRemaining > 0
+                ? `${t("auth.send_reset_link")} (${cooldownRemaining}s)`
                 : t("auth.send_reset_link")}
             </button>
 

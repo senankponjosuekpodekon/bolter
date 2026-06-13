@@ -6,7 +6,7 @@ const AUTO_DISMISS_DELAY = 10000; // 10 seconds
 export const Notifications: React.FC = () => {
   const notificationsFromSocket = useNotificationsFromLib();
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
-  const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
     // Add new notification IDs to visible set

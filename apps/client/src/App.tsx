@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import SkeletonPage from "./components/skeleton/SkeletonPage";
+import AdminApp from "./admin/AdminApp";
 import { useAuthStore } from "./stores/authStore";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
@@ -26,6 +27,7 @@ import TontineCreatePage from "./pages/TontineCreatePage";
 import TontineDetailPage from "./pages/TontineDetailPage";
 import TontineMembersPage from "./pages/TontineMembersPage";
 import TontineInvitePage from "./pages/TontineInvitePage";
+import Landing from "./pages/Landing";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -47,14 +49,17 @@ function App() {
           }
         />
 
-        {/* Public invitation route */}
+        {/* Public routes */}
         <Route path="/invite/:code" element={<TontineInvitePage />} />
+        <Route
+          path="/"
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Landing />}
+        />
 
         <Route
           path="/"
           element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}
         >
-          <Route index element={<Navigate to="/dashboard" />} />
           <Route
             path="dashboard"
             element={
@@ -113,6 +118,7 @@ function App() {
           />
           <Route path="/securite/historique" element={<ActivityHistory />} />
         </Route>
+        <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
       <ToastContainer />
       <Notifications />
