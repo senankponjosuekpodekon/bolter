@@ -13,6 +13,7 @@ jobs:
   lint-and-test:
     name: Lint & Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +43,7 @@ jobs:
           JWT_REFRESH_SECRET: ci-test-refresh-secret
           JWT_EXPIRATION: "3600"
           JWT_REFRESH_EXPIRATION: "604800"
-        run: npm run test --workspace=server
+        run: npm run test --workspace=server -- --forceExit
 
   build:
     name: Build

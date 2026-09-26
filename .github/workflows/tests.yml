@@ -66,4 +66,5 @@ jobs:
           timeout: "30s"
           url: "http://localhost:5173"
       - name: Run i18n smoke tests
-        run: npx playwright test apps/client/e2e/tests/locale.spec.ts --reporter=list
+        run: npx playwright test e2e/tests/locale.spec.ts --reporter=list
+        working-directory: apps/client

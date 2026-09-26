@@ -60,6 +60,7 @@ jobs:
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:16
@@ -88,7 +89,7 @@ jobs:
         run: npm ci
 
       - name: Run backend unit tests
-        run: npm --workspace=server run test --passWithNoTests
+        run: npm --workspace=server run test -- --passWithNoTests --forceExit
         env:
           DATABASE_URL: postgres://test:test@localhost:5432/bolter_test
           NODE_ENV: test
