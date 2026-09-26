@@ -44,7 +44,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,
-    GoogleStrategy,
+    ...(process.env.GOOGLE_CLIENT_ID ? [GoogleStrategy] : []),
   ],
   exports: [AuthService, ActivityLogService, RateLimitService, SessionService, BackupCodesService, OtpService],
 })
