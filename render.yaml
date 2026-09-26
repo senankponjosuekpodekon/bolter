@@ -1,13 +1,17 @@
-# Render Blueprint — backend NestJS (Docker)
+# Render Blueprint — backend NestJS depuis l'image GHCR
+# L'image est buildée et poussée par GitHub Actions (.github/workflows/ci.yml)
+# vers ghcr.io/senankponjosuekpodekon/bolter-server
+#
 # Deploy: Render Dashboard → New → Blueprint → point to this repo.
-# Secret env vars (sync: false) are prompted at deploy time or set in the dashboard.
+# Si l'image GHCR est PRIVÉE : créez d'abord une credential dans
+# Dashboard → Account Settings → Registry Credentials (GHCR + PAT read:packages).
 
 services:
   - type: web
     name: bolter-api
-    runtime: docker
-    dockerfilePath: ./apps/server/Dockerfile
-    dockerContext: .
+    runtime: image
+    image:
+      url: ghcr.io/senankponjosuekpodekon/bolter-server:latest
     plan: free # switch to "starter" (~$7/mo) for always-on — free sleeps after 15 min
     healthCheckPath: /api/health
     autoDeploy: true
