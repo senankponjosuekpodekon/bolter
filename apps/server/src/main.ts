@@ -76,6 +76,8 @@ async function bootstrap() {
     /^https:\/\/[a-z0-9-]+\.ngrok-free\.dev$/,
     /^https:\/\/[a-z0-9-]+\.ngrok\.io$/,
     /^https:\/\/[a-z0-9-]+\.ngrok\.app$/,
+    // Allow Vercel production + preview deployments
+    /^https:\/\/[a-z0-9-]+\.vercel\.app$/,
   ];
 
   app.enableCors({

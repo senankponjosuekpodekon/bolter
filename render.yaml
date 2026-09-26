@@ -1,0 +1,56 @@
+# Render Blueprint — backend NestJS (Docker)
+# Deploy: Render Dashboard → New → Blueprint → point to this repo.
+# Secret env vars (sync: false) are prompted at deploy time or set in the dashboard.
+
+services:
+  - type: web
+    name: bolter-api
+    runtime: docker
+    dockerfilePath: ./apps/server/Dockerfile
+    dockerContext: .
+    plan: free # switch to "starter" (~$7/mo) for always-on — free sleeps after 15 min
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render injects PORT automatically; the app already reads it.
+      - key: FRONTEND_URL
+        value: https://bolter.vercel.app # TODO: replace with your real Vercel domain
+      - key: APP_URL
+        value: https://bolter.vercel.app # TODO: same
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "3600"
+      - key: JWT_REFRESH_EXPIRATION
+        value: "2592000"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: THROTTLE_TTL
+        value: "60"
+      - key: THROTTLE_LIMIT
+        value: "10"
+      # Google OAuth — optional, uncomment if used:
+      # - key: GOOGLE_CLIENT_ID
+      #   sync: false
+      # - key: GOOGLE_CLIENT_SECRET
+      #   sync: false
+      # - key: GOOGLE_CALLBACK_URL
+      #   value: https://bolter-api.onrender.com/api/auth/google/callback
