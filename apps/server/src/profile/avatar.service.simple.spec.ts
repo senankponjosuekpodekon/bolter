@@ -61,7 +61,8 @@ describe('AvatarService (simple)', () => {
     const res = await svc.upload('user-1', {
       mimetype: 'image/png',
       size: 1024,
-      buffer: Buffer.from('binary'),
+      // real PNG magic bytes — avatar upload now validates file signatures
+      buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]),
     } as unknown as { mimetype: string; size: number; buffer: Buffer });
 
     expect(mockStorage.upload).toHaveBeenCalled();

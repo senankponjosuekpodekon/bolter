@@ -100,14 +100,14 @@ export class TransactionsService {
       ibanExternal: dto.ibanExternal ?? null,
     });
 
-    await this.notificationsService.notifyTransactionCreated({
+    this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
       transactionId: data.id,
       userId,
       amount: Number(data.amount ?? dto.amount),
       type: 'TRANSFER',
       currency: data.currency,
       description: dto.description ?? undefined,
-    });
+    }));
 
     return data;
   }
@@ -149,14 +149,14 @@ export class TransactionsService {
       paymentMethod: dto.paymentMethod,
     });
 
-    await this.notificationsService.notifyTransactionCreated({
+    this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
       transactionId: data.id,
       userId,
       amount: Number(data.amount ?? dto.amount),
       type: 'DEPOSIT',
       currency: data.currency,
       description,
-    });
+    }));
 
     return data;
   }
@@ -203,14 +203,14 @@ export class TransactionsService {
       ibanExternal: dto.bankDetails.iban,
     });
 
-    await this.notificationsService.notifyTransactionCreated({
+    this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
       transactionId: data.id,
       userId,
       amount: Number(data.amount ?? dto.amount),
       type: 'WITHDRAWAL',
       currency: data.currency,
       description,
-    });
+    }));
 
     return data;
   }
@@ -293,14 +293,14 @@ export class TransactionsService {
     });
 
     // Send notification
-    await this.notificationsService.notifyTransactionCreated({
+    this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
       transactionId: data.id,
       userId,
       amount,
       type: 'CARD_PAYMENT',
       currency: String(account.currency || 'EUR'),
       description: `Card payment at ${dto.merchant}`,
-    });
+    }));
 
     return data;
   }
@@ -582,7 +582,7 @@ export class TransactionsService {
     });
 
     if (targetUserId) {
-      await this.notificationsService.notifyTransactionUpdated({
+      this.notifyAsync(() => this.notificationsService.notifyTransactionUpdated({
         transactionId,
         userId: targetUserId,
         status: dto.approved ? 'APPROVED' : 'REJECTED',
@@ -590,7 +590,7 @@ export class TransactionsService {
         type: transaction.type,
         currency: transaction.currency ?? data?.currency ?? 'EUR',
         rejectionReason: dto.rejectionReason ?? undefined,
-      });
+      }));
     }
 
     return data;
@@ -686,44 +686,44 @@ export class TransactionsService {
     const amountValue = Number(data.amount ?? dto.amount);
 
     if (!autoApprove) {
-      await this.notificationsService.notifyTransactionCreated({
+      this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
         transactionId: data.id,
         userId: fromAccount.user_id,
         amount: amountValue,
         type: 'TRANSFER',
         currency: data.currency,
         description,
-      });
+      }));
 
       if (toAccount && toAccount.user_id && toAccount.user_id !== fromAccount.user_id) {
-        await this.notificationsService.notifyTransactionCreated({
+        this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
           transactionId: data.id,
           userId: toAccount.user_id,
           amount: amountValue,
           type: 'TRANSFER',
           currency: data.currency,
           description,
-        });
+        }));
       }
     } else {
-      await this.notificationsService.notifyTransactionUpdated({
+      this.notifyAsync(() => this.notificationsService.notifyTransactionUpdated({
         transactionId: data.id,
         userId: fromAccount.user_id,
         status: 'APPROVED',
         amount: amountValue,
         type: 'TRANSFER',
         currency,
-      });
+      }));
 
       if (toAccount && toAccount.user_id && toAccount.user_id !== fromAccount.user_id) {
-        await this.notificationsService.notifyTransactionUpdated({
+        this.notifyAsync(() => this.notificationsService.notifyTransactionUpdated({
           transactionId: data.id,
           userId: toAccount.user_id,
           status: 'APPROVED',
           amount: amountValue,
           type: 'TRANSFER',
           currency,
-        });
+        }));
       }
     }
 
@@ -802,23 +802,23 @@ export class TransactionsService {
     const amountValue = Number(data.amount ?? dto.amount);
 
     if (!autoApprove) {
-      await this.notificationsService.notifyTransactionCreated({
+      this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
         transactionId: data.id,
         userId: account.user_id,
         amount: amountValue,
         type: 'DEPOSIT',
         currency: data.currency,
         description,
-      });
+      }));
     } else {
-      await this.notificationsService.notifyTransactionUpdated({
+      this.notifyAsync(() => this.notificationsService.notifyTransactionUpdated({
         transactionId: data.id,
         userId: account.user_id,
         status: 'APPROVED',
         amount: amountValue,
         type: 'DEPOSIT',
         currency,
-      });
+      }));
     }
 
     return data;
@@ -901,23 +901,23 @@ export class TransactionsService {
     const amountValue = Number(data.amount ?? dto.amount);
 
     if (!autoApprove) {
-      await this.notificationsService.notifyTransactionCreated({
+      this.notifyAsync(() => this.notificationsService.notifyTransactionCreated({
         transactionId: data.id,
         userId: account.user_id,
         amount: amountValue,
         type: 'WITHDRAWAL',
         currency: data.currency,
         description,
-      });
+      }));
     } else {
-      await this.notificationsService.notifyTransactionUpdated({
+      this.notifyAsync(() => this.notificationsService.notifyTransactionUpdated({
         transactionId: data.id,
         userId: account.user_id,
         status: 'APPROVED',
         amount: amountValue,
         type: 'WITHDRAWAL',
         currency,
-      });
+      }));
     }
 
     return data;
@@ -999,6 +999,16 @@ export class TransactionsService {
     }
     this.logger.error(`RPC error: ${msg}`);
     throw new BadRequestException(fallback);
+  }
+
+  /**
+   * Fire-and-forget notification: delivery (SMTP, WebSocket) must not add
+   * latency to or fail the request path. Errors are logged, never thrown.
+   */
+  private notifyAsync(task: () => Promise<unknown>) {
+    void Promise.resolve()
+      .then(task)
+      .catch((err) => this.logger.error(`Notification delivery failed: ${(err as Error)?.message ?? err}`));
   }
 
   private async logTransactionAction(

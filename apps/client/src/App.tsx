@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import SkeletonPage from "./components/skeleton/SkeletonPage";
-import AdminApp from "./admin/AdminApp";
+const AdminApp = lazy(() => import("./admin/AdminApp"));
 import { useAuthStore } from "./stores/authStore";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
@@ -118,7 +118,14 @@ function App() {
           />
           <Route path="/securite/historique" element={<ActivityHistory />} />
         </Route>
-        <Route path="/admin/*" element={<AdminApp />} />
+        <Route
+          path="/admin/*"
+          element={
+            <Suspense fallback={<SkeletonPage title="Admin" />}>
+              <AdminApp />
+            </Suspense>
+          }
+        />
       </Routes>
       <ToastContainer />
       <Notifications />

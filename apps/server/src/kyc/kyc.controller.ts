@@ -13,6 +13,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { KycFilterDto } from './dto/kyc-filter.dto';
 import { UploadRateLimitService } from '../common/services/upload-rate-limit.service';
 import { StorageMonitoringService } from '../common/services/storage-monitoring.service';
+import { assertFileSignature } from '../common/utils/file-signature';
 
 @ApiTags('kyc')
 @Controller('kyc')
@@ -53,6 +54,10 @@ export class KycController {
     @Body('documentType') documentType: string,
   ) {
     const userId = req.user?.id ?? 'unknown';
+
+    // Magic-bytes check: the client-supplied mimetype is untrusted — verify
+    // the file signature actually matches JPEG/PNG/PDF.
+    assertFileSignature(file.buffer, file.mimetype);
 
     // Check per-user upload rate limit (10 uploads/hour)
     await this.uploadRateLimit.recordUpload(userId);

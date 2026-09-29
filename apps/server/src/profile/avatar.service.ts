@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { SupabaseService } from '../supabase/supabase.service';
+import { assertFileSignature } from '../common/utils/file-signature';
 
 export interface UploadAvatarResult {
   url: string;
@@ -22,6 +23,7 @@ export class AvatarService {
     if (!file) throw new BadRequestException('No file uploaded');
     if (!this.allowedMime.has(file.mimetype)) throw new BadRequestException('Unsupported file type');
     if (file.size > this.maxBytes) throw new BadRequestException('File too large');
+    assertFileSignature(file.buffer, file.mimetype);
 
     const checksum = createHash('sha256').update(file.buffer).digest('hex').slice(0, 16);
     const ext = this.getExt(file.mimetype);
