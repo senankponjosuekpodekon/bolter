@@ -94,6 +94,7 @@ export default function Register() {
             <input
               type="text"
               required
+              aria-label={t("register.firstName")}
               value={formData.firstName}
               onChange={(e) =>
                 setFormData({ ...formData, firstName: e.target.value })
@@ -190,6 +191,7 @@ export default function Register() {
             <input
               type="text"
               required
+              aria-label={t("register.lastName")}
               value={formData.lastName}
               onChange={(e) =>
                 setFormData({ ...formData, lastName: e.target.value })
@@ -200,6 +202,7 @@ export default function Register() {
             <input
               type="email"
               required
+              aria-label={t("register.email")}
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
@@ -210,6 +213,7 @@ export default function Register() {
             <input
               type="password"
               required
+              aria-label={t("register.password")}
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
