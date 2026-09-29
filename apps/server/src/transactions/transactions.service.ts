@@ -303,7 +303,7 @@ export class TransactionsService {
       type: 'CARD_PAYMENT',
       amount,
       cardId: dto.cardId,
-      cardNumber: cardData.card_number,
+      cardNumber: `****${String(cardData.card_number).slice(-4)}`,
       merchant: dto.merchant,
       category: dto.category,
     });
@@ -321,7 +321,7 @@ export class TransactionsService {
     return data;
   }
 
-  async findByUserId(userId: string) {
+  async findByUserId(userId: string, query?: { skip?: number; take?: number }) {
     const accounts = await this.accountsService.findByUserId(userId);
     const accountIds = accounts.map((account) => account.id);
     if (accountIds.length === 0) {
@@ -329,13 +329,17 @@ export class TransactionsService {
       return [];
     }
 
+    const skip = Math.max(0, Number(query?.skip) || 0);
+    const take = Math.min(Math.max(1, Number(query?.take) || 50), 100);
+
     const formattedIds = accountIds.map((id) => `"${id}"`).join(',');
     const { data, error } = await this.supabase
       .getAdminClient()
       .from('transactions')
       .select('*')
       .or(`from_account_id.in.(${formattedIds}),to_account_id.in.(${formattedIds})`)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(skip, skip + take - 1);
 
     if (error) {
       throw new BadRequestException(`Failed to fetch transactions: ${error.message}`);
@@ -350,7 +354,8 @@ export class TransactionsService {
       .from('transactions')
       .select('*')
       .eq('status', 'PENDING')
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .range(0, 499);
 
     if (error) {
       throw new BadRequestException(`Failed to fetch pending transactions: ${error.message}`);

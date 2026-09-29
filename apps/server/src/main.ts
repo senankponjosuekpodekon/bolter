@@ -48,11 +48,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // Configure helmet differently for dev HTTP vs HTTPS.
-  // When running over plain HTTP (useHttps === false) we disable headers
-  // that require a secure origin (Cross-Origin-Opener-Policy / Origin-Agent-Cluster)
-  // to avoid browser warnings and asset requests over HTTPS.
-  if (useHttps) {
+  // Helmet: full strict headers in production (TLS is terminated at the
+  // edge/reverse proxy, so USE_HTTPS=false still means prod). Relaxed only
+  // for local dev.
+  if (process.env.NODE_ENV === 'production') {
     app.use(helmet());
   } else {
     app.use(

@@ -179,7 +179,7 @@ export const KYCDocumentReview = () => {
       }
     } catch (error) {
       // keep the error for debugging
-      // eslint-disable-next-line no-console
+       
       console.error("KYC review failed", error);
       notify("Error reviewing document", { type: "error" });
     }

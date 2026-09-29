@@ -115,7 +115,7 @@ export function NotificationsProvider({
             notify(formatted, { type: resolveType(item) });
           } catch (err) {
             // Log notification handling errors — keep outside router usage
-            // eslint-disable-next-line no-console
+             
             console.error("Error while processing notification", err, payload);
             // Save a compact debug entry that admin devs can inspect
             try {
@@ -138,7 +138,7 @@ export function NotificationsProvider({
         });
       } catch (err) {
         // Outer-level safety for unexpected errors
-        // eslint-disable-next-line no-console
+         
         console.error("Notification listener crash", err, payload);
       }
     });

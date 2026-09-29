@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Logger } from '../common/logger/logger.service';
 
 interface AuthPayload {
@@ -11,7 +12,20 @@ interface AuthPayload {
   role?: string;
 }
 
-@WebSocketGateway({ namespace: '/notifications', cors: { origin: '*' } })
+@SkipThrottle()
+@WebSocketGateway({
+  namespace: '/notifications',
+  cors: {
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:5173',
+      /^https:\/\/[a-z0-9-]+\.vercel\.app$/,
+      /^https:\/\/[a-z0-9-]+\.ngrok-free\.dev$/,
+      /^https:\/\/[a-z0-9-]+\.ngrok\.io$/,
+      /^https:\/\/[a-z0-9-]+\.ngrok\.app$/,
+    ],
+    credentials: true,
+  },
+})
 @Injectable()
 export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

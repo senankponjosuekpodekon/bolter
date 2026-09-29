@@ -256,7 +256,7 @@ export class CardsService {
             action: 'CARD_DELETED',
             resourceType: 'card',
             resourceId: cardId,
-            metadata: { changes: { cardNumber: card.card_number } },
+            metadata: { changes: { cardNumber: `****${String(card.card_number).slice(-4)}` } },
         });
 
         if (!success) {

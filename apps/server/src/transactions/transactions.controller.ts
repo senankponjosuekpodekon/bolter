@@ -56,7 +56,10 @@ export class TransactionsController {
       this.ensureAdminRole(req.user?.role);
       return this.transactionsService.findAllForAdmin(query);
     }
-    return this.transactionsService.findByUserId(req.user.id);
+    return this.transactionsService.findByUserId(req.user.id, {
+      skip: query.skip,
+      take: query.take,
+    });
   }
 
   @Get('pending')

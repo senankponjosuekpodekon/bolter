@@ -2,8 +2,10 @@ import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { MaintenanceMiddleware } from './common/middleware/maintenance.middleware';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { TenantsModule } from './tenants/tenants.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -31,6 +33,18 @@ import configuration from './config/configuration';
       load: [configuration],
     }),
     ScheduleModule.forRoot(),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'default',
+            ttl: (config.get<number>('throttle.ttl') || 60) * 1000,
+            limit: config.get<number>('throttle.limit') || 300,
+          },
+        ],
+      }),
+    }),
     LoggerModule,
     SupabaseModule,
     AuthModule,
@@ -50,6 +64,12 @@ import configuration from './config/configuration';
     HealthModule,
     SystemConfigModule,
     TenantsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule implements NestModule {

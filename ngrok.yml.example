@@ -1,9 +1,11 @@
 # Ngrok Configuration for Banking Platform
+# Copy to ngrok.yml (gitignored) and set NGROK_AUTH_TOKEN in your .env,
+# or configure globally once: ngrok config add-authtoken <TOKEN>
 # Usage: ngrok start --config=ngrok.yml client
 
 version: "3"
 agent:
-  authtoken: 3EG9VqLXRfyGcIzeXGU3CSHZ2PN_5UjW5pTVEpTFvPSaBhVJY
+  authtoken: ${NGROK_AUTH_TOKEN}
 
 # Tunnel pour le client frontend (port 5173)
 tunnels:
@@ -17,4 +19,3 @@ tunnels:
     proto: http
     addr: 3000
     schemes: [https]
-

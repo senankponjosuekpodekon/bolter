@@ -20,7 +20,7 @@ export class RootErrorBoundary extends React.Component<
     // keep the console error for developer debugging
     // We avoid any react-router hooks here to keep the fallback safe outside Router
     // and ensure it does not call useLocation or other hooks.
-    // eslint-disable-next-line no-console
+     
     console.error("Unhandled error caught by RootErrorBoundary", error, info);
   }
 

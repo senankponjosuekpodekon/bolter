@@ -14,7 +14,7 @@ export default class AdminErrorBoundary extends React.Component<Props, State> {
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Log to console for developer and include component stack
     // We avoid any router hooks here to keep the fallback safe
-    // eslint-disable-next-line no-console
+     
     console.error("AdminErrorBoundary captured an error", error, info);
     // Save a compact report in localStorage for easier debugging in the browser
     try {
@@ -66,7 +66,7 @@ export default class AdminErrorBoundary extends React.Component<Props, State> {
               try {
                 const saved = localStorage.getItem("admin_last_error");
                 navigator.clipboard?.writeText(saved ?? "");
-                // eslint-disable-next-line no-alert
+                 
                 alert(
                   "Error report copied to clipboard — you can paste it into an issue."
                 );
