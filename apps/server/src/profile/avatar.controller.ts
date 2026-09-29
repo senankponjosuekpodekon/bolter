@@ -58,7 +58,8 @@ export class AvatarController {
       };
     } catch (error) {
       // Log failed upload to monitoring
-      await this.storageMonitoring.logUploadAttempt(userId, 'profile-avatars', file.size || 0, false, error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      await this.storageMonitoring.logUploadAttempt(userId, 'profile-avatars', file.size || 0, false, message);
       throw error;
     }
   }
