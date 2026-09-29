@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import { AvatarService } from './avatar.service';
 import { SupabaseService } from '../supabase/supabase.service';
 
