@@ -15,12 +15,13 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     });
   }
 
-  async validate(req: Request, payload: { sub: string; email: string; role: string }) {
+  async validate(req: Request, payload: { sub: string; email: string; role: string; tfa_verified?: boolean }) {
     const refreshToken = (req.get('Authorization') ?? '').replace('Bearer', '').trim();
     return {
       id: payload.sub,
       email: payload.email,
       role: payload.role,
+      tfa_verified: payload.tfa_verified,
       refreshToken,
     };
   }

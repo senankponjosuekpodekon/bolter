@@ -1,4 +1,4 @@
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator';
@@ -29,6 +29,25 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       // ensure we throw an Error-like object
       throw err ?? new UnauthorizedException('Authentication required');
+    }
+
+    // Tenant consistency: when a tenant was EXPLICITLY requested (X-Tenant-ID
+    // header or subdomain), it must match the authenticated user's tenant.
+    // The 'default' fallback resolution never blocks — users of non-default
+    // tenants legitimately hit the bare API host.
+    const request = _context?.switchToHttp().getRequest();
+    const tenant = request?.tenant as { id?: string } | undefined;
+    const tenantSource = request?.tenantSource as string | undefined;
+    const userWithTenant = user as { tenant_id?: string | null; role?: string };
+
+    if (
+      tenant?.id &&
+      tenantSource !== 'default' &&
+      userWithTenant.role !== 'SUPER_ADMIN' &&
+      userWithTenant.tenant_id &&
+      userWithTenant.tenant_id !== tenant.id
+    ) {
+      throw new ForbiddenException('Tenant mismatch');
     }
 
     return user;

@@ -20,6 +20,7 @@ export class TenantMiddleware implements NestMiddleware {
         const tenant = await this.tenantsService.findById(headerTenantId);
         if (tenant?.is_active) {
           req['tenant'] = tenant;
+          req['tenantSource'] = 'header';
           return next();
         }
       } catch {
@@ -39,6 +40,7 @@ export class TenantMiddleware implements NestMiddleware {
       const tenant = await this.tenantsService.findBySlug(slug);
       if (tenant) {
         req['tenant'] = tenant;
+        req['tenantSource'] = 'subdomain';
         return next();
       }
     }
@@ -50,6 +52,7 @@ export class TenantMiddleware implements NestMiddleware {
     } catch {
       req['tenant'] = { id: DEFAULT_TENANT_ID, name: 'Default', slug: 'default', is_active: true, plan: 'FREE' };
     }
+    req['tenantSource'] = 'default';
 
     next();
   }

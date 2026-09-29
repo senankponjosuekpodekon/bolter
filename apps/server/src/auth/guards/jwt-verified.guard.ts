@@ -30,13 +30,11 @@ export class JwtVerifiedGuard implements CanActivate {
       return true;
     }
 
-    // If 2FA is enabled, check if it has been verified in this session
-    // For now, we'll allow access if they have a valid JWT token
-    // In a more robust implementation, you could store 2FA verification
-    // status in the JWT claims or in a session store
-
-    // TODO: Enhance this by adding a 'two_factor_verified' claim to JWT
-    // after successful 2FA verification, and check for it here
+    // If 2FA is enabled, the JWT must carry the tfa_verified claim
+    // (only minted by /auth/2fa/verify after a successful TOTP check).
+    if (user.tfa_verified !== true) {
+      throw new UnauthorizedException('Two-factor verification required');
+    }
 
     return true;
   }

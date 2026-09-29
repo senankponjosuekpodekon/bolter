@@ -52,7 +52,16 @@ export class AuthService {
   }
 
   async login(user: User | Omit<User, 'password' | 'refreshToken'>): Promise<LoginResponse> {
-    const payload = { email: user.email, sub: user.id, role: user.role, tenant_id: (user as User).tenant_id ?? null };
+    // 2FA: tokens minted before OTP verification are marked unverified;
+    // JwtVerifiedGuard rejects them on protected resources.
+    const twoFactorEnabled = user.two_factor_enabled === true;
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+      tenant_id: (user as User).tenant_id ?? null,
+      tfa_verified: !twoFactorEnabled,
+    };
     const refreshToken = this.generateRefreshToken(payload);
 
     await this.usersService.setRefreshToken(user.id, refreshToken);
@@ -71,9 +80,6 @@ export class AuthService {
     if (!success) {
       this.auditLogger.warn(`Failed to persist login audit log for ${user.email}`);
     }
-
-    // Check if user has 2FA enabled - if so, require verification before granting full access
-    const twoFactorEnabled = user.two_factor_enabled === true;
 
     const response: LoginResponse = {
       accessToken: this.jwtService.sign(payload),
@@ -106,14 +112,22 @@ export class AuthService {
     return this.login(user);
   }
 
-  async refreshToken(userId: string, refreshToken: string) {
+  async refreshToken(userId: string, refreshToken: string, tfaVerified?: boolean) {
     const user = await this.usersService.findById(userId, { includeSensitive: true });
 
     if (!user || user.refreshToken !== refreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+      tenant_id: user.tenant_id ?? null,
+      // forward the verified flag from the refresh token; older tokens
+      // without the claim fall back to unverified when 2FA is enabled
+      tfa_verified: tfaVerified ?? user.two_factor_enabled !== true,
+    };
 
     const response = {
       accessToken: this.jwtService.sign(payload),
@@ -179,7 +193,13 @@ export class AuthService {
     return this.stripSensitiveFields(user) as Omit<User, 'password' | 'refreshToken'>;
   }
 
-  private generateRefreshToken(payload: { email: string; sub: string; role: string }): string {
+  private generateRefreshToken(payload: {
+    email: string;
+    sub: string;
+    role: string;
+    tenant_id?: string | null;
+    tfa_verified?: boolean;
+  }): string {
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('jwt.refreshSecret'),
       expiresIn: `${this.configService.get<number>('jwt.refreshExpiresIn')}s`,
@@ -295,7 +315,7 @@ export class AuthService {
     return { success: true, message: '2FA disabled successfully' };
   }
 
-  async verifyTwoFactor(userId: string, token: string): Promise<boolean> {
+  async verifyTwoFactor(userId: string, token: string) {
     const secret = await this.usersService.getTwoFactorSecret(userId);
     if (!secret) {
       throw new BadRequestException('2FA is not enabled');
@@ -316,10 +336,40 @@ export class AuthService {
         resourceType: 'auth',
         resourceId: userId,
       });
-      return false;
+      return { valid: false };
     }
 
-    return true;
+    // OTP verified — mint a fully-authorized token pair (tfa_verified: true)
+    // and rotate the refresh token so the pre-verification pair is revoked.
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+      tenant_id: (user as User).tenant_id ?? null,
+      tfa_verified: true,
+    };
+    const refreshToken = this.generateRefreshToken(payload);
+    await this.usersService.setRefreshToken(userId, refreshToken);
+
+    await this.auditLogsService.log({
+      userId,
+      performedBy: userId,
+      action: '2FA_VERIFY_SUCCESS',
+      resourceType: 'auth',
+      resourceId: userId,
+    });
+
+    return {
+      valid: true,
+      accessToken: this.jwtService.sign(payload),
+      refreshToken,
+      user: this.stripSensitiveFields(user),
+    };
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {

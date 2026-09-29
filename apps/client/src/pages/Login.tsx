@@ -29,7 +29,6 @@ export default function Login() {
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [tempToken, setTempToken] = useState<string | null>(null);
   const [tempUser, setTempUser] = useState<User | null>(null);
-  const [tempRefreshToken, setTempRefreshToken] = useState<string | null>(null);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -57,7 +56,6 @@ export default function Login() {
       if (requires2FA) {
         setTempToken(accessToken);
         setTempUser(user);
-        setTempRefreshToken(refreshToken);
         setShow2FAModal(true);
       } else {
         setAuth(user, accessToken, refreshToken);
@@ -86,13 +84,13 @@ export default function Login() {
     setShow2FAModal(false);
     setTempToken(null);
     setTempUser(null);
-    setTempRefreshToken(null);
   };
 
-  const handleVerify2FA = () => {
-    // Modal verified successfully, complete login
-    if (tempToken && tempUser && tempRefreshToken) {
-      setAuth(tempUser, tempToken);
+  const handleVerify2FA = (tokens: { accessToken: string; refreshToken: string }) => {
+    // Modal verified successfully — store the NEW token pair
+    // (tfa_verified: true). The temporary tokens are revoked server-side.
+    if (tempUser) {
+      setAuth(tempUser, tokens.accessToken, tokens.refreshToken);
       handleClose2FAModal();
       if (tempUser.role === 'SUPER_ADMIN') {
         navigate('/admin/system-config');

@@ -54,7 +54,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Token successfully refreshed' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async refresh(@Body() refreshTokenDto: RefreshTokenDto, @Req() req) {
-    return this.authService.refreshToken(req.user.id, refreshTokenDto.refreshToken);
+    return this.authService.refreshToken(req.user.id, refreshTokenDto.refreshToken, req.user.tfa_verified);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -125,19 +125,20 @@ export class AuthController {
     return this.authService.disableTwoFactor(req.user.id, body.token);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @UseGuards(JwtAuthGuard)
   @Post('2fa/verify')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Verify 2FA token' })
-  @ApiResponse({ status: 200, description: 'Token verified' })
+  @ApiResponse({ status: 200, description: 'Token verified, new authorized tokens issued' })
   @ApiResponse({ status: 400, description: 'Invalid token' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async verifyTwoFactor(@Req() req, @Body() body: { token: string }) {
-    const isValid = await this.authService.verifyTwoFactor(req.user.id, body.token);
-    if (!isValid) {
+    const result = await this.authService.verifyTwoFactor(req.user.id, body.token);
+    if (!result.valid) {
       throw new BadRequestException('Invalid 2FA token');
     }
-    return { valid: true };
+    return result;
   }
 
   @Throttle({ default: { limit: 3, ttl: 60_000 } })

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, Patch, Query, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Patch, Query, Headers, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
 import { TransactionFilterService } from './transaction-filter.service';
@@ -27,26 +27,42 @@ export class TransactionsController {
 
   @Post('transfer')
   @ApiOperation({ summary: 'Create a new transfer' })
-  createTransfer(@Req() req, @Body() createTransferDto: CreateTransferDto) {
-    return this.transactionsService.createTransfer(req.user.id, createTransferDto);
+  createTransfer(
+    @Req() req,
+    @Body() createTransferDto: CreateTransferDto,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    return this.transactionsService.createTransfer(req.user.id, createTransferDto, idempotencyKey);
   }
 
   @Post('deposit')
   @ApiOperation({ summary: 'Create a deposit (requires admin validation)' })
-  createDeposit(@Req() req, @Body() createDepositDto: CreateDepositDto) {
-    return this.transactionsService.createDeposit(req.user.id, createDepositDto);
+  createDeposit(
+    @Req() req,
+    @Body() createDepositDto: CreateDepositDto,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    return this.transactionsService.createDeposit(req.user.id, createDepositDto, idempotencyKey);
   }
 
   @Post('withdraw')
   @ApiOperation({ summary: 'Create a withdrawal (requires admin validation)' })
-  createWithdraw(@Req() req, @Body() createWithdrawDto: CreateWithdrawDto) {
-    return this.transactionsService.createWithdraw(req.user.id, createWithdrawDto);
+  createWithdraw(
+    @Req() req,
+    @Body() createWithdrawDto: CreateWithdrawDto,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    return this.transactionsService.createWithdraw(req.user.id, createWithdrawDto, idempotencyKey);
   }
 
   @Post('card')
   @ApiOperation({ summary: 'Create a card transaction' })
-  createCardTransaction(@Req() req, @Body() createCardTransactionDto: CreateCardTransactionDto) {
-    return this.transactionsService.createCardTransaction(req.user.id, createCardTransactionDto);
+  createCardTransaction(
+    @Req() req,
+    @Body() createCardTransactionDto: CreateCardTransactionDto,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    return this.transactionsService.createCardTransaction(req.user.id, createCardTransactionDto, idempotencyKey);
   }
 
   @Get()
@@ -54,7 +70,7 @@ export class TransactionsController {
   getTransactions(@Req() req, @Query() query: QueryTransactionsDto) {
     if (query.scope === 'admin') {
       this.ensureAdminRole(req.user?.role);
-      return this.transactionsService.findAllForAdmin(query);
+      return this.transactionsService.findAllForAdmin(query, this.actorTenantId(req.user));
     }
     return this.transactionsService.findByUserId(req.user.id, {
       skip: query.skip,
@@ -65,8 +81,8 @@ export class TransactionsController {
   @Get('pending')
   @Roles('ADMIN', 'COMPLIANCE')
   @ApiOperation({ summary: 'Get pending transactions (Admin only)' })
-  getPendingTransactions() {
-    return this.transactionsService.findPending();
+  getPendingTransactions(@Req() req) {
+    return this.transactionsService.findPending(this.actorTenantId(req.user));
   }
 
   @Get('pending/:id')
@@ -87,14 +103,19 @@ export class TransactionsController {
   @Roles('ADMIN', 'COMPLIANCE')
   @ApiOperation({ summary: 'Create a transaction on behalf of clients (Admin only)' })
   createAdminTransaction(@Req() req, @Body() dto: AdminCreateTransactionDto) {
-    return this.transactionsService.createAdminTransaction(req.user.id, dto);
+    return this.transactionsService.createAdminTransaction(req.user.id, dto, this.actorTenantId(req.user));
   }
 
   @Patch(':id/validate')
   @Roles('ADMIN', 'COMPLIANCE')
   @ApiOperation({ summary: 'Validate a transaction (Admin only)' })
   validateTransaction(@Req() req, @Param('id') id: string, @Body() validateDto: ValidateTransactionDto) {
-    return this.transactionsService.validateTransaction(req.user.id, id, validateDto);
+    return this.transactionsService.validateTransaction(req.user.id, id, validateDto, this.actorTenantId(req.user));
+  }
+
+  // SUPER_ADMIN operates across tenants; other roles are scoped to theirs.
+  private actorTenantId(user: { role?: string; tenant_id?: string | null }): string | null {
+    return user?.role === 'SUPER_ADMIN' ? null : user?.tenant_id ?? null;
   }
 
   private ensureAdminRole(role: string) {

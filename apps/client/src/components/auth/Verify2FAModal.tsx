@@ -6,7 +6,7 @@ interface Verify2FAModalProps {
   isOpen: boolean;
   onClose: () => void;
   tempToken: string | null;
-  onVerifySuccess: () => void;
+  onVerifySuccess: (tokens: { accessToken: string; refreshToken: string }) => void;
 }
 
 export default function Verify2FAModal({
@@ -38,8 +38,14 @@ export default function Verify2FAModal({
         return;
       }
 
-      // Call 2FA verify endpoint with the temporary token
-      await api.post(
+      // Call 2FA verify endpoint with the temporary token.
+      // On success the server issues a new token pair carrying
+      // tfa_verified: true — the temporary tokens are revoked.
+      const response = await api.post<{
+        valid: boolean;
+        accessToken: string;
+        refreshToken: string;
+      }>(
         "/auth/2fa/verify",
         { token: code },
         {
@@ -49,9 +55,15 @@ export default function Verify2FAModal({
         }
       );
 
+      const { accessToken, refreshToken } = response.data;
+      if (!accessToken || !refreshToken) {
+        setError("Verification failed. Please login again.");
+        return;
+      }
+
       // Verification successful
       toast.success("2FA verified successfully");
-      onVerifySuccess();
+      onVerifySuccess({ accessToken, refreshToken });
     } catch (err) {
       let message = "Verification failed";
       if (typeof err === "object" && err !== null && "response" in err) {

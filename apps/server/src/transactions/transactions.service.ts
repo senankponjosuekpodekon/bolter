@@ -22,6 +22,7 @@ type RawTransactionRow = {
   currency?: string | null;
   description?: string | null;
   created_at?: string | null;
+  tenant_id?: string | null;
 };
 
 type RawAccountRow = {
@@ -29,6 +30,7 @@ type RawAccountRow = {
   user_id?: string | null;
   account_number?: string;
   balance?: string | number;
+  tenant_id?: string | null;
 };
 
 type RawUserRow = {
@@ -49,7 +51,7 @@ export class TransactionsService {
     private readonly notificationsService: NotificationsService,
   ) { }
 
-  async createTransfer(userId: string, dto: CreateTransferDto) {
+  async createTransfer(userId: string, dto: CreateTransferDto, idempotencyKey?: string) {
     if (dto.amount <= 0) {
       throw new BadRequestException('Amount must be greater than zero');
     }
@@ -72,22 +74,21 @@ export class TransactionsService {
       throw new BadRequestException('Insufficient balance');
     }
 
-    const { data, error } = await this.supabase
-      .getAdminClient()
-      .from('transactions')
-      .insert({
-        from_account_id: dto.fromAccountId,
-        to_account_id: dto.toAccountId || null,
-        amount: dto.amount,
-        currency: 'EUR',
-        type: 'TRANSFER',
-        status: 'PENDING',
-        description: dto.description,
-        iban_external: dto.ibanExternal || null,
-      })
-      .select()
-      .single();
+    const { data, error, replayed } = await this.insertTransaction(userId, {
+      from_account_id: dto.fromAccountId,
+      to_account_id: dto.toAccountId || null,
+      amount: dto.amount,
+      currency: 'EUR',
+      type: 'TRANSFER',
+      status: 'PENDING',
+      description: dto.description,
+      iban_external: dto.ibanExternal || null,
+      tenant_id: (fromAccount as RawAccountRow).tenant_id ?? null,
+    }, idempotencyKey);
 
+    if (replayed) {
+      return data;
+    }
     if (error) {
       throw new BadRequestException(`Failed to create transfer: ${error.message}`);
     }
@@ -111,7 +112,7 @@ export class TransactionsService {
     return data;
   }
 
-  async createDeposit(userId: string, dto: CreateDepositDto) {
+  async createDeposit(userId: string, dto: CreateDepositDto, idempotencyKey?: string) {
     if (dto.amount <= 0) {
       throw new BadRequestException('Amount must be greater than zero');
     }
@@ -124,21 +125,20 @@ export class TransactionsService {
 
     const description = this.buildDepositDescription(dto.paymentMethod, dto.reference, dto.description);
 
-    const { data, error } = await this.supabase
-      .getAdminClient()
-      .from('transactions')
-      .insert({
-        from_account_id: null,
-        to_account_id: dto.accountId,
-        amount: dto.amount,
-        currency: 'EUR',
-        type: 'DEPOSIT',
-        status: 'PENDING',
-        description,
-      })
-      .select()
-      .single();
+    const { data, error, replayed } = await this.insertTransaction(userId, {
+      from_account_id: null,
+      to_account_id: dto.accountId,
+      amount: dto.amount,
+      currency: 'EUR',
+      type: 'DEPOSIT',
+      status: 'PENDING',
+      description,
+      tenant_id: (account as RawAccountRow).tenant_id ?? null,
+    }, idempotencyKey);
 
+    if (replayed) {
+      return data;
+    }
     if (error) {
       throw new BadRequestException(`Failed to create deposit: ${error.message}`);
     }
@@ -161,7 +161,7 @@ export class TransactionsService {
     return data;
   }
 
-  async createWithdraw(userId: string, dto: CreateWithdrawDto) {
+  async createWithdraw(userId: string, dto: CreateWithdrawDto, idempotencyKey?: string) {
     if (dto.amount <= 0) {
       throw new BadRequestException('Amount must be greater than zero');
     }
@@ -178,22 +178,21 @@ export class TransactionsService {
 
     const description = dto.description || `Withdrawal to ${dto.bankDetails.iban}`;
 
-    const { data, error } = await this.supabase
-      .getAdminClient()
-      .from('transactions')
-      .insert({
-        from_account_id: dto.accountId,
-        to_account_id: null,
-        amount: dto.amount,
-        currency: 'EUR',
-        type: 'WITHDRAWAL',
-        status: 'PENDING',
-        description,
-        iban_external: dto.bankDetails.iban,
-      })
-      .select()
-      .single();
+    const { data, error, replayed } = await this.insertTransaction(userId, {
+      from_account_id: dto.accountId,
+      to_account_id: null,
+      amount: dto.amount,
+      currency: 'EUR',
+      type: 'WITHDRAWAL',
+      status: 'PENDING',
+      description,
+      iban_external: dto.bankDetails.iban,
+      tenant_id: (account as RawAccountRow).tenant_id ?? null,
+    }, idempotencyKey);
 
+    if (replayed) {
+      return data;
+    }
     if (error) {
       throw new BadRequestException(`Failed to create withdrawal: ${error.message}`);
     }
@@ -216,7 +215,7 @@ export class TransactionsService {
     return data;
   }
 
-  async createCardTransaction(userId: string, dto: CreateCardTransactionDto) {
+  async createCardTransaction(userId: string, dto: CreateCardTransactionDto, idempotencyKey?: string) {
     // Verify card exists
     const card = await this.supabase
       .getAdminClient()
@@ -254,48 +253,33 @@ export class TransactionsService {
     const amount = Number(dto.amount);
     const currentBalance = Number(account.balance || 0);
 
-    // Verify sufficient balance
+    // Verify sufficient balance (friendly pre-check — the RPC re-verifies
+    // atomically under a row lock, so a concurrent debit cannot double-spend).
     if (currentBalance < amount) {
       throw new BadRequestException('Insufficient balance for this transaction');
     }
 
-    // Create transaction record with card reference
+    // Atomic: debit + COMPLETED row commit or roll back together;
+    // idempotency key replay returns the original row without re-debiting.
     const { data, error } = await this.supabase
       .getAdminClient()
-      .from('transactions')
-      .insert({
-        account_id: account.id,
-        user_id: userId,
-        type: 'CARD_PAYMENT',
-        amount,
-        balance: currentBalance - amount,
-        currency: String(account.currency || 'EUR'),
-        description: dto.description || `Card payment - ${dto.merchant}`,
-        card_id: dto.cardId,
-        card_number: cardData.card_number,
-        merchant: dto.merchant,
-        category: dto.category,
-        status: 'COMPLETED',
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+      .rpc('post_card_payment', {
+        p_account_id: account.id,
+        p_user_id: userId,
+        p_card_id: dto.cardId,
+        p_card_number: cardData.card_number,
+        p_amount: amount,
+        p_currency: String(account.currency || 'EUR'),
+        p_description: dto.description || `Card payment - ${dto.merchant}`,
+        p_merchant: dto.merchant,
+        p_category: dto.category,
+        p_idempotency_key: this.scopedIdempotencyKey(userId, idempotencyKey),
+        p_tenant_id: (account as RawAccountRow).tenant_id ?? null,
+      });
 
     if (error) {
       this.logger.error(`Error creating card transaction: ${error.message}`);
-      throw new BadRequestException('Failed to create card transaction');
-    }
-
-    // Update account balance
-    const updateResult = await this.supabase
-      .getAdminClient()
-      .from('accounts')
-      .update({ balance: currentBalance - amount })
-      .eq('id', account.id);
-
-    if (updateResult.error) {
-      this.logger.error(`Error updating account balance: ${updateResult.error.message}`);
-      throw new BadRequestException('Failed to update account balance');
+      this.throwRpcError(error, 'Failed to create card transaction');
     }
 
     // Log audit entry
@@ -348,12 +332,19 @@ export class TransactionsService {
     return data;
   }
 
-  async findPending() {
-    const { data, error } = await this.supabase
+  async findPending(actorTenantId?: string | null) {
+    let request = this.supabase
       .getAdminClient()
       .from('transactions')
       .select('*')
-      .eq('status', 'PENDING')
+      .eq('status', 'PENDING');
+
+    // Tenant-scoped admins only see their tenant's queue
+    if (actorTenantId) {
+      request = request.eq('tenant_id', actorTenantId);
+    }
+
+    const { data, error } = await request
       .order('created_at', { ascending: true })
       .range(0, 499);
 
@@ -384,7 +375,7 @@ export class TransactionsService {
     return data;
   }
 
-  async findAllForAdmin(query: QueryTransactionsDto) {
+  async findAllForAdmin(query: QueryTransactionsDto, actorTenantId?: string | null) {
     const { skip = 0, take = 25, status, type, accountId, userId, search, autoApproved } = query;
 
     const client = this.supabase.getAdminClient();
@@ -392,6 +383,11 @@ export class TransactionsService {
       .from('transactions')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false });
+
+    // Tenant-scoped admins only see their tenant's transactions
+    if (actorTenantId) {
+      request = request.eq('tenant_id', actorTenantId);
+    }
 
     if (status) {
       request = request.eq('status', status);
@@ -497,13 +493,26 @@ export class TransactionsService {
     };
   }
 
-  async createAdminTransaction(adminId: string, dto: AdminCreateTransactionDto) {
+  async createAdminTransaction(adminId: string, dto: AdminCreateTransactionDto, adminTenantId?: string | null) {
     if (dto.amount <= 0) {
       throw new BadRequestException('Amount must be greater than zero');
     }
 
     const currency = dto.currency ?? 'EUR';
     const autoApprove = dto.autoApprove ?? true;
+
+    // Tenant-scoped admins can only touch accounts of their own tenant.
+    if (adminTenantId) {
+      const accountIds = [dto.fromAccountId, dto.toAccountId]
+        .filter((id): id is string => Boolean(id))
+        .map((id) => id.toString());
+      for (const accountId of accountIds) {
+        const account = await this.accountsService.findById(accountId);
+        if ((account as RawAccountRow).tenant_id && (account as RawAccountRow).tenant_id !== adminTenantId) {
+          throw new ForbiddenException('Cannot operate on accounts of another tenant');
+        }
+      }
+    }
 
     switch (dto.type) {
       case 'TRANSFER':
@@ -517,67 +526,49 @@ export class TransactionsService {
     }
   }
 
-  async validateTransaction(adminId: string, transactionId: string, dto: ValidateTransactionDto) {
+  async validateTransaction(adminId: string, transactionId: string, dto: ValidateTransactionDto, adminTenantId?: string | null) {
     const client = this.supabase.getAdminClient();
-    const { data: transaction, error: fetchError } = await client
-      .from('transactions')
-      .select('*')
-      .eq('id', transactionId)
-      .maybeSingle();
 
-    if (fetchError || !transaction) {
-      throw new NotFoundException('Transaction not found');
-    }
-
-    if (transaction.status !== 'PENDING') {
-      throw new BadRequestException('Transaction has already been processed');
-    }
-
-    const amount = Number(transaction.amount);
-    const newStatus = dto.approved ? 'APPROVED' : 'REJECTED';
-    let fromAccount: RawAccountRow | null = null;
-    let toAccount: RawAccountRow | null = null;
-
-    if (dto.approved) {
-      if ((transaction.type === 'TRANSFER' || transaction.type === 'WITHDRAWAL') && transaction.from_account_id) {
-        fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
-        const currentBalance = Number(fromAccount.balance);
-        if (currentBalance < amount) {
-          throw new BadRequestException('Insufficient balance');
-        }
-        await this.updateAccountBalance(transaction.from_account_id, currentBalance - amount);
-      }
-
-      if ((transaction.type === 'TRANSFER' || transaction.type === 'DEPOSIT') && transaction.to_account_id) {
-        toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
-        const currentBalance = Number(toAccount.balance);
-        await this.updateAccountBalance(transaction.to_account_id, currentBalance + amount);
+    // Tenant-scoped admins can only decide on their own tenant's transactions
+    if (adminTenantId) {
+      const { data: txRow } = await client
+        .from('transactions')
+        .select('tenant_id')
+        .eq('id', transactionId)
+        .maybeSingle();
+      if (txRow?.tenant_id && txRow.tenant_id !== adminTenantId) {
+        throw new ForbiddenException('Cannot validate transactions of another tenant');
       }
     }
 
-    if (!dto.approved) {
-      if (!fromAccount && transaction.from_account_id) {
-        fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
-      }
-      if (!toAccount && transaction.to_account_id) {
-        toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
-      }
-    }
-
-    const { data, error } = await client
-      .from('transactions')
-      .update({
-        status: newStatus,
-        validated_by: adminId,
-        validated_at: new Date().toISOString(),
-        rejection_reason: dto.rejectionReason || null,
-      })
-      .eq('id', transactionId)
-      .select()
-      .single();
+    // Atomic decision: the RPC locks the transaction row, verifies PENDING,
+    // applies balance movements and flips the status in a single commit.
+    // Concurrent approvals: the loser gets TRANSACTION_ALREADY_PROCESSED.
+    const { data, error } = await client.rpc('post_transaction_decision', {
+      p_transaction_id: transactionId,
+      p_admin_id: adminId,
+      p_approve: dto.approved,
+      p_rejection_reason: dto.rejectionReason ?? null,
+    });
 
     if (error) {
-      throw new BadRequestException(`Failed to validate transaction: ${error.message}`);
+      this.throwRpcError(error, 'Failed to validate transaction');
+    }
+
+    const transaction = data as RawTransactionRow;
+
+    // Post-commit read-only lookups for notifications/audit only.
+    let fromAccount: RawAccountRow | null = null;
+    let toAccount: RawAccountRow | null = null;
+    try {
+      if (transaction.from_account_id) {
+        fromAccount = await this.accountsService.findById(transaction.from_account_id.toString());
+      }
+      if (transaction.to_account_id) {
+        toAccount = await this.accountsService.findById(transaction.to_account_id.toString());
+      }
+    } catch {
+      this.logger.warn(`Account lookup failed after decision on transaction ${transactionId}`);
     }
 
     const targetUserId = transaction.from_account_id
@@ -634,35 +625,46 @@ export class TransactionsService {
     const status = autoApprove ? 'APPROVED' : 'PENDING';
     const description = dto.description || (dto.toAccountId ? `Admin transfer to account ${dto.toAccountId}` : `Admin transfer to ${dto.ibanExternal}`);
 
-    const { data, error } = await client
-      .from('transactions')
-      .insert({
-        from_account_id: dto.fromAccountId,
-        to_account_id: dto.toAccountId ?? null,
-        amount: dto.amount,
-        currency,
-        type: 'TRANSFER',
-        status,
-        description,
-        iban_external: dto.ibanExternal ?? null,
-        validated_by: autoApprove ? adminId : null,
-        validated_at: autoApprove ? new Date().toISOString() : null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new BadRequestException(`Failed to create transfer: ${error.message}`);
-    }
+    let data: RawTransactionRow;
 
     if (autoApprove) {
-      const fromBalance = Number(fromAccount.balance) - dto.amount;
-      await this.updateAccountBalance(fromAccount.id, fromBalance);
-
-      if (toAccount) {
-        const toBalance = Number(toAccount.balance) + dto.amount;
-        await this.updateAccountBalance(toAccount.id, toBalance);
+      // Atomic: debit + credit + APPROVED row commit or roll back together.
+      const { data: rpcData, error: rpcError } = await client.rpc('post_admin_transaction', {
+        p_type: 'TRANSFER',
+        p_from_account_id: dto.fromAccountId,
+        p_to_account_id: dto.toAccountId ?? null,
+        p_amount: dto.amount,
+        p_currency: currency,
+        p_description: description,
+        p_iban_external: dto.ibanExternal ?? null,
+        p_admin_id: adminId,
+        p_tenant_id: (fromAccount as RawAccountRow).tenant_id ?? null,
+      });
+      if (rpcError) {
+        this.throwRpcError(rpcError, 'Failed to create transfer');
       }
+      data = rpcData as RawTransactionRow;
+    } else {
+      const { data: inserted, error } = await client
+        .from('transactions')
+        .insert({
+          from_account_id: dto.fromAccountId,
+          to_account_id: dto.toAccountId ?? null,
+          amount: dto.amount,
+          currency,
+          type: 'TRANSFER',
+          status,
+          description,
+          iban_external: dto.ibanExternal ?? null,
+          tenant_id: (fromAccount as RawAccountRow).tenant_id ?? null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new BadRequestException(`Failed to create transfer: ${error.message}`);
+      }
+      data = inserted as RawTransactionRow;
     }
 
     await this.logTransactionAction(fromAccount.user_id, adminId, 'TRANSACTION_CREATED', data.id, {
@@ -742,29 +744,44 @@ export class TransactionsService {
     const status = autoApprove ? 'APPROVED' : 'PENDING';
     const description = this.buildDepositDescription(dto.paymentMethod, dto.reference, dto.description);
 
-    const { data, error } = await client
-      .from('transactions')
-      .insert({
-        from_account_id: null,
-        to_account_id: dto.toAccountId,
-        amount: dto.amount,
-        currency,
-        type: 'DEPOSIT',
-        status,
-        description,
-        validated_by: autoApprove ? adminId : null,
-        validated_at: autoApprove ? new Date().toISOString() : null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new BadRequestException(`Failed to create deposit: ${error.message}`);
-    }
+    let data: RawTransactionRow;
 
     if (autoApprove) {
-      const newBalance = Number(account.balance) + dto.amount;
-      await this.updateAccountBalance(account.id, newBalance);
+      const { data: rpcData, error: rpcError } = await client.rpc('post_admin_transaction', {
+        p_type: 'DEPOSIT',
+        p_from_account_id: null,
+        p_to_account_id: dto.toAccountId,
+        p_amount: dto.amount,
+        p_currency: currency,
+        p_description: description,
+        p_iban_external: null,
+        p_admin_id: adminId,
+        p_tenant_id: (account as RawAccountRow).tenant_id ?? null,
+      });
+      if (rpcError) {
+        this.throwRpcError(rpcError, 'Failed to create deposit');
+      }
+      data = rpcData as RawTransactionRow;
+    } else {
+      const { data: inserted, error } = await client
+        .from('transactions')
+        .insert({
+          from_account_id: null,
+          to_account_id: dto.toAccountId,
+          amount: dto.amount,
+          currency,
+          type: 'DEPOSIT',
+          status,
+          description,
+          tenant_id: (account as RawAccountRow).tenant_id ?? null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new BadRequestException(`Failed to create deposit: ${error.message}`);
+      }
+      data = inserted as RawTransactionRow;
     }
 
     await this.logTransactionAction(account.user_id, adminId, 'TRANSACTION_CREATED', data.id, {
@@ -825,33 +842,45 @@ export class TransactionsService {
     const status = autoApprove ? 'APPROVED' : 'PENDING';
     const description = dto.description || `Withdrawal to ${dto.bankDetails.iban}`;
 
-    const { data, error } = await client
-      .from('transactions')
-      .insert({
-        from_account_id: dto.fromAccountId,
-        to_account_id: null,
-        amount: dto.amount,
-        currency,
-        type: 'WITHDRAWAL',
-        status,
-        description,
-        iban_external: dto.bankDetails.iban,
-        validated_by: autoApprove ? adminId : null,
-        validated_at: autoApprove ? new Date().toISOString() : null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new BadRequestException(`Failed to create withdrawal: ${error.message}`);
-    }
+    let data: RawTransactionRow;
 
     if (autoApprove) {
-      const newBalance = Number(account.balance) - dto.amount;
-      if (newBalance < 0) {
-        throw new BadRequestException('Insufficient balance');
+      const { data: rpcData, error: rpcError } = await client.rpc('post_admin_transaction', {
+        p_type: 'WITHDRAWAL',
+        p_from_account_id: dto.fromAccountId,
+        p_to_account_id: null,
+        p_amount: dto.amount,
+        p_currency: currency,
+        p_description: description,
+        p_iban_external: dto.bankDetails.iban,
+        p_admin_id: adminId,
+        p_tenant_id: (account as RawAccountRow).tenant_id ?? null,
+      });
+      if (rpcError) {
+        this.throwRpcError(rpcError, 'Failed to create withdrawal');
       }
-      await this.updateAccountBalance(account.id, newBalance);
+      data = rpcData as RawTransactionRow;
+    } else {
+      const { data: inserted, error } = await client
+        .from('transactions')
+        .insert({
+          from_account_id: dto.fromAccountId,
+          to_account_id: null,
+          amount: dto.amount,
+          currency,
+          type: 'WITHDRAWAL',
+          status,
+          description,
+          iban_external: dto.bankDetails.iban,
+          tenant_id: (account as RawAccountRow).tenant_id ?? null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new BadRequestException(`Failed to create withdrawal: ${error.message}`);
+      }
+      data = inserted as RawTransactionRow;
     }
 
     await this.logTransactionAction(account.user_id, adminId, 'TRANSACTION_CREATED', data.id, {
@@ -894,17 +923,82 @@ export class TransactionsService {
     return data;
   }
 
-  private async updateAccountBalance(accountId: string, newBalance: number) {
-    const rounded = Number(newBalance.toFixed(2));
-    const { error } = await this.supabase
-      .getAdminClient()
-      .from('accounts')
-      .update({ balance: rounded })
-      .eq('id', accountId);
+  /**
+   * Idempotent transaction insert. The idempotency key is scoped to the user
+   * so keys generated by different users can never collide. On replay (or a
+   * concurrent insert that lost the unique-index race) the ORIGINAL row is
+   * returned with replayed=true and no side effects are duplicated.
+   */
+  private scopedIdempotencyKey(userId: string, key?: string): string | null {
+    return key ? `${userId}:${key}` : null;
+  }
 
-    if (error) {
-      throw new BadRequestException(`Failed to update account balance: ${error.message}`);
+  private async insertTransaction(
+    userId: string,
+    payload: Record<string, unknown>,
+    idempotencyKey?: string,
+  ): Promise<{ data: RawTransactionRow | null; error: { message: string; code?: string } | null; replayed: boolean }> {
+    const client = this.supabase.getAdminClient();
+    const scopedKey = this.scopedIdempotencyKey(userId, idempotencyKey);
+
+    if (scopedKey) {
+      const { data: existing } = await client
+        .from('transactions')
+        .select('*')
+        .eq('idempotency_key', scopedKey)
+        .maybeSingle();
+      if (existing) {
+        return { data: existing as RawTransactionRow, error: null, replayed: true };
+      }
     }
+
+    const { data, error } = await client
+      .from('transactions')
+      .insert({ ...payload, ...(scopedKey ? { idempotency_key: scopedKey } : {}) })
+      .select()
+      .single();
+
+    // Unique-index race: a concurrent request with the same key won the insert.
+    if (error?.code === '23505' && scopedKey) {
+      const { data: existing } = await client
+        .from('transactions')
+        .select('*')
+        .eq('idempotency_key', scopedKey)
+        .maybeSingle();
+      if (existing) {
+        return { data: existing as RawTransactionRow, error: null, replayed: true };
+      }
+    }
+
+    return { data: (data as RawTransactionRow) ?? null, error: error ?? null, replayed: false };
+  }
+
+  /**
+   * Maps errors raised by the atomic balance RPCs (SQLSTATE P0001 messages
+   * defined in migration 0015) to the corresponding HTTP exceptions.
+   */
+  private throwRpcError(error: { message?: string }, fallback: string): never {
+    const msg = error?.message ?? '';
+    if (msg.includes('INSUFFICIENT_FUNDS')) {
+      throw new BadRequestException('Insufficient balance');
+    }
+    if (msg.includes('TRANSACTION_NOT_FOUND')) {
+      throw new NotFoundException('Transaction not found');
+    }
+    if (msg.includes('TRANSACTION_ALREADY_PROCESSED')) {
+      throw new BadRequestException('Transaction has already been processed');
+    }
+    if (msg.includes('ACCOUNT_NOT_FOUND')) {
+      throw new NotFoundException('Account not found');
+    }
+    if (msg.includes('SAME_ACCOUNT')) {
+      throw new BadRequestException('Cannot transfer to the same account');
+    }
+    if (msg.includes('INVALID_AMOUNT') || msg.includes('NO_ACCOUNT')) {
+      throw new BadRequestException('Invalid transaction parameters');
+    }
+    this.logger.error(`RPC error: ${msg}`);
+    throw new BadRequestException(fallback);
   }
 
   private async logTransactionAction(

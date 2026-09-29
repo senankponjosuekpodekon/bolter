@@ -17,7 +17,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string; email: string; role: string; tenant_id?: string | null }) {
+  async validate(payload: {
+    sub: string;
+    email: string;
+    role: string;
+    tenant_id?: string | null;
+    tfa_verified?: boolean;
+  }) {
     const user = await this.usersService.findById(payload.sub);
     return {
       id: payload.sub,
@@ -25,6 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       role: payload.role,
       tenant_id: payload.tenant_id ?? user?.tenant_id ?? null,
       ...user,
+      tfa_verified: payload.tfa_verified === true,
     };
   }
 }
