@@ -35,4 +35,14 @@ export default () => ({
   frontend: {
     url: process.env.FRONTEND_URL || process.env.APP_URL || 'http://localhost:5173',
   },
+  exchange: {
+    // Live provider is only enabled when configured. Two options:
+    //  - EXCHANGE_RATE_API_KEY: uses v6.exchangerate-api.com
+    //  - EXCHANGE_RATE_API_URL: any compatible "latest rates" endpoint
+    //    (e.g. https://open.er-api.com/v6/latest) — {base} is appended.
+    apiKey: process.env.EXCHANGE_RATE_API_KEY,
+    apiUrl: process.env.EXCHANGE_RATE_API_URL,
+    cacheTtlMs: parseInt(process.env.EXCHANGE_RATE_CACHE_TTL_MS, 10) || 3600000,
+    timeoutMs: parseInt(process.env.EXCHANGE_RATE_TIMEOUT_MS, 10) || 5000,
+  },
 });

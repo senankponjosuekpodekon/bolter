@@ -1,10 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ConversionResult } from './interfaces/exchange-rate.interface';
 
 /**
  * Exchange service with comprehensive currency support and caching.
  * Supports EUR, USD, GBP, CAD, AED, NGN, GHS, ZAR, XOF.
- * Uses in-memory cache with TTL. Replace with real provider in production.
+ *
+ * Rate resolution order:
+ *   1. pair cache (TTL)
+ *   2. live provider table (cached per base currency) — only when
+ *      EXCHANGE_RATE_API_KEY or EXCHANGE_RATE_API_URL is configured
+ *   3. last-good provider table (stale) when the provider is down
+ *   4. static fallback matrix
  */
 @Injectable()
 export class ExchangeService {
@@ -54,6 +61,80 @@ export class ExchangeService {
     private rateCache: Map<string, { rate: number; expiry: Date }> = new Map();
     private readonly CACHE_TTL_MS = 3600000; // 1 hour
 
+    // Provider rate tables keyed by base currency (+ last-good for stale fallback)
+    private tableCache = new Map<string, { rates: Record<string, number>; expiry: number }>();
+    private lastGoodTable = new Map<string, Record<string, number>>();
+
+    constructor(@Optional() private readonly configService?: ConfigService) { }
+
+    private get providerEnabled(): boolean {
+        return Boolean(
+            this.configService?.get<string>('exchange.apiKey') ||
+            this.configService?.get<string>('exchange.apiUrl'),
+        );
+    }
+
+    private get providerTimeoutMs(): number {
+        return this.configService?.get<number>('exchange.timeoutMs') ?? 5000;
+    }
+
+    /** Fetch the full rates table for a base currency from the configured provider. */
+    private async fetchProviderRates(base: string): Promise<Record<string, number>> {
+        const apiKey = this.configService?.get<string>('exchange.apiKey');
+        const apiUrl = this.configService?.get<string>('exchange.apiUrl');
+
+        const url = apiKey
+            ? `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${base}`
+            : `${apiUrl}/${base}`;
+
+        const res = await fetch(url, { signal: AbortSignal.timeout(this.providerTimeoutMs) });
+        if (!res.ok) {
+            throw new Error(`FX provider HTTP ${res.status}`);
+        }
+        const data = (await res.json()) as {
+            result?: string;
+            conversion_rates?: Record<string, number>;
+            rates?: Record<string, number>;
+        };
+        if (data.result === 'error') {
+            throw new Error('FX provider returned an error');
+        }
+        const rates = data.conversion_rates ?? data.rates;
+        if (!rates || typeof rates !== 'object') {
+            throw new Error('FX provider response missing rates');
+        }
+        return rates;
+    }
+
+    /** Rates table for a base currency: fresh cache → provider → stale cache → static. */
+    private async getRatesTable(base: string): Promise<{ rates: Record<string, number>; source: 'cache' | 'live' | 'stale' | 'static' }> {
+        const ttl = this.configService?.get<number>('exchange.cacheTtlMs') ?? this.CACHE_TTL_MS;
+        const cached = this.tableCache.get(base);
+        if (cached && cached.expiry > Date.now()) {
+            return { rates: cached.rates, source: 'cache' };
+        }
+
+        if (this.providerEnabled) {
+            try {
+                const rates = await this.fetchProviderRates(base);
+                this.tableCache.set(base, { rates, expiry: Date.now() + ttl });
+                this.lastGoodTable.set(base, rates);
+                return { rates, source: 'live' };
+            } catch (err) {
+                this.logger.warn(
+                    `FX provider unavailable for ${base}: ${err instanceof Error ? err.message : String(err)}`,
+                );
+                const stale = this.lastGoodTable.get(base);
+                if (stale) {
+                    this.logger.warn(`Using stale FX table for ${base}`);
+                    return { rates: stale, source: 'stale' };
+                }
+            }
+        }
+
+        return { rates: this.baseRates[base] ?? {}, source: 'static' };
+    }
+
     async getRate(from: string, to: string): Promise<number | null> {
         if (from === to) return 1;
 
@@ -69,17 +150,21 @@ export class ExchangeService {
             return cached.rate;
         }
 
-        // Get from base rates
-        const baseRate = this.baseRates[from]?.[to];
-        if (baseRate) {
+        const { rates, source } = await this.getRatesTable(from);
+
+        const direct = rates[to];
+        if (typeof direct === 'number' && direct > 0) {
             this.rateCache.set(cacheKey, {
-                rate: baseRate,
+                rate: direct,
                 expiry: new Date(Date.now() + this.CACHE_TTL_MS),
             });
-            return baseRate;
+            if (source !== 'static') {
+                this.logger.debug(`FX rate ${cacheKey} = ${direct} (${source})`);
+            }
+            return direct;
         }
 
-        // Try reverse rate if available
+        // Fallback: inverse of the static reverse rate
         const reverseRate = this.baseRates[to]?.[from];
         if (reverseRate) {
             const calculatedRate = 1 / reverseRate;
