@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../stores/authStore";
+import { performLogout } from "../../lib/logout";
 import { Link } from "react-router-dom";
 import { useEnabledWidgets } from "../../hooks/useEnabledWidgets";
 
@@ -13,7 +13,7 @@ type Props = {
 
 export default function MobileDrawer({ open, onClose }: Props) {
   const navigate = useNavigate();
-  const logout = useAuthStore((s) => s.logout);
+
   const ref = useRef<HTMLDivElement | null>(null);
   const enabledWidgets = useEnabledWidgets();
 
@@ -116,7 +116,7 @@ export default function MobileDrawer({ open, onClose }: Props) {
         <div className="p-4 border-t border-gray-200 dark:border-slate-800 mt-auto">
           <button
             onClick={() => {
-              logout();
+              void performLogout();
               navigate("/login");
               onClose();
             }}

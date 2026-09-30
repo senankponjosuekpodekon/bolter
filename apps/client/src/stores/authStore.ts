@@ -67,6 +67,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      // Never persist the refresh token — it lives in an httpOnly cookie.
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        isAuthenticated: state.isAuthenticated,
+        preferences: state.preferences,
+      }),
     }
   )
 )

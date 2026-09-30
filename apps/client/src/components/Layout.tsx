@@ -1,5 +1,6 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
+import { performLogout } from "../lib/logout";
 import { NotificationBell } from "./NotificationBell";
 import MobileDrawer from "./navigation/MobileDrawer";
 import BottomNav from "./navigation/BottomNav";
@@ -9,7 +10,7 @@ import { useNotificationListener } from "../hooks/useNotificationListener";
 import { useEnabledWidgets } from "../hooks/useEnabledWidgets";
 
 export default function Layout() {
-  const { user, logout, accessToken } = useAuthStore();
+  const { user, accessToken } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const enabledWidgets = useEnabledWidgets();
@@ -29,7 +30,7 @@ export default function Layout() {
   useNotificationListener();
 
   const handleLogout = () => {
-    logout();
+    void performLogout();
     navigate("/login");
   };
 

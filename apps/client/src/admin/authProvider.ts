@@ -6,6 +6,7 @@ export const authProvider: AuthProvider = {
   login: async ({ username, password }) => {
     const request = new Request(`${API_URL}/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({ email: username, password }),
       headers: new Headers({ 'Content-Type': 'application/json' }),
     })
@@ -24,6 +25,16 @@ export const authProvider: AuthProvider = {
     }
   },
   logout: async () => {
+    try {
+      const token = localStorage.getItem('token')
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      })
+    } catch {
+      // Session may already be gone — clear local state anyway
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('tenant_id')

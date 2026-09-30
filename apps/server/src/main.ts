@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from './common/logger/logger.service';
 import * as fs from 'fs';
@@ -47,6 +48,7 @@ async function bootstrap() {
   app.useLogger(logger);
 
   app.setGlobalPrefix('api');
+  app.use(cookieParser());
 
   // Helmet: full strict headers in production (TLS is terminated at the
   // edge/reverse proxy, so USE_HTTPS=false still means prod). Relaxed only
