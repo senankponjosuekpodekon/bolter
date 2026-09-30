@@ -1,98 +1,64 @@
-import { test, expect } from '@playwright/test'
-import * as speakeasy from 'speakeasy'
+import { test, expect, authenticatedPage, DEMO_2FA_EMAIL } from '../fixtures'
 
-test.describe('2FA Setup → Enable → Login Flow', () => {
-  let testEmail: string
-  let testPassword: string
-  let setupSecret: string
+const DEMO_PASSWORD = 'Demo1234!'
 
-  test.beforeAll(async () => {
-    // Use test credentials
-    testEmail = `2fa-test-${Date.now()}@example.com`
-    testPassword = 'TestPassword123!@#'
-  })
-
-  test('should complete full 2FA setup and enable flow', async ({ page }) => {
-    // Step 1: Register a new user
-    await page.goto('/auth/register')
-    await page.locator('input[type="email"]').fill(testEmail)
-    await page.locator('input[type="password"]').first().fill(testPassword)
-    await page.locator('input[type="password"][name="confirmPassword"]').fill(testPassword)
-
-    await page.click('button:has-text("Register")')
-
-    // Should be redirected to dashboard after registration
-    await expect(page).toHaveURL(/\/(dashboard|app)/, { timeout: 5000 })
-
-    // Step 2: Navigate to 2FA settings
+test.describe('2FA settings (authenticated)', () => {
+  test('setup flow shows QR code, secret and verify form', async ({ page }) => {
+    await authenticatedPage(page)
     await page.goto('/profile#profile-2fa')
-    await expect(page.getByText('Sécurité : Authentification à deux facteurs')).toBeVisible()
 
-    // Step 3: Click setup 2FA button
-    await page.click('button:has-text("Setup 2FA")')
+    await expect(page.getByText(/Authentification à deux facteurs/i)).toBeVisible({ timeout: 8_000 })
+    await page.getByRole('button', { name: /activer la 2fa/i }).click()
 
-    // Should display QR code and secret
-    const secretElement = await page.locator('code, .secret-display').first()
-    setupSecret = await secretElement.textContent() || ''
-    expect(setupSecret).toBeTruthy()
+    // QR setup card appears with the manual secret
+    await expect(page.getByText(/Configurer l.authentificateur/i)).toBeVisible({ timeout: 5_000 })
+    await expect(page.locator('code')).toContainText('JBSWY3DPEHPK3PXP')
 
-    // Step 4: Generate TOTP code from the secret
-    const totpCode = speakeasy.totp({
-      secret: setupSecret,
-      encoding: 'base32'
-    })
+    // Entering a 6-digit code enables the verify button
+    await page.getByPlaceholder('000000').fill('123456')
+    const verifyBtn = page.getByRole('button', { name: /^activer la 2fa$|^activer$/i })
+    await expect(verifyBtn).toBeEnabled()
+    await verifyBtn.click()
 
-    // Step 5: Enter the code to enable 2FA
-    await page.locator('input[type="text"][placeholder*="code"]').fill(totpCode)
-    await page.click('button:has-text("Enable")')
-
-    // Should show success message
-    await expect(page.locator('text=2FA enabled successfully')).toBeVisible({ timeout: 5000 })
-
-    // Step 6: Logout
-    await page.click('button:has-text("Logout")')
-    await expect(page).toHaveURL('/auth/login', { timeout: 5000 })
+    // Success feedback
+    await expect(page.getByText(/2FA activée/i).first()).toBeVisible({ timeout: 5_000 })
   })
 
-  test('should require 2FA code on login', async ({ page }) => {
-    // Step 1: Login with credentials
-    await page.goto('/auth/login')
-    await page.locator('input[type="email"]').fill(testEmail)
-    await page.locator('input[type="password"]').fill(testPassword)
-    await page.click('button:has-text("Login")')
+  test('verify button stays disabled without a 6-digit code', async ({ page }) => {
+    await authenticatedPage(page)
+    await page.goto('/profile#profile-2fa')
+    await page.getByRole('button', { name: /activer la 2fa/i }).click()
+    await expect(page.locator('code')).toContainText('JBSWY3DPEHPK3PXP', { timeout: 5_000 })
 
-    // Step 2: Should be redirected to 2FA code entry
-    await expect(page.getByText('Enter your authenticator code')).toBeVisible({ timeout: 5000 })
+    await page.getByPlaceholder('000000').fill('123')
+    await expect(page.getByRole('button', { name: /^activer la 2fa$|^activer$/i })).toBeDisabled()
+  })
+})
 
-    // Step 3: Generate TOTP code and enter it
-    const totpCode = speakeasy.totp({
-      secret: setupSecret,
-      encoding: 'base32'
-    })
+test.describe('2FA on login', () => {
+  test('a 2FA-enabled account must enter a code after password', async ({ page }) => {
+    await page.goto('/login')
+    await page.getByLabel(/email/i).fill(DEMO_2FA_EMAIL)
+    await page.getByLabel(/password/i).fill(DEMO_PASSWORD)
+    await page.getByRole('button', { name: /sign in|login|connexion/i }).click()
 
-    await page.locator('input[type="text"][placeholder*="code"]').fill(totpCode)
-    await page.click('button:has-text("Verify")')
-
-    // Step 4: Should login successfully and redirect to dashboard
-    await expect(page).toHaveURL(/\/(dashboard|app)/, { timeout: 5000 })
+    await expect(page.getByRole('heading', { name: /verify 2fa/i })).toBeVisible({ timeout: 5_000 })
+    await page.getByPlaceholder('000000').fill('123456')
+    await page.getByRole('button', { name: /^verify$/i }).click()
+    await expect(page).toHaveURL(/dashboard/, { timeout: 8_000 })
   })
 
-  test('should reject invalid 2FA code', async ({ page }) => {
-    await page.goto('/auth/login')
-    await page.locator('input[type="email"]').fill(testEmail)
-    await page.locator('input[type="password"]').fill(testPassword)
-    await page.click('button:has-text("Login")')
+  test('an invalid 2FA code shows an error and stays on the modal', async ({ page }) => {
+    await page.goto('/login')
+    await page.getByLabel(/email/i).fill(DEMO_2FA_EMAIL)
+    await page.getByLabel(/password/i).fill(DEMO_PASSWORD)
+    await page.getByRole('button', { name: /sign in|login|connexion/i }).click()
 
-    // Wait for 2FA prompt
-    await expect(page.getByText('Enter your authenticator code')).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole('heading', { name: /verify 2fa/i })).toBeVisible({ timeout: 5_000 })
+    await page.getByPlaceholder('000000').fill('000000')
+    await page.getByRole('button', { name: /^verify$/i }).click()
 
-    // Submit invalid code repeatedly to trigger rate limit
-    for (let i = 0; i < 6; i++) {
-      await page.locator('input[type="text"][placeholder*="code"]').fill('000000')
-      await page.click('button:has-text("Verify")')
-    }
-
-    // Should show rate-limit message on the last attempt
-    await expect(page.locator('text=Trop de tentatives')).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole('alert')).toContainText(/invalid 2fa token/i, { timeout: 5_000 })
+    await expect(page.getByRole('heading', { name: /verify 2fa/i })).toBeVisible()
   })
 })

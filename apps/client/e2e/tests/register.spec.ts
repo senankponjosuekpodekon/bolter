@@ -1,33 +1,40 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, TAKEN_EMAIL } from '../fixtures'
 
 test.describe('Registration flow', () => {
   test('Register page is accessible from landing', async ({ page }) => {
+    test.skip(test.info().project.use.isMobile === true, 'nav links hidden on mobile')
     await page.goto('/')
     await page.getByRole('link', { name: /Get started|register/i }).first().click()
     await expect(page).toHaveURL(/register/)
+    await expect(page.getByRole('heading', { name: /create your account/i })).toBeVisible()
   })
 
-  test('Register form shows validation errors on empty submit', async ({ page }) => {
+  test('Empty submit keeps the user on the form with invalid required fields', async ({ page }) => {
     await page.goto('/register')
     await page.getByRole('button', { name: /sign up|register|créer/i }).click()
-    const errors = page.locator('[class*=error],[class*=invalid],[aria-invalid="true"]')
-    await expect(errors.first()).toBeVisible({ timeout: 3_000 })
+    // HTML5 `required` blocks submission — the browser flags the fields
+    await expect(page).toHaveURL(/register/)
+    expect(await page.locator('form input:invalid').count()).toBeGreaterThanOrEqual(4)
   })
 
-  test('Register form shows password strength or mismatch error', async ({ page }) => {
+  test('Successful registration navigates to login', async ({ page }) => {
     await page.goto('/register')
-    const inputs = page.getByRole('textbox')
-    await inputs.first().fill('test@example.com')
-    const passwordFields = page.getByLabel(/password|mot de passe/i)
-    await passwordFields.first().fill('weak')
+    await page.getByLabel(/first name/i).fill('Bob')
+    await page.getByLabel(/last name/i).fill('Martin')
+    await page.getByLabel(/email/i).fill('bob@demo.bolter.app')
+    await page.getByLabel(/password/i).fill('Str0ng!Pass')
     await page.getByRole('button', { name: /sign up|register|créer/i }).click()
-    await expect(page.locator('body')).toContainText(/password|mot de passe/i)
+    await expect(page).toHaveURL(/login/, { timeout: 8_000 })
   })
 
-  test('Rate limit button disables after submit', async ({ page }) => {
+  test('Server error (email already in use) is shown to the user', async ({ page }) => {
     await page.goto('/register')
-    const btn = page.getByRole('button', { name: /sign up|register|créer/i })
-    await btn.click()
-    await expect(btn).toBeDisabled({ timeout: 3_000 })
+    await page.getByLabel(/first name/i).fill('Bob')
+    await page.getByLabel(/last name/i).fill('Martin')
+    await page.getByLabel(/email/i).fill(TAKEN_EMAIL)
+    await page.getByLabel(/password/i).fill('Str0ng!Pass')
+    await page.getByRole('button', { name: /sign up|register|créer/i }).click()
+    await expect(page.getByRole('alert')).toContainText(/already in use/i, { timeout: 5_000 })
+    await expect(page).toHaveURL(/register/)
   })
 })

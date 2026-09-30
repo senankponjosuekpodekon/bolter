@@ -1,30 +1,37 @@
-import { test, expect } from '@playwright/test'
-
-const seedAuth = (page: import('@playwright/test').Page, overrides = {}) =>
-  page.addInitScript((u) => {
-    localStorage.setItem('auth-storage', JSON.stringify({ state: { user: u, isAuthenticated: true } }))
-  }, { id: 'u1', email: 'alice@demo.bolter.app', role: 'CLIENT', kyc_status: 'APPROVED', ...overrides })
+import { test, expect, authenticatedPage, DEMO_TRANSACTION } from '../fixtures'
 
 test.describe('Transactions page', () => {
   test('Shows transactions page for authenticated user', async ({ page }) => {
-    await seedAuth(page)
+    await authenticatedPage(page)
     await page.goto('/transactions')
-    await expect(page.getByText(/transactions/i).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: /transactions/i })).toBeVisible()
   })
 
-  test('Shows deposit button or action', async ({ page }) => {
-    await seedAuth(page)
+  test('Lists the mocked transaction with its description', async ({ page }) => {
+    await authenticatedPage(page)
     await page.goto('/transactions')
-    const depositBtn = page.getByRole('button', { name: /deposit|dépôt/i }).first()
-    await expect(depositBtn).toBeVisible({ timeout: 8_000 })
+    await expect(page.getByText(DEMO_TRANSACTION.description)).toBeVisible({ timeout: 8_000 })
   })
 
-  test('Deposit modal opens on button click', async ({ page }) => {
-    await seedAuth(page)
+  test('Export CSV button is visible', async ({ page }) => {
+    await authenticatedPage(page)
     await page.goto('/transactions')
-    const depositBtn = page.getByRole('button', { name: /deposit|dépôt/i }).first()
-    await depositBtn.click()
-    await expect(page.getByRole('dialog').or(page.locator('[class*=modal]'))).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByRole('button', { name: /export csv/i })).toBeVisible({ timeout: 8_000 })
+  })
+
+  test('Search filters the transaction list', async ({ page }) => {
+    await authenticatedPage(page)
+    await page.goto('/transactions')
+    await expect(page.getByText(DEMO_TRANSACTION.description)).toBeVisible({ timeout: 8_000 })
+    await page.getByPlaceholder(/search/i).fill('nonexistent-query')
+    await expect(page.getByText(DEMO_TRANSACTION.description)).toBeHidden({ timeout: 5_000 })
+  })
+
+  test('Deposit action on dashboard opens the transaction modal', async ({ page }) => {
+    await authenticatedPage(page)
+    await page.goto('/dashboard')
+    await page.getByRole('button', { name: /deposit|dépôt/i }).first().click()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 5_000 })
   })
 
   test('Unauthenticated user cannot access /transactions', async ({ page }) => {

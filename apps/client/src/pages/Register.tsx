@@ -6,16 +6,19 @@ import { loadLocale } from "../i18n";
 import { useLocalization, useFormatting } from "../hooks";
 import { useRateLimitedSubmit } from "../hooks/useRateLimitedSubmit";
 
+const SUPPORTED_LOCALES = ["en-US", "en-GB", "fr-FR", "fr-CA", "ar-AE", "pt-PT", "sw-KE"];
+
 export default function Register() {
+  const { t, i18n } = useTranslation();
+  // Prefer the i18n-detected locale (querystring `?lng=` > localStorage > navigator)
+  // so an explicit ?lng=xx is not overridden by the browser language.
+  const detectedLocale = i18n.language || (typeof navigator !== "undefined" ? navigator.language : "") || "en-US";
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     firstName: "",
     lastName: "",
-    locale:
-      typeof navigator !== "undefined"
-        ? navigator.language || "en-US"
-        : "en-US",
+    locale: SUPPORTED_LOCALES.includes(detectedLocale) ? detectedLocale : "en-US",
     currency: undefined as string | undefined,
     timezone:
       typeof Intl !== "undefined"
@@ -25,7 +28,6 @@ export default function Register() {
   const [error, setError] = useState("");
   const { isSubmitting: loading, cooldownRemaining, wrap } = useRateLimitedSubmit();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const { changeLanguage } = useLocalization();
   const { currency: currencyFormatter } = useFormatting({
     locale: formData.locale,
@@ -86,7 +88,7 @@ export default function Register() {
         </h2>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div role="alert" className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}

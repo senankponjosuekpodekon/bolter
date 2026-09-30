@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from '../fixtures'
 
 test.describe('Localization / i18n basic smoke', () => {
     test('login page respects querystring locale (fr-FR)', async ({ page }) => {
@@ -9,5 +9,10 @@ test.describe('Localization / i18n basic smoke', () => {
     test('register page respects querystring locale (en-US)', async ({ page }) => {
         await page.goto('/register?lng=en-US')
         await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible()
+    })
+
+    test('register page respects querystring locale (fr-FR)', async ({ page }) => {
+        await page.goto('/register?lng=fr-FR')
+        await expect(page.getByRole('heading', { name: 'Créer votre compte' })).toBeVisible()
     })
 })

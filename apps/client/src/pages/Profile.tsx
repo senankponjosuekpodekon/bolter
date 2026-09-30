@@ -51,8 +51,9 @@ export default function Profile(): JSX.Element {
       ? ["dashboard", "transactions", "accounts", "loans", "kyc"]
       : savedWidgets;
   });
+  const { i18n } = useTranslation();
   const [locale, setLocale] = useState<string>(
-    user?.locale ??
+    i18n.language || user?.locale ||
       (typeof navigator !== "undefined"
         ? navigator.language || "en-US"
         : "en-US")
@@ -595,6 +596,10 @@ export default function Profile(): JSX.Element {
                   const newLocale = e.target.value;
                   setLocale(newLocale);
                   changeLanguage(newLocale);
+                  // persist so the select and formatting survive reloads
+                  svcUpdatePreferences({ locale: newLocale })
+                    .then((data) => setUser(data))
+                    .catch(() => {});
                 }}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
               >

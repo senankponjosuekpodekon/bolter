@@ -16,6 +16,8 @@ const resolveBaseUrl = () => {
 const api = axios.create({
   baseURL: resolveBaseUrl(),
   timeout: 15000,
+  // Send the httpOnly refresh-token cookie on cross-site requests
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -58,14 +60,13 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    const { refreshToken, logout, setAuth, user } = useAuthStore.getState()
-
-    // No refresh token stored → logout immediately
-    if (!refreshToken) {
-      logout()
-      window.location.href = '/login'
+    // A 401 on auth endpoints means bad credentials — surface the error,
+    // don't try to refresh or redirect.
+    if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/refresh')) {
       return Promise.reject(error)
     }
+
+    const { logout, setAuth, user } = useAuthStore.getState()
 
     // If already refreshing, queue the request
     if (isRefreshing) {
@@ -84,10 +85,11 @@ api.interceptors.response.use(
     isRefreshing = true
 
     try {
+      // The refresh token travels in an httpOnly cookie — no body needed
       const response = await axios.post(
         `${api.defaults.baseURL}/auth/refresh`,
-        { refreshToken },
-        { headers: { 'Content-Type': 'application/json' } },
+        {},
+        { withCredentials: true, headers: { 'Content-Type': 'application/json' } },
       )
       const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data
       if (user) setAuth(user, newAccessToken, newRefreshToken)
