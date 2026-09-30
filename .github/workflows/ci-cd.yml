@@ -181,7 +181,8 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium webkit
+        working-directory: apps/client
 
       - name: Build client
         run: npm --workspace=client run build
